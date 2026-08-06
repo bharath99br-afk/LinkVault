@@ -1,9 +1,26 @@
 package com.linkvault.backend.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+@Entity
+@Table(name = "links")
 public class Link {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "Title cannot be empty")
+    @Size(min = 2, max = 100)
     private String title;
+
+    @NotBlank(message = "URL cannot be empty")
     private String url;
 
     public Link() {
