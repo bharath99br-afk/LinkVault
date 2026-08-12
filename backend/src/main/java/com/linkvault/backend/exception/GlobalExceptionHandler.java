@@ -7,26 +7,40 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.linkvault.backend.dto.ApiResponse;
+import com.linkvault.backend.util.ApiResponseUtil;
+
 import org.springframework.http.ResponseEntity;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(
             MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult().getFieldErrors()
-                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+                .forEach(error -> errors.put(
+                        error.getField(),
+                        error.getDefaultMessage()));
 
-        Map<String, Object> response = new HashMap<>();
+        return ApiResponseUtil.badRequest(
+                "Validation Failed",
+                errors);
+    }
 
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("message", "Validation Failed");
-        response.put("errors", errors);
+    @ExceptionHandler(LinkNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleLinkNotFoundException(
+            LinkNotFoundException ex) {
 
-        return ResponseEntity.badRequest().body(response);
+        ApiResponse<Object> response = new ApiResponse<>(
+                false,
+                ex.getMessage(),
+                null);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 }

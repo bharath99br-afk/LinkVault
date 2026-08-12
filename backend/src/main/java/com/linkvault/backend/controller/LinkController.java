@@ -1,12 +1,16 @@
 package com.linkvault.backend.controller;
 
 import com.linkvault.backend.dto.ApiResponse;
+import com.linkvault.backend.dto.LinkRequest;
 import com.linkvault.backend.model.Link;
 import com.linkvault.backend.service.LinkService;
+import com.linkvault.backend.util.ApiResponseUtil;
+
 import jakarta.validation.Valid;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,54 +35,45 @@ public class LinkController {
         this.linkService = linkService;
     }
 
+    // View Api
     @GetMapping("/api/links")
     public ResponseEntity<ApiResponse<List<Link>>> getLinks() {
         List<Link> links = linkService.getAllLinks();
-        ApiResponse<List<Link>> response = new ApiResponse<>(true, "All Links", links);
+        return ApiResponseUtil.success("All Links", links);
+    }
+
+    // Search Api
+    @GetMapping("/api/links/search")
+    public ResponseEntity<ApiResponse<Link>> searchByTitle(@RequestParam String title) {
+        return linkService.getLinkByTitle(title)
+                .map(link -> ApiResponseUtil.success("Link Found", link))
+                .orElse(ApiResponseUtil.notFound("Link Not Found"));
+    }
+
+    // Create Api
+    @PostMapping("/api/links")
+    public ResponseEntity<ApiResponse<Link>> addLink(@Valid @RequestBody LinkRequest request) {
+
+        Link savedLink = linkService.addLink(request);
+        return ApiResponseUtil.created("Link Created Successfuy", savedLink);
+    }
+
+    @DeleteMapping("/api/links/{id}")
+    public ResponseEntity<ApiResponse<Object>> deleteLink(@PathVariable Long id) {
+
+        linkService.deleteLink(id);
+
+        ApiResponse<Object> response = new ApiResponse<>(true, "Link Deleted Successfully", null);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/api/links/search")
-    public ResponseEntity<Link> searchByTitle(@RequestParam String title) {
-        return linkService.getLinkByTitle(title)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    // Update API
+    @PutMapping("/api/links/{id}")
+    public ResponseEntity<ApiResponse<Link>> updateLink(@PathVariable Long id,
+            @Valid @RequestBody LinkRequest request) {
+        Link updatedLink = linkService.updateLink(id, request);
+        ApiResponse<Link> response = new ApiResponse<>(true, "Link Updated Successfully", updatedLink);
+
+        return ResponseEntity.ok(response);
     }
-
-    @PostMapping("/api/links")
-    public ResponseEntity<ApiResponse<Link>> addLink(@Valid @RequestBody Link link) {
-
-        Link savedLink = linkService.addLink(link);
-        ApiResponse<Link> response = new ApiResponse<>(
-                true,
-                "Link Created Successfully",
-                savedLink);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
-    }
-
-    // @DeleteMapping("/api/links/{id}")
-    // public String deleteLink(@PathVariable Long id) {
-
-    // boolean deleted = linkService.deleteLink(id);
-
-    // if (deleted) {
-    // return "Link Deleted Successfully!";
-    // }
-
-    // return "Link Not Found!";
-    // }
-
-    // @PutMapping("/api/links/{id}")
-    // public String updateLink(@PathVariable Long id, @RequestBody Link
-    // updatedLink) {
-    // boolean updated = linkService.updateLink(id, updatedLink);
-
-    // if (updated) {
-    // return "Link Updated Successfully";
-    // }
-    // return "Link not Updated";
-    // }
 }

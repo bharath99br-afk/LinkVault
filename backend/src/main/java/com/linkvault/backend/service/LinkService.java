@@ -1,5 +1,7 @@
 package com.linkvault.backend.service;
 
+import com.linkvault.backend.dto.LinkRequest;
+import com.linkvault.backend.exception.LinkNotFoundException;
 import com.linkvault.backend.model.Link;
 import com.linkvault.backend.repository.LinkRepository;
 import java.util.List;
@@ -27,29 +29,29 @@ public class LinkService {
         return repository.findAll();
     }
 
-    public Link addLink(Link link) {
+    public Link addLink(LinkRequest request) {
+        Link link = new Link();
+
+        link.setTitle(request.getTitle());
+        link.setUrl(request.getUrl());
+
         return repository.save(link);
     }
 
-    public boolean deleteLink(Long id) {
-
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            return true;
-        }
-        return false;
+    public void deleteLink(Long id) {
+        Link link = repository.findById(id).orElseThrow(() -> new LinkNotFoundException("Link Not Found"));
+        repository.delete(link);
     }
 
-    public boolean updateLink(Long id, Link updatedLink) {
+    public Link updateLink(Long id, LinkRequest request) {
 
         return repository.findById(id)
                 .map(link -> {
-                    link.setTitle(updatedLink.getTitle());
-                    link.setUrl(updatedLink.getUrl());
-                    repository.save(link);
-                    return true;
+                    link.setTitle(request.getTitle());
+                    link.setUrl(request.getUrl());
+                    return repository.save(link);
                 })
-                .orElse(false);
+                .orElseThrow(() -> new LinkNotFoundException("Link Not Found"));
     }
 
     public Optional<Link> getLinkByTitle(String title) {
