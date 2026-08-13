@@ -1,13 +1,17 @@
 package com.linkvault.backend.service;
 
 import com.linkvault.backend.dto.LinkRequest;
+import com.linkvault.backend.dto.PageResponse;
 import com.linkvault.backend.exception.LinkNotFoundException;
 import com.linkvault.backend.model.Link;
 import com.linkvault.backend.repository.LinkRepository;
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.linkvault.backend.dto.PageResponse;
+import org.springframework.data.domain.Page;
 
 // public Link getDemoLink() {
 //     return new Link(
@@ -25,8 +29,18 @@ public class LinkService {
         this.repository = repository;
     }
 
-    public List<Link> getAllLinks() {
-        return repository.findAll();
+    public PageResponse<Link> getAllLinks(Pageable pageable) {
+        Page<Link> page = repository.findAll(pageable);
+
+        return new PageResponse<>(
+                page.getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isFirst(),
+                page.isLast());
+
     }
 
     public Link addLink(LinkRequest request) {
@@ -54,7 +68,16 @@ public class LinkService {
                 .orElseThrow(() -> new LinkNotFoundException("Link Not Found"));
     }
 
-    public Optional<Link> getLinkByTitle(String title) {
-        return repository.findByTitle(title);
+    public PageResponse<Link> getLinkByTitle(String title, Pageable pageable) {
+        Page<Link> page = repository.findByTitleContainingIgnoreCase(title, pageable);
+
+        return new PageResponse<>(
+                page.getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isFirst(),
+                page.isLast());
     }
 }

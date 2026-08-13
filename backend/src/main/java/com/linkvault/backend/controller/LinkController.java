@@ -2,15 +2,12 @@ package com.linkvault.backend.controller;
 
 import com.linkvault.backend.dto.ApiResponse;
 import com.linkvault.backend.dto.LinkRequest;
+import com.linkvault.backend.dto.PageResponse;
 import com.linkvault.backend.model.Link;
 import com.linkvault.backend.service.LinkService;
 import com.linkvault.backend.util.ApiResponseUtil;
 
 import jakarta.validation.Valid;
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import com.linkvault.backend.dto.PageResponse;
 
 // @GetMapping("/api/hello")
 // public Link hello() {
@@ -37,17 +37,17 @@ public class LinkController {
 
     // View Api
     @GetMapping("/api/links")
-    public ResponseEntity<ApiResponse<List<Link>>> getLinks() {
-        List<Link> links = linkService.getAllLinks();
+    public ResponseEntity<ApiResponse<PageResponse<Link>>> getLinks(Pageable pageable) {
+        PageResponse<Link> links = linkService.getAllLinks(pageable);
         return ApiResponseUtil.success("All Links", links);
     }
 
     // Search Api
     @GetMapping("/api/links/search")
-    public ResponseEntity<ApiResponse<Link>> searchByTitle(@RequestParam String title) {
-        return linkService.getLinkByTitle(title)
-                .map(link -> ApiResponseUtil.success("Link Found", link))
-                .orElse(ApiResponseUtil.notFound("Link Not Found"));
+    public ResponseEntity<ApiResponse<PageResponse<Link>>> searchByTitle(@RequestParam String title,
+            Pageable pageable) {
+        PageResponse<Link> links = linkService.getLinkByTitle(title, pageable);
+        return ApiResponseUtil.success("Links Found!!", links);
     }
 
     // Create Api
