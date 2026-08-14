@@ -10,37 +10,46 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.linkvault.backend.dto.ApiResponse;
 import com.linkvault.backend.util.ApiResponseUtil;
-
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(
-            MethodArgumentNotValidException ex) {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(
+                        MethodArgumentNotValidException ex) {
 
-        Map<String, String> errors = new HashMap<>();
+                Map<String, String> errors = new HashMap<>();
 
-        ex.getBindingResult().getFieldErrors()
-                .forEach(error -> errors.put(
-                        error.getField(),
-                        error.getDefaultMessage()));
+                ex.getBindingResult().getFieldErrors()
+                                .forEach(error -> errors.put(
+                                                error.getField(),
+                                                error.getDefaultMessage()));
 
-        return ApiResponseUtil.badRequest(
-                "Validation Failed",
-                errors);
-    }
+                return ApiResponseUtil.badRequest(
+                                "Validation Failed",
+                                errors);
+        }
 
-    @ExceptionHandler(LinkNotFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleLinkNotFoundException(
-            LinkNotFoundException ex) {
+        @ExceptionHandler(LinkNotFoundException.class)
+        public ResponseEntity<ApiResponse<Object>> handleLinkNotFoundException(
+                        LinkNotFoundException ex) {
 
-        ApiResponse<Object> response = new ApiResponse<>(
-                false,
-                ex.getMessage(),
-                null);
+                ApiResponse<Object> response = new ApiResponse<>(
+                                false,
+                                ex.getMessage(),
+                                null);
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        @ExceptionHandler(HandlerMethodValidationException.class)
+        public ResponseEntity<ApiResponse<Object>> handleMethodValidationException(
+                        HandlerMethodValidationException ex) {
+
+                return ApiResponseUtil.badRequest(
+                                "Validation Failed",
+                                "Request parameter validation failed");
+        }
 }

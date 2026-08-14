@@ -8,6 +8,8 @@ import com.linkvault.backend.service.LinkService;
 import com.linkvault.backend.util.ApiResponseUtil;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.linkvault.backend.dto.PageResponse;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 // @GetMapping("/api/hello")
 // public Link hello() {
@@ -37,15 +41,17 @@ public class LinkController {
 
     // View Api
     @GetMapping("/api/links")
-    public ResponseEntity<ApiResponse<PageResponse<Link>>> getLinks(Pageable pageable) {
+    public ResponseEntity<ApiResponse<PageResponse<Link>>> getLinks(
+            @PageableDefault(page = 0, size = 10) Pageable pageable) {
         PageResponse<Link> links = linkService.getAllLinks(pageable);
         return ApiResponseUtil.success("All Links", links);
     }
 
     // Search Api
     @GetMapping("/api/links/search")
-    public ResponseEntity<ApiResponse<PageResponse<Link>>> searchByTitle(@RequestParam String title,
-            Pageable pageable) {
+    public ResponseEntity<ApiResponse<PageResponse<Link>>> searchByTitle(
+            @RequestParam @NotBlank(message = "Search title cannot be empty") String title,
+            @PageableDefault(page = 0, size = 10) Pageable pageable) {
         PageResponse<Link> links = linkService.getLinkByTitle(title, pageable);
         return ApiResponseUtil.success("Links Found!!", links);
     }
