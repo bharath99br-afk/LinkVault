@@ -45,11 +45,20 @@ public class GlobalExceptionHandler {
         }
 
         @ExceptionHandler(HandlerMethodValidationException.class)
-        public ResponseEntity<ApiResponse<Object>> handleMethodValidationException(
+        public ResponseEntity<ApiResponse<Map<String, String>>> handleMethodValidationException(
                         HandlerMethodValidationException ex) {
+
+                Map<String, String> errors = new HashMap<>();
+                ex.getParameterValidationResults().forEach(result -> {
+                        String parameterName = result.getMethodParameter().getParameterName();
+                        result.getResolvableErrors().forEach(error -> {
+                                String message = error.getDefaultMessage();
+                                errors.put(parameterName, message);
+                        });
+                });
 
                 return ApiResponseUtil.badRequest(
                                 "Validation Failed",
-                                "Request parameter validation failed");
+                                errors);
         }
 }
