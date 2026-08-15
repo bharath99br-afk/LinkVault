@@ -24,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import com.linkvault.backend.dto.PageResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 // @GetMapping("/api/hello")
 // public Link hello() {
@@ -32,6 +34,8 @@ import org.springframework.data.web.PageableDefault;
 
 @RestController
 public class LinkController {
+
+    private static final int MAX_PAGE_SIZE = 50;
 
     private final LinkService linkService;
 
@@ -42,6 +46,8 @@ public class LinkController {
     // View Api
     @GetMapping("/api/links")
     public ResponseEntity<ApiResponse<PageResponse<Link>>> getLinks(
+            @RequestParam(required = false) @Min(value = 0, message = "Page must be greater than or equal to 0") Integer page,
+            @RequestParam(required = false) @Min(value = 1, message = "Size must be at least 1") @Max(value = 50, message = "Size cannot exceed 50") Integer size,
             @PageableDefault(page = 0, size = 10) Pageable pageable) {
         PageResponse<Link> links = linkService.getAllLinks(pageable);
         return ApiResponseUtil.success("All Links", links);
@@ -51,6 +57,8 @@ public class LinkController {
     @GetMapping("/api/links/search")
     public ResponseEntity<ApiResponse<PageResponse<Link>>> searchByTitle(
             @RequestParam @NotBlank(message = "Search title cannot be empty") String title,
+            @RequestParam(required = false) @Min(value = 0, message = "Page must be greater than or equal to 0") Integer page,
+            @RequestParam(required = false) @Min(value = 1, message = "Size must be at least 1") @Max(value = 50, message = "Size cannot exceed 50") Integer size,
             @PageableDefault(page = 0, size = 10) Pageable pageable) {
         PageResponse<Link> links = linkService.getLinkByTitle(title, pageable);
         return ApiResponseUtil.success("Links Found!!", links);
