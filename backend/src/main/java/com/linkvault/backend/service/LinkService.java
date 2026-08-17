@@ -5,13 +5,9 @@ import com.linkvault.backend.dto.PageResponse;
 import com.linkvault.backend.exception.LinkNotFoundException;
 import com.linkvault.backend.model.Link;
 import com.linkvault.backend.repository.LinkRepository;
-import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import com.linkvault.backend.dto.PageResponse;
-import org.springframework.data.domain.Page;
 
 // public Link getDemoLink() {
 //     return new Link(
@@ -79,5 +75,14 @@ public class LinkService {
                 page.getTotalPages(),
                 page.isFirst(),
                 page.isLast());
+    }
+
+    public PageResponse<Link> getLinks(String title, Pageable pageable) {
+
+        if (title == null || title.isBlank()) {
+            return getAllLinks(pageable);
+        }
+
+        return getLinkByTitle(title, pageable);
     }
 }
