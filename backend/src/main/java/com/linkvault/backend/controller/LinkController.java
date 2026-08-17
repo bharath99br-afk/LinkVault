@@ -55,9 +55,7 @@ public class LinkController {
     public ResponseEntity<ApiResponse<Object>> deleteLink(@PathVariable Long id) {
 
         linkService.deleteLink(id);
-
-        ApiResponse<Object> response = new ApiResponse<>(true, "Link Deleted Successfully", null);
-        return ResponseEntity.ok(response);
+        return ApiResponseUtil.success("Link Deleted Successfully", null);
     }
 
     // Update API
@@ -65,8 +63,6 @@ public class LinkController {
     public ResponseEntity<ApiResponse<Link>> updateLink(@PathVariable Long id,
             @Valid @RequestBody LinkRequest request) {
         Link updatedLink = linkService.updateLink(id, request);
-        ApiResponse<Link> response = new ApiResponse<>(true, "Link Updated Successfully", updatedLink);
-
-        return ResponseEntity.ok(response);
+        return ApiResponseUtil.success("Link Updated Successfully", updatedLink);
     }
 }
