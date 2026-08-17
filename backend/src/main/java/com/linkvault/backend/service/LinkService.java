@@ -28,15 +28,7 @@ public class LinkService {
     public PageResponse<Link> getAllLinks(Pageable pageable) {
         Page<Link> page = repository.findAll(pageable);
 
-        return new PageResponse<>(
-                page.getContent(),
-                page.getNumber(),
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages(),
-                page.isFirst(),
-                page.isLast());
-
+        return mapToPageResponse(page);
     }
 
     public Link addLink(LinkRequest request) {
@@ -67,14 +59,7 @@ public class LinkService {
     public PageResponse<Link> getLinkByTitle(String title, Pageable pageable) {
         Page<Link> page = repository.findByTitleContainingIgnoreCase(title, pageable);
 
-        return new PageResponse<>(
-                page.getContent(),
-                page.getNumber(),
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages(),
-                page.isFirst(),
-                page.isLast());
+        return mapToPageResponse(page);
     }
 
     public PageResponse<Link> getLinks(String title, Pageable pageable) {
@@ -84,5 +69,17 @@ public class LinkService {
         }
 
         return getLinkByTitle(title, pageable);
+    }
+
+    private PageResponse<Link> mapToPageResponse(Page<Link> page) {
+
+        return new PageResponse<>(
+                page.getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isFirst(),
+                page.isLast());
     }
 }
