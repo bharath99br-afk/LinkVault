@@ -82,3 +82,46 @@
 .search-bar button:hover {
   background: #4338ca;
 }
+
+.link-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.link-table th,
+.link-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.link-table th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+.link-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.link-table a {
+  color: #4f46e5;
+  text-decoration: none;
+}
+
+.link-table a:hover {
+  text-decoration: underline;
+}
+
+.clear-button {
+  padding: 12px 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+}
+
+.clear-button:hover {
+  background: #f3f4f6;
+}
