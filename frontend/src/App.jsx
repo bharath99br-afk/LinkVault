@@ -3,22 +3,28 @@ import "./App.css";
 import { getLinks } from "./services/linkService";
 import SearchBar from "./components/SearchBar";
 import LinkTable from "./components/LinkTable";
+import Pagination from "./components/Pagination";
 
 function App() {
 
   const [links, setLinks] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const loadLinks = async (title = "") => {
+  const loadLinks = async (title = "", page = 0) => {
 
     try {
 
       const response = await getLinks({
         title: title,
-        page: 0,
+        page: page,
         size: 5
       });
 
       setLinks(response.data.content);
+      setCurrentPage(response.data.page);
+      setTotalPages(response.data.totalPages);
 
     } catch (error) {
 
@@ -31,8 +37,13 @@ function App() {
     loadLinks();
   }, []);
 
-  const handleSearch = (searchTerm) => {
-    loadLinks(searchTerm);
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    loadLinks(term, 0);
+  };
+
+  const handlePageChange = (page) => {
+    loadLinks(searchTerm, page);
   };
 
   return (
@@ -54,6 +65,11 @@ function App() {
 
         <LinkTable links={links} />
 
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </main>
 
     </div>
