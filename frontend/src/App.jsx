@@ -4,6 +4,8 @@ import { getLinks } from "./services/linkService";
 import SearchBar from "./components/SearchBar";
 import LinkTable from "./components/LinkTable";
 import Pagination from "./components/Pagination";
+import AddLinkForm from "./components/AddLinkForm";
+import EditLinkForm from "./components/EditLinkForm";
 
 function App() {
 
@@ -11,6 +13,8 @@ function App() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingLink, setEditingLink] = useState(null);
 
   const loadLinks = async (title = "", page = 0) => {
 
@@ -57,13 +61,51 @@ function App() {
       <main className="container">
 
         <section className="hero">
-          <h2>Your Links</h2>
-          <p>Manage all your important links in one place.</p>
+          <div className="page-header">
+
+            <div>
+              <h1>Your Links</h1>
+              <p>Manage all your important links in one place.</p>
+            </div>
+
+            <button
+              className="add-link-button"
+              onClick={() => setShowAddForm(true)}
+            >
+              + Add Link
+            </button>
+
+          </div>
         </section>
+
+        {showAddForm && (
+          <AddLinkForm
+            onCancel={() => setShowAddForm(false)}
+            onLinkAdded={() => {
+              setShowAddForm(false);
+              setSearchTerm("");
+              loadLinks("", 0);
+            }}
+          />
+        )}
+
+        {editingLink && (
+          <EditLinkForm
+            link={editingLink}
+            onCancel={() => setEditingLink(null)}
+            onLinkUpdated={() => {
+              setEditingLink(null);
+              loadLinks(searchTerm, currentPage);
+            }}
+          />
+        )}
 
         <SearchBar onSearch={handleSearch} />
 
-        <LinkTable links={links} />
+        <LinkTable
+          links={links}
+          onEdit={(link) => setEditingLink(link)}
+        />
 
         <Pagination
           currentPage={currentPage}

@@ -1,4 +1,4 @@
-function LinkTable({ links }) {
+function LinkTable({ links, onEdit }) {
     return (
         <div className="link-section">
             {links.length === 0 ? (
@@ -10,6 +10,7 @@ function LinkTable({ links }) {
                             <th>ID</th>
                             <th>Title</th>
                             <th>URL</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
 
@@ -17,7 +18,9 @@ function LinkTable({ links }) {
                         {links.map((link) => (
                             <tr key={link.id}>
                                 <td>{link.id}</td>
+
                                 <td>{link.title}</td>
+
                                 <td>
                                     <a
                                         href={link.url}
@@ -26,6 +29,15 @@ function LinkTable({ links }) {
                                     >
                                         {link.url}
                                     </a>
+                                </td>
+
+                                <td>
+                                    <button
+                                        className="edit-button"
+                                        onClick={() => onEdit(link)}
+                                    >
+                                        Edit
+                                    </button>
                                 </td>
                             </tr>
                         ))}
