@@ -1,10 +1,11 @@
-package com.linkvault.backend.service;
+package com.linkvault.backend.link.service;
 
-import com.linkvault.backend.dto.LinkRequest;
-import com.linkvault.backend.dto.PageResponse;
+import com.linkvault.backend.common.dto.PageResponse;
 import com.linkvault.backend.exception.LinkNotFoundException;
-import com.linkvault.backend.model.Link;
-import com.linkvault.backend.repository.LinkRepository;
+import com.linkvault.backend.link.dto.LinkRequest;
+import com.linkvault.backend.link.model.Link;
+import com.linkvault.backend.link.repository.LinkRepository;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

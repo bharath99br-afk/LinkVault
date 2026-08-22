@@ -1,7 +1,9 @@
-package com.linkvault.backend.repository;
+package com.linkvault.backend.link.repository;
 
-import com.linkvault.backend.model.Link;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.linkvault.backend.link.model.Link;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

@@ -1,4 +1,4 @@
-package com.linkvault.backend.model;
+package com.linkvault.backend.link.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

@@ -287,3 +287,60 @@
 .edit-button:hover {
   background: #4338ca;
 }
+
+.delete-button {
+  margin-left: 8px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.delete-button:hover {
+  background-color: #bb2d3b;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.actions-cell button {
+  display: inline-block;
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 280px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  color: white;
+  font-size: 14px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification.success {
+  background-color: #28a745;
+}
+
+.notification.error {
+  background-color: #dc3545;
+}
+
+.notification button {
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+}

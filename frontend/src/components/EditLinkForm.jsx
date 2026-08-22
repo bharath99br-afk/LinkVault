@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { updateLink } from "../services/linkService";
 
-function EditLinkForm({ link, onLinkUpdated, onCancel }) {
+function EditLinkForm({ link, onLinkUpdated, onCancel, onNotification }) {
 
     const [title, setTitle] = useState(link.title);
     const [url, setUrl] = useState(link.url);
@@ -9,44 +10,43 @@ function EditLinkForm({ link, onLinkUpdated, onCancel }) {
         event.preventDefault();
 
         if (!title.trim()) {
-            alert("Title is required");
+            onNotification({
+                message: "Title is required",
+                type: "error"
+            });
             return;
         }
 
         if (!url.trim()) {
-            alert("URL is required");
+            onNotification({
+                message: "URL is required",
+                type: "error"
+            });
             return;
         }
 
         try {
 
-            const response = await fetch(
-                `http://localhost:8080/api/links/${link.id}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        title,
-                        url
-                    })
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error("Failed to update link");
-            }
-
-            const data = await response.json();
+            const data = await updateLink(link.id, {
+                title,
+                url
+            });
 
             console.log("Link updated:", data);
+            onNotification({
+                message: "Link updated successfully",
+                type: "success"
+            });
 
             onLinkUpdated();
 
         } catch (error) {
 
             console.error("Error updating link:", error);
+            onNotification({
+                message: "Failed to update link",
+                type: "error"
+            });
 
         }
     };

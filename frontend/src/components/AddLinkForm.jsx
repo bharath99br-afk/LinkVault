@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { createLink } from "../services/linkService";
 
-function AddLinkForm({ onLinkAdded, onCancel }) {
+function AddLinkForm({ onLinkAdded, onCancel, onNotification }) {
 
     const [title, setTitle] = useState("");
     const [url, setUrl] = useState("");
@@ -14,44 +15,47 @@ function AddLinkForm({ onLinkAdded, onCancel }) {
         });
 
         if (!title.trim()) {
-            alert("Title is required");
+            onNotification({
+                message: "Title is required",
+                type: "error"
+            });
             return;
         }
 
         if (!url.trim()) {
-            alert("URL is required");
+            onNotification({
+                message: "URL is required",
+                type: "error"
+            });
             return;
         }
 
         try {
 
-            const response = await fetch("http://localhost:8080/api/links", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    title,
-                    url
-                })
+            const data = await createLink({
+                title,
+                url
             });
-
-            if (!response.ok) {
-                throw new Error("Failed to create link");
-            }
-
-            const data = await response.json();
 
             console.log("Link created:", data);
 
             setTitle("");
             setUrl("");
 
+            onNotification({
+                message: "Link added successfully",
+                type: "success"
+            });
+
             onLinkAdded();
 
         } catch (error) {
 
             console.error("Error creating link:", error);
+            onNotification({
+                message: "Failed to add link",
+                type: "error"
+            });
 
         }
     };

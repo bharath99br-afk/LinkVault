@@ -1,10 +1,10 @@
-package com.linkvault.backend.controller;
+package com.linkvault.backend.link.controller;
 
-import com.linkvault.backend.dto.ApiResponse;
-import com.linkvault.backend.dto.LinkRequest;
-import com.linkvault.backend.dto.PageResponse;
-import com.linkvault.backend.model.Link;
-import com.linkvault.backend.service.LinkService;
+import com.linkvault.backend.common.dto.ApiResponse;
+import com.linkvault.backend.common.dto.PageResponse;
+import com.linkvault.backend.link.dto.LinkRequest;
+import com.linkvault.backend.link.model.Link;
+import com.linkvault.backend.link.service.LinkService;
 import com.linkvault.backend.util.ApiResponseUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

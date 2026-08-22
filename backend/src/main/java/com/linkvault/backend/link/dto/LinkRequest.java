@@ -1,4 +1,4 @@
-package com.linkvault.backend.dto;
+package com.linkvault.backend.link.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -1,4 +1,4 @@
-package com.linkvault.backend.dto;
+package com.linkvault.backend.common.dto;
 
 public class ApiResponse<T> {
 

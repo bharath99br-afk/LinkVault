@@ -30,3 +30,62 @@ export async function getLinks({
 
     return response.json();
 }
+
+
+export async function createLink(link) {
+
+    const response = await fetch(
+        API_BASE_URL,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(link)
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to create link");
+    }
+
+    return response.json();
+}
+
+
+export async function updateLink(id, link) {
+
+    const response = await fetch(
+        `${API_BASE_URL}/${id}`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(link)
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to update link");
+    }
+
+    return response.json();
+}
+
+
+export async function deleteLink(id) {
+
+    const response = await fetch(
+        `${API_BASE_URL}/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to delete link");
+    }
+
+    return true;
+}

@@ -5,7 +5,13 @@ function SearchBar({ onSearch }) {
     const [searchTerm, setSearchTerm] = useState("");
 
     const handleSearch = () => {
-        onSearch(searchTerm);
+        onSearch(searchTerm.trim());
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key === "Enter") {
+            handleSearch();
+        }
     };
 
     const handleClear = () => {
@@ -21,6 +27,7 @@ function SearchBar({ onSearch }) {
                 placeholder="Search links..."
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
+                onKeyDown={handleKeyDown}
             />
 
             <button onClick={handleSearch}>

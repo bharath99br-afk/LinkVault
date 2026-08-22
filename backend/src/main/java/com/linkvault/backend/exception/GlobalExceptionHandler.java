@@ -8,7 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.linkvault.backend.dto.ApiResponse;
+import com.linkvault.backend.common.dto.ApiResponse;
 import com.linkvault.backend.util.ApiResponseUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;

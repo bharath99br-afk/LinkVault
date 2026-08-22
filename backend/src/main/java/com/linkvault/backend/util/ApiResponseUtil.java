@@ -2,7 +2,8 @@ package com.linkvault.backend.util;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.linkvault.backend.dto.ApiResponse;
+
+import com.linkvault.backend.common.dto.ApiResponse;
 
 public class ApiResponseUtil {
 

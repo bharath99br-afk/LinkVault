@@ -1,4 +1,4 @@
-function LinkTable({ links, onEdit }) {
+function LinkTable({ links, onEdit, onDelete }) {
     return (
         <div className="link-section">
             {links.length === 0 ? (
@@ -31,12 +31,18 @@ function LinkTable({ links, onEdit }) {
                                     </a>
                                 </td>
 
-                                <td>
+                                <td className="actions-cell">
                                     <button
                                         className="edit-button"
                                         onClick={() => onEdit(link)}
                                     >
                                         Edit
+                                    </button>
+                                    <button
+                                        className="delete-button"
+                                        onClick={() => onDelete(link.id)}
+                                    >
+                                        Delete
                                     </button>
                                 </td>
                             </tr>
