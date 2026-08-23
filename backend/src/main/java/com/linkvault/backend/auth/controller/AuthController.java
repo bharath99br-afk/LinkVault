@@ -3,6 +3,7 @@ package com.linkvault.backend.auth.controller;
 import com.linkvault.backend.auth.service.AuthService;
 import com.linkvault.backend.common.dto.ApiResponse;
 import com.linkvault.backend.user.dto.UserRequest;
+import com.linkvault.backend.user.dto.UserResponse;
 import com.linkvault.backend.user.model.User;
 import com.linkvault.backend.util.ApiResponseUtil;
 
@@ -22,13 +23,18 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<User>> register(
+    public ResponseEntity<ApiResponse<UserResponse>> register(
             @Valid @RequestBody UserRequest request) {
 
         User user = authService.register(request);
 
+        UserResponse response = new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail());
+
         return ApiResponseUtil.created(
                 "User Registered Successfully",
-                user);
+                response);
     }
 }
