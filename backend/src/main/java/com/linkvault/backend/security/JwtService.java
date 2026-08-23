@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Jwts;
@@ -40,5 +41,42 @@ public class JwtService {
                 .expiration(expiry)
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public String extractUsername(String token) {
+
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
+
+    private boolean isTokenExpired(String token) {
+
+        Date expirationDate = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration();
+
+        return expirationDate.before(new Date());
+    }
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+
+        try {
+
+            String username = extractUsername(token);
+
+            return username.equals(userDetails.getUsername())
+                    && !isTokenExpired(token);
+
+        } catch (Exception exception) {
+
+            return false;
+        }
     }
 }
