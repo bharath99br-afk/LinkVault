@@ -1,5 +1,7 @@
 package com.linkvault.backend.auth.controller;
 
+import com.linkvault.backend.auth.dto.LoginRequest;
+import com.linkvault.backend.auth.dto.LoginResponse;
 import com.linkvault.backend.auth.service.AuthService;
 import com.linkvault.backend.common.dto.ApiResponse;
 import com.linkvault.backend.user.dto.UserRequest;
@@ -35,6 +37,21 @@ public class AuthController {
 
         return ApiResponseUtil.created(
                 "User Registered Successfully",
+                response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+            @Valid @RequestBody LoginRequest request) {
+
+        String token = authService.login(
+                request.getEmail(),
+                request.getPassword());
+
+        LoginResponse response = new LoginResponse(token);
+
+        return ApiResponseUtil.success(
+                "Login Successful",
                 response);
     }
 }
