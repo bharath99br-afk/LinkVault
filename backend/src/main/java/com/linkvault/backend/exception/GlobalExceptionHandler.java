@@ -61,4 +61,16 @@ public class GlobalExceptionHandler {
                                 "Validation Failed",
                                 errors);
         }
+
+        @ExceptionHandler(DuplicateResourceException.class)
+        public ResponseEntity<ApiResponse<Object>> handleDuplicateResource(
+                        DuplicateResourceException exception) {
+
+                ApiResponse<Object> response = new ApiResponse<>(
+                                false,
+                                exception.getMessage(),
+                                null);
+
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
 }
