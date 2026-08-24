@@ -5,39 +5,53 @@ import com.linkvault.backend.exception.LinkNotFoundException;
 import com.linkvault.backend.merchant.dto.MerchantRequest;
 import com.linkvault.backend.merchant.model.Merchant;
 import com.linkvault.backend.merchant.repository.MerchantRepository;
-
+import com.linkvault.backend.security.CurrentUserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.linkvault.backend.user.model.User;
 
 @Service
 public class MerchantService {
 
     private final MerchantRepository repository;
+    private final CurrentUserService currentUserService;
 
-    public MerchantService(MerchantRepository repository) {
+    public MerchantService(MerchantRepository repository, CurrentUserService currentUserService) {
         this.repository = repository;
+        this.currentUserService = currentUserService;
     }
 
     public PageResponse<Merchant> getMerchants(Pageable pageable) {
 
-        Page<Merchant> page = repository.findAll(pageable);
+        User currentUser = currentUserService.getCurrentUser();
+
+        Page<Merchant> page = repository.findByUserId(
+                currentUser.getId(),
+                pageable);
 
         return mapToPageResponse(page);
     }
 
     public Merchant getMerchant(Long id) {
 
-        return repository.findById(id)
+        User currentUser = currentUserService.getCurrentUser();
+
+        return repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
                 .orElseThrow(() -> new LinkNotFoundException("Merchant Not Found"));
     }
 
     public Merchant addMerchant(MerchantRequest request) {
 
+        User currentUser = currentUserService.getCurrentUser();
+
         Merchant merchant = new Merchant();
 
         merchant.setName(request.getName());
         merchant.setWebsiteUrl(request.getWebsiteUrl());
+        merchant.setUser(currentUser);
 
         return repository.save(merchant);
     }
@@ -46,7 +60,11 @@ public class MerchantService {
             Long id,
             MerchantRequest request) {
 
-        Merchant merchant = repository.findById(id)
+        User currentUser = currentUserService.getCurrentUser();
+
+        Merchant merchant = repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
                 .orElseThrow(() -> new LinkNotFoundException("Merchant Not Found"));
 
         merchant.setName(request.getName());
@@ -57,7 +75,11 @@ public class MerchantService {
 
     public void deleteMerchant(Long id) {
 
-        Merchant merchant = repository.findById(id)
+        User currentUser = currentUserService.getCurrentUser();
+
+        Merchant merchant = repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
                 .orElseThrow(() -> new LinkNotFoundException("Merchant Not Found"));
 
         repository.delete(merchant);

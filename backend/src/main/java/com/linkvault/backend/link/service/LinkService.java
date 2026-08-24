@@ -9,6 +9,8 @@ import com.linkvault.backend.link.repository.LinkRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.linkvault.backend.security.CurrentUserService;
+import com.linkvault.backend.user.model.User;
 
 // public Link getDemoLink() {
 //     return new Link(
@@ -21,19 +23,55 @@ import org.springframework.stereotype.Service;
 public class LinkService {
 
     private final LinkRepository repository;
+    private final CurrentUserService currentUserService;
 
-    public LinkService(LinkRepository repository) {
+    public LinkService(LinkRepository repository, CurrentUserService currentUserService) {
         this.repository = repository;
+        this.currentUserService = currentUserService;
     }
 
     public PageResponse<Link> getAllLinks(Pageable pageable) {
-        Page<Link> page = repository.findAll(pageable);
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Page<Link> page = repository.findByUserId(currentUser.getId(), pageable);
 
         return mapToPageResponse(page);
     }
 
     public Link addLink(LinkRequest request) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
         Link link = new Link();
+
+        link.setTitle(request.getTitle());
+        link.setUrl(request.getUrl());
+        link.setUser(currentUser);
+
+        return repository.save(link);
+    }
+
+    public void deleteLink(Long id) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Link link = repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
+                .orElseThrow(() -> new LinkNotFoundException("Link Not Found"));
+
+        repository.delete(link);
+    }
+
+    public Link updateLink(Long id, LinkRequest request) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Link link = repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
+                .orElseThrow(() -> new LinkNotFoundException("Link Not Found"));
 
         link.setTitle(request.getTitle());
         link.setUrl(request.getUrl());
@@ -41,24 +79,16 @@ public class LinkService {
         return repository.save(link);
     }
 
-    public void deleteLink(Long id) {
-        Link link = repository.findById(id).orElseThrow(() -> new LinkNotFoundException("Link Not Found"));
-        repository.delete(link);
-    }
+    public PageResponse<Link> getLinkByTitle(
+            String title,
+            Pageable pageable) {
 
-    public Link updateLink(Long id, LinkRequest request) {
+        User currentUser = currentUserService.getCurrentUser();
 
-        return repository.findById(id)
-                .map(link -> {
-                    link.setTitle(request.getTitle());
-                    link.setUrl(request.getUrl());
-                    return repository.save(link);
-                })
-                .orElseThrow(() -> new LinkNotFoundException("Link Not Found"));
-    }
-
-    public PageResponse<Link> getLinkByTitle(String title, Pageable pageable) {
-        Page<Link> page = repository.findByTitleContainingIgnoreCase(title, pageable);
+        Page<Link> page = repository.findByUserIdAndTitleContainingIgnoreCase(
+                currentUser.getId(),
+                title,
+                pageable);
 
         return mapToPageResponse(page);
     }
