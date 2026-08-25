@@ -1,0 +1,146 @@
+package com.linkvault.backend.product.service;
+
+import com.linkvault.backend.common.dto.PageResponse;
+import com.linkvault.backend.exception.LinkNotFoundException;
+import com.linkvault.backend.product.dto.ProductRequest;
+import com.linkvault.backend.product.dto.ProductResponse;
+import com.linkvault.backend.product.model.Product;
+import com.linkvault.backend.product.repository.ProductRepository;
+import com.linkvault.backend.security.CurrentUserService;
+import com.linkvault.backend.user.model.User;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ProductService {
+
+    private final ProductRepository repository;
+    private final CurrentUserService currentUserService;
+
+    public ProductService(
+            ProductRepository repository,
+            CurrentUserService currentUserService) {
+
+        this.repository = repository;
+        this.currentUserService = currentUserService;
+    }
+
+    public PageResponse<ProductResponse> getProducts(
+            Pageable pageable) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Page<Product> page = repository.findByUserId(
+                currentUser.getId(),
+                pageable);
+
+        return mapToPageResponse(page);
+    }
+
+    public ProductResponse getProduct(Long id) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Product product = repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
+                .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
+
+        return mapToResponse(product);
+    }
+
+    public ProductResponse addProduct(ProductRequest request) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Product product = new Product();
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setImageUrl(request.getImageUrl());
+        product.setCategory(request.getCategory());
+        product.setWebsiteUrl(request.getWebsiteUrl());
+        product.setUser(currentUser);
+
+        Product savedProduct = repository.save(product);
+
+        return mapToResponse(savedProduct);
+    }
+
+    public ProductResponse updateProduct(
+            Long id,
+            ProductRequest request) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Product product = repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
+                .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setImageUrl(request.getImageUrl());
+        product.setCategory(request.getCategory());
+        product.setWebsiteUrl(request.getWebsiteUrl());
+
+        Product updatedProduct = repository.save(product);
+
+        return mapToResponse(updatedProduct);
+    }
+
+    public void deleteProduct(Long id) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Product product = repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
+                .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
+
+        repository.delete(product);
+    }
+
+    public PageResponse<ProductResponse> searchProducts(
+            String name,
+            Pageable pageable) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Page<Product> page = repository.findByUserIdAndNameContainingIgnoreCase(
+                currentUser.getId(),
+                name,
+                pageable);
+
+        return mapToPageResponse(page);
+    }
+
+    private PageResponse<ProductResponse> mapToPageResponse(
+            Page<Product> page) {
+
+        return new PageResponse<>(
+                page.getContent()
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isFirst(),
+                page.isLast());
+    }
+
+    private ProductResponse mapToResponse(Product product) {
+
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getImageUrl(),
+                product.getCategory(),
+                product.getWebsiteUrl());
+    }
+}
