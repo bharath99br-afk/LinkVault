@@ -3,6 +3,7 @@ package com.linkvault.backend.merchant.service;
 import com.linkvault.backend.common.dto.PageResponse;
 import com.linkvault.backend.exception.LinkNotFoundException;
 import com.linkvault.backend.merchant.dto.MerchantRequest;
+import com.linkvault.backend.merchant.dto.MerchantResponse;
 import com.linkvault.backend.merchant.model.Merchant;
 import com.linkvault.backend.merchant.repository.MerchantRepository;
 import com.linkvault.backend.security.CurrentUserService;
@@ -22,7 +23,7 @@ public class MerchantService {
         this.currentUserService = currentUserService;
     }
 
-    public PageResponse<Merchant> getMerchants(Pageable pageable) {
+    public PageResponse<MerchantResponse> getMerchants(Pageable pageable) {
 
         User currentUser = currentUserService.getCurrentUser();
 
@@ -33,17 +34,19 @@ public class MerchantService {
         return mapToPageResponse(page);
     }
 
-    public Merchant getMerchant(Long id) {
+    public MerchantResponse getMerchant(Long id) {
 
         User currentUser = currentUserService.getCurrentUser();
 
-        return repository.findByIdAndUserId(
+        Merchant merchant = repository.findByIdAndUserId(
                 id,
                 currentUser.getId())
                 .orElseThrow(() -> new LinkNotFoundException("Merchant Not Found"));
+
+        return mapToResponse(merchant);
     }
 
-    public Merchant addMerchant(MerchantRequest request) {
+    public MerchantResponse addMerchant(MerchantRequest request) {
 
         User currentUser = currentUserService.getCurrentUser();
 
@@ -53,10 +56,12 @@ public class MerchantService {
         merchant.setWebsiteUrl(request.getWebsiteUrl());
         merchant.setUser(currentUser);
 
-        return repository.save(merchant);
+        Merchant savedMerchant = repository.save(merchant);
+
+        return mapToResponse(savedMerchant);
     }
 
-    public Merchant updateMerchant(
+    public MerchantResponse updateMerchant(
             Long id,
             MerchantRequest request) {
 
@@ -70,7 +75,9 @@ public class MerchantService {
         merchant.setName(request.getName());
         merchant.setWebsiteUrl(request.getWebsiteUrl());
 
-        return repository.save(merchant);
+        Merchant updatedMerchant = repository.save(merchant);
+
+        return mapToResponse(updatedMerchant);
     }
 
     public void deleteMerchant(Long id) {
@@ -85,16 +92,27 @@ public class MerchantService {
         repository.delete(merchant);
     }
 
-    private PageResponse<Merchant> mapToPageResponse(
+    private PageResponse<MerchantResponse> mapToPageResponse(
             Page<Merchant> page) {
 
         return new PageResponse<>(
-                page.getContent(),
+                page.getContent()
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList(),
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalElements(),
                 page.getTotalPages(),
                 page.isFirst(),
                 page.isLast());
+    }
+
+    private MerchantResponse mapToResponse(Merchant merchant) {
+
+        return new MerchantResponse(
+                merchant.getId(),
+                merchant.getName(),
+                merchant.getWebsiteUrl());
     }
 }

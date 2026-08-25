@@ -40,7 +40,7 @@ public class LinkService {
         return mapToPageResponse(page);
     }
 
-    public Link addLink(LinkRequest request) {
+    public LinkResponse addLink(LinkRequest request) {
 
         User currentUser = currentUserService.getCurrentUser();
 
@@ -50,7 +50,9 @@ public class LinkService {
         link.setUrl(request.getUrl());
         link.setUser(currentUser);
 
-        return repository.save(link);
+        Link savedLink = repository.save(link);
+
+        return mapToResponse(savedLink);
     }
 
     public void deleteLink(Long id) {
@@ -65,7 +67,7 @@ public class LinkService {
         repository.delete(link);
     }
 
-    public Link updateLink(Long id, LinkRequest request) {
+    public LinkResponse updateLink(Long id, LinkRequest request) {
 
         User currentUser = currentUserService.getCurrentUser();
 
@@ -77,7 +79,8 @@ public class LinkService {
         link.setTitle(request.getTitle());
         link.setUrl(request.getUrl());
 
-        return repository.save(link);
+        Link updatedLink = repository.save(link);
+        return mapToResponse(updatedLink);
     }
 
     public PageResponse<LinkResponse> getLinkByTitle(

@@ -47,10 +47,10 @@ public class LinkController {
 
     // Create Api
     @PostMapping("/api/links")
-    public ResponseEntity<ApiResponse<Link>> addLink(@Valid @RequestBody LinkRequest request) {
+    public ResponseEntity<ApiResponse<LinkResponse>> addLink(@Valid @RequestBody LinkRequest request) {
 
-        Link savedLink = linkService.addLink(request);
-        return ApiResponseUtil.created("Link Created Successfuy", savedLink);
+        LinkResponse savedLink = linkService.addLink(request);
+        return ApiResponseUtil.created("Link Created Successfully", savedLink);
     }
 
     @DeleteMapping("/api/links/{id}")
@@ -62,9 +62,9 @@ public class LinkController {
 
     // Update API
     @PutMapping("/api/links/{id}")
-    public ResponseEntity<ApiResponse<Link>> updateLink(@PathVariable Long id,
+    public ResponseEntity<ApiResponse<LinkResponse>> updateLink(@PathVariable Long id,
             @Valid @RequestBody LinkRequest request) {
-        Link updatedLink = linkService.updateLink(id, request);
+        LinkResponse updatedLink = linkService.updateLink(id, request);
         return ApiResponseUtil.success("Link Updated Successfully", updatedLink);
     }
 }
