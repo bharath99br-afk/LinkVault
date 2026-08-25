@@ -27,15 +27,13 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> getProducts(
             @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
             @PageableDefault(page = 0, size = 10) Pageable pageable) {
 
-        PageResponse<ProductResponse> products;
-
-        if (name == null || name.isBlank()) {
-            products = productService.getProducts(pageable);
-        } else {
-            products = productService.searchProducts(name, pageable);
-        }
+        PageResponse<ProductResponse> products = productService.getProducts(
+                name,
+                category,
+                pageable);
 
         return ApiResponseUtil.success(
                 "Products Found",

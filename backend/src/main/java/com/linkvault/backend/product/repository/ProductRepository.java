@@ -22,4 +22,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             Long userId,
             String name,
             Pageable pageable);
+
+    Page<Product> findByUserIdAndCategoryContainingIgnoreCase(
+            Long userId,
+            String category,
+            Pageable pageable);
+
+    Page<Product> findByUserIdAndNameContainingIgnoreCaseAndCategoryContainingIgnoreCase(
+            Long userId,
+            String name,
+            String category,
+            Pageable pageable);
 }

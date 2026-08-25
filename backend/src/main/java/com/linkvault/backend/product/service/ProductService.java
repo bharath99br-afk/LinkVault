@@ -103,16 +103,47 @@ public class ProductService {
         repository.delete(product);
     }
 
-    public PageResponse<ProductResponse> searchProducts(
+    public PageResponse<ProductResponse> getProducts(
             String name,
+            String category,
             Pageable pageable) {
 
         User currentUser = currentUserService.getCurrentUser();
 
-        Page<Product> page = repository.findByUserIdAndNameContainingIgnoreCase(
-                currentUser.getId(),
-                name,
-                pageable);
+        Page<Product> page;
+
+        boolean hasName = name != null && !name.isBlank();
+        boolean hasCategory = category != null && !category.isBlank();
+
+        if (!hasName && !hasCategory) {
+
+            page = repository.findByUserId(
+                    currentUser.getId(),
+                    pageable);
+
+        } else if (hasName && !hasCategory) {
+
+            page = repository.findByUserIdAndNameContainingIgnoreCase(
+                    currentUser.getId(),
+                    name,
+                    pageable);
+
+        } else if (!hasName && hasCategory) {
+
+            page = repository.findByUserIdAndCategoryContainingIgnoreCase(
+                    currentUser.getId(),
+                    category,
+                    pageable);
+
+        } else {
+
+            page = repository
+                    .findByUserIdAndNameContainingIgnoreCaseAndCategoryContainingIgnoreCase(
+                            currentUser.getId(),
+                            name,
+                            category,
+                            pageable);
+        }
 
         return mapToPageResponse(page);
     }
