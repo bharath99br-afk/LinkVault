@@ -3,6 +3,7 @@ package com.linkvault.backend.link.service;
 import com.linkvault.backend.common.dto.PageResponse;
 import com.linkvault.backend.exception.LinkNotFoundException;
 import com.linkvault.backend.link.dto.LinkRequest;
+import com.linkvault.backend.link.dto.LinkResponse;
 import com.linkvault.backend.link.model.Link;
 import com.linkvault.backend.link.repository.LinkRepository;
 
@@ -30,7 +31,7 @@ public class LinkService {
         this.currentUserService = currentUserService;
     }
 
-    public PageResponse<Link> getAllLinks(Pageable pageable) {
+    public PageResponse<LinkResponse> getAllLinks(Pageable pageable) {
 
         User currentUser = currentUserService.getCurrentUser();
 
@@ -79,7 +80,7 @@ public class LinkService {
         return repository.save(link);
     }
 
-    public PageResponse<Link> getLinkByTitle(
+    public PageResponse<LinkResponse> getLinkByTitle(
             String title,
             Pageable pageable) {
 
@@ -93,7 +94,7 @@ public class LinkService {
         return mapToPageResponse(page);
     }
 
-    public PageResponse<Link> getLinks(String title, Pageable pageable) {
+    public PageResponse<LinkResponse> getLinks(String title, Pageable pageable) {
 
         if (title == null || title.isBlank()) {
             return getAllLinks(pageable);
@@ -102,15 +103,26 @@ public class LinkService {
         return getLinkByTitle(title, pageable);
     }
 
-    private PageResponse<Link> mapToPageResponse(Page<Link> page) {
+    private PageResponse<LinkResponse> mapToPageResponse(Page<Link> page) {
 
         return new PageResponse<>(
-                page.getContent(),
+                page.getContent()
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList(),
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalElements(),
                 page.getTotalPages(),
                 page.isFirst(),
                 page.isLast());
+    }
+
+    private LinkResponse mapToResponse(Link link) {
+
+        return new LinkResponse(
+                link.getId(),
+                link.getTitle(),
+                link.getUrl());
     }
 }

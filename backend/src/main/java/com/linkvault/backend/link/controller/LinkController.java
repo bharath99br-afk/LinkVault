@@ -3,6 +3,7 @@ package com.linkvault.backend.link.controller;
 import com.linkvault.backend.common.dto.ApiResponse;
 import com.linkvault.backend.common.dto.PageResponse;
 import com.linkvault.backend.link.dto.LinkRequest;
+import com.linkvault.backend.link.dto.LinkResponse;
 import com.linkvault.backend.link.model.Link;
 import com.linkvault.backend.link.service.LinkService;
 import com.linkvault.backend.util.ApiResponseUtil;
@@ -35,11 +36,12 @@ public class LinkController {
 
     // View Api & Search Api combined
     @GetMapping("/api/links")
-    public ResponseEntity<ApiResponse<PageResponse<Link>>> getLinks(
+    public ResponseEntity<ApiResponse<PageResponse<LinkResponse>>> getLinks(
             @RequestParam(required = false) String title,
             @PageableDefault(page = 0, size = 10) Pageable pageable) {
 
-        PageResponse<Link> links = linkService.getLinks(title, pageable);
+        PageResponse<LinkResponse> links = linkService.getLinks(title, pageable);
+
         return ApiResponseUtil.success("Links Found", links);
     }
 

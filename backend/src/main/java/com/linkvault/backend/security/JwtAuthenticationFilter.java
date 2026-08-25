@@ -77,10 +77,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // Invalid JWT.
             // Do not authenticate the request.
-            System.out.println("JWT Authentication failed: "
-                    + exception.getClass().getSimpleName()
-                    + " - "
-                    + exception.getMessage());
         }
 
         filterChain.doFilter(request, response);
