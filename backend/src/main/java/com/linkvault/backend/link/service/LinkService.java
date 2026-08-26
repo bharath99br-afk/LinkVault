@@ -6,6 +6,8 @@ import com.linkvault.backend.link.dto.LinkRequest;
 import com.linkvault.backend.link.dto.LinkResponse;
 import com.linkvault.backend.link.model.Link;
 import com.linkvault.backend.link.repository.LinkRepository;
+import com.linkvault.backend.merchant.model.Merchant;
+import com.linkvault.backend.merchant.repository.MerchantRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,10 +27,13 @@ public class LinkService {
 
     private final LinkRepository repository;
     private final CurrentUserService currentUserService;
+    private final MerchantRepository merchantRepository;
 
-    public LinkService(LinkRepository repository, CurrentUserService currentUserService) {
+    public LinkService(LinkRepository repository, CurrentUserService currentUserService,
+            MerchantRepository merchantRepository) {
         this.repository = repository;
         this.currentUserService = currentUserService;
+        this.merchantRepository = merchantRepository;
     }
 
     public PageResponse<LinkResponse> getAllLinks(Pageable pageable) {
@@ -50,6 +55,17 @@ public class LinkService {
         link.setUrl(request.getUrl());
         link.setUser(currentUser);
 
+        if (request.getMerchantId() != null) {
+
+            Merchant merchant = merchantRepository
+                    .findByIdAndUserId(
+                            request.getMerchantId(),
+                            currentUser.getId())
+                    .orElseThrow(() -> new LinkNotFoundException("Merchant Not Found"));
+
+            link.setMerchant(merchant);
+        }
+
         Link savedLink = repository.save(link);
 
         return mapToResponse(savedLink);
@@ -67,7 +83,9 @@ public class LinkService {
         repository.delete(link);
     }
 
-    public LinkResponse updateLink(Long id, LinkRequest request) {
+    public LinkResponse updateLink(
+            Long id,
+            LinkRequest request) {
 
         User currentUser = currentUserService.getCurrentUser();
 
@@ -79,7 +97,23 @@ public class LinkService {
         link.setTitle(request.getTitle());
         link.setUrl(request.getUrl());
 
+        if (request.getMerchantId() != null) {
+
+            Merchant merchant = merchantRepository
+                    .findByIdAndUserId(
+                            request.getMerchantId(),
+                            currentUser.getId())
+                    .orElseThrow(() -> new LinkNotFoundException("Merchant Not Found"));
+
+            link.setMerchant(merchant);
+
+        } else {
+
+            link.setMerchant(null);
+        }
+
         Link updatedLink = repository.save(link);
+
         return mapToResponse(updatedLink);
     }
 
@@ -126,6 +160,12 @@ public class LinkService {
         return new LinkResponse(
                 link.getId(),
                 link.getTitle(),
-                link.getUrl());
+                link.getUrl(),
+                link.getMerchant() != null
+                        ? link.getMerchant().getId()
+                        : null,
+                link.getMerchant() != null
+                        ? link.getMerchant().getName()
+                        : null);
     }
 }

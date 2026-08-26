@@ -12,6 +12,8 @@ public class LinkRequest {
     @NotBlank(message = "URL cannot be empty")
     private String url;
 
+    private Long merchantId;
+
     public LinkRequest() {
     }
 
@@ -34,5 +36,13 @@ public class LinkRequest {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Long getMerchantId() {
+        return merchantId;
+    }
+
+    public void setMerchantId(Long merchantId) {
+        this.merchantId = merchantId;
     }
 }
