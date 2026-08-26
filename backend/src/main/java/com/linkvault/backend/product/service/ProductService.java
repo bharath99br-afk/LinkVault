@@ -2,6 +2,8 @@ package com.linkvault.backend.product.service;
 
 import com.linkvault.backend.common.dto.PageResponse;
 import com.linkvault.backend.exception.LinkNotFoundException;
+import com.linkvault.backend.merchant.model.Merchant;
+import com.linkvault.backend.merchant.repository.MerchantRepository;
 import com.linkvault.backend.product.dto.ProductRequest;
 import com.linkvault.backend.product.dto.ProductResponse;
 import com.linkvault.backend.product.model.Product;
@@ -18,89 +20,16 @@ public class ProductService {
 
     private final ProductRepository repository;
     private final CurrentUserService currentUserService;
+    private final MerchantRepository merchantRepository;
 
     public ProductService(
             ProductRepository repository,
-            CurrentUserService currentUserService) {
+            CurrentUserService currentUserService,
+            MerchantRepository merchantRepository) {
 
         this.repository = repository;
         this.currentUserService = currentUserService;
-    }
-
-    public PageResponse<ProductResponse> getProducts(
-            Pageable pageable) {
-
-        User currentUser = currentUserService.getCurrentUser();
-
-        Page<Product> page = repository.findByUserId(
-                currentUser.getId(),
-                pageable);
-
-        return mapToPageResponse(page);
-    }
-
-    public ProductResponse getProduct(Long id) {
-
-        User currentUser = currentUserService.getCurrentUser();
-
-        Product product = repository.findByIdAndUserId(
-                id,
-                currentUser.getId())
-                .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
-
-        return mapToResponse(product);
-    }
-
-    public ProductResponse addProduct(ProductRequest request) {
-
-        User currentUser = currentUserService.getCurrentUser();
-
-        Product product = new Product();
-
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setImageUrl(request.getImageUrl());
-        product.setCategory(request.getCategory());
-        product.setWebsiteUrl(request.getWebsiteUrl());
-        product.setUser(currentUser);
-
-        Product savedProduct = repository.save(product);
-
-        return mapToResponse(savedProduct);
-    }
-
-    public ProductResponse updateProduct(
-            Long id,
-            ProductRequest request) {
-
-        User currentUser = currentUserService.getCurrentUser();
-
-        Product product = repository.findByIdAndUserId(
-                id,
-                currentUser.getId())
-                .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
-
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setImageUrl(request.getImageUrl());
-        product.setCategory(request.getCategory());
-        product.setWebsiteUrl(request.getWebsiteUrl());
-
-        Product updatedProduct = repository.save(product);
-
-        return mapToResponse(updatedProduct);
-    }
-
-    public void deleteProduct(Long id) {
-
-        User currentUser = currentUserService.getCurrentUser();
-
-        Product product = repository.findByIdAndUserId(
-                id,
-                currentUser.getId())
-                .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
-
-        repository.delete(product);
+        this.merchantRepository = merchantRepository;
     }
 
     public PageResponse<ProductResponse> getProducts(
@@ -148,6 +77,96 @@ public class ProductService {
         return mapToPageResponse(page);
     }
 
+    public ProductResponse getProduct(Long id) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Product product = repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
+                .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
+
+        return mapToResponse(product);
+    }
+
+    public ProductResponse addProduct(ProductRequest request) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Product product = new Product();
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setImageUrl(request.getImageUrl());
+        product.setCategory(request.getCategory());
+        product.setWebsiteUrl(request.getWebsiteUrl());
+        product.setUser(currentUser);
+
+        Merchant merchant = resolveMerchant(
+                request.getMerchantId(),
+                currentUser.getId());
+
+        product.setMerchant(merchant);
+
+        Product savedProduct = repository.save(product);
+
+        return mapToResponse(savedProduct);
+    }
+
+    public ProductResponse updateProduct(
+            Long id,
+            ProductRequest request) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Product product = repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
+                .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setImageUrl(request.getImageUrl());
+        product.setCategory(request.getCategory());
+        product.setWebsiteUrl(request.getWebsiteUrl());
+
+        Merchant merchant = resolveMerchant(
+                request.getMerchantId(),
+                currentUser.getId());
+
+        product.setMerchant(merchant);
+
+        Product updatedProduct = repository.save(product);
+
+        return mapToResponse(updatedProduct);
+    }
+
+    public void deleteProduct(Long id) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Product product = repository.findByIdAndUserId(
+                id,
+                currentUser.getId())
+                .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
+
+        repository.delete(product);
+    }
+
+    private Merchant resolveMerchant(
+            Long merchantId,
+            Long userId) {
+
+        if (merchantId == null) {
+            return null;
+        }
+
+        return merchantRepository.findByIdAndUserId(
+                merchantId,
+                userId)
+                .orElseThrow(() -> new LinkNotFoundException("Merchant Not Found"));
+    }
+
     private PageResponse<ProductResponse> mapToPageResponse(
             Page<Product> page) {
 
@@ -166,12 +185,16 @@ public class ProductService {
 
     private ProductResponse mapToResponse(Product product) {
 
+        Merchant merchant = product.getMerchant();
+
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
                 product.getDescription(),
                 product.getImageUrl(),
                 product.getCategory(),
-                product.getWebsiteUrl());
+                product.getWebsiteUrl(),
+                merchant != null ? merchant.getId() : null,
+                merchant != null ? merchant.getName() : null);
     }
 }

@@ -20,6 +20,8 @@ public class ProductRequest {
     @NotBlank(message = "Website URL cannot be empty")
     private String websiteUrl;
 
+    private Long merchantId;
+
     public ProductRequest() {
     }
 
@@ -28,13 +30,15 @@ public class ProductRequest {
             String description,
             String imageUrl,
             String category,
-            String websiteUrl) {
+            String websiteUrl,
+            Long merchantId) {
 
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
         this.category = category;
         this.websiteUrl = websiteUrl;
+        this.merchantId = merchantId;
     }
 
     public String getName() {
@@ -75,5 +79,13 @@ public class ProductRequest {
 
     public void setWebsiteUrl(String websiteUrl) {
         this.websiteUrl = websiteUrl;
+    }
+
+    public Long getMerchantId() {
+        return merchantId;
+    }
+
+    public void setMerchantId(Long merchantId) {
+        this.merchantId = merchantId;
     }
 }

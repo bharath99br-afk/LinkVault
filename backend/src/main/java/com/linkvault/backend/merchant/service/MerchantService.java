@@ -1,16 +1,18 @@
 package com.linkvault.backend.merchant.service;
 
 import com.linkvault.backend.common.dto.PageResponse;
+import com.linkvault.backend.exception.DuplicateResourceException;
 import com.linkvault.backend.exception.LinkNotFoundException;
 import com.linkvault.backend.merchant.dto.MerchantRequest;
 import com.linkvault.backend.merchant.dto.MerchantResponse;
 import com.linkvault.backend.merchant.model.Merchant;
 import com.linkvault.backend.merchant.repository.MerchantRepository;
 import com.linkvault.backend.security.CurrentUserService;
+import com.linkvault.backend.user.model.User;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import com.linkvault.backend.user.model.User;
 
 @Service
 public class MerchantService {
@@ -18,7 +20,10 @@ public class MerchantService {
     private final MerchantRepository repository;
     private final CurrentUserService currentUserService;
 
-    public MerchantService(MerchantRepository repository, CurrentUserService currentUserService) {
+    public MerchantService(
+            MerchantRepository repository,
+            CurrentUserService currentUserService) {
+
         this.repository = repository;
         this.currentUserService = currentUserService;
     }
@@ -50,6 +55,14 @@ public class MerchantService {
 
         User currentUser = currentUserService.getCurrentUser();
 
+        repository.findByNameIgnoreCaseAndUserId(
+                request.getName(),
+                currentUser.getId())
+                .ifPresent(existing -> {
+                    throw new DuplicateResourceException(
+                            "Merchant with this name already exists");
+                });
+
         Merchant merchant = new Merchant();
 
         merchant.setName(request.getName());
@@ -71,6 +84,15 @@ public class MerchantService {
                 id,
                 currentUser.getId())
                 .orElseThrow(() -> new LinkNotFoundException("Merchant Not Found"));
+
+        repository.findByNameIgnoreCaseAndUserId(
+                request.getName(),
+                currentUser.getId())
+                .filter(existing -> !existing.getId().equals(id))
+                .ifPresent(existing -> {
+                    throw new DuplicateResourceException(
+                            "Merchant with this name already exists");
+                });
 
         merchant.setName(request.getName());
         merchant.setWebsiteUrl(request.getWebsiteUrl());

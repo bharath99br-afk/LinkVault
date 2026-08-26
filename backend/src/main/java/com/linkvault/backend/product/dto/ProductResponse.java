@@ -8,6 +8,8 @@ public class ProductResponse {
     private String imageUrl;
     private String category;
     private String websiteUrl;
+    private Long merchantId;
+    private String merchantName;
 
     public ProductResponse() {
     }
@@ -18,7 +20,9 @@ public class ProductResponse {
             String description,
             String imageUrl,
             String category,
-            String websiteUrl) {
+            String websiteUrl,
+            Long merchantId,
+            String merchantName) {
 
         this.id = id;
         this.name = name;
@@ -26,6 +30,8 @@ public class ProductResponse {
         this.imageUrl = imageUrl;
         this.category = category;
         this.websiteUrl = websiteUrl;
+        this.merchantId = merchantId;
+        this.merchantName = merchantName;
     }
 
     public Long getId() {
@@ -74,5 +80,21 @@ public class ProductResponse {
 
     public void setWebsiteUrl(String websiteUrl) {
         this.websiteUrl = websiteUrl;
+    }
+
+    public Long getMerchantId() {
+        return merchantId;
+    }
+
+    public void setMerchantId(Long merchantId) {
+        this.merchantId = merchantId;
+    }
+
+    public String getMerchantName() {
+        return merchantName;
+    }
+
+    public void setMerchantName(String merchantName) {
+        this.merchantName = merchantName;
     }
 }
