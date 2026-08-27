@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import com.linkvault.backend.merchant.model.Merchant;
+import com.linkvault.backend.product.model.Product;
 import com.linkvault.backend.user.model.User;
 
 @Entity
@@ -36,6 +37,10 @@ public class Link {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "merchant_id")
     private Merchant merchant;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     public Link() {
     }
@@ -84,5 +89,13 @@ public class Link {
 
     public void setMerchant(Merchant merchant) {
         this.merchant = merchant;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
     }
 }

@@ -8,6 +8,8 @@ import com.linkvault.backend.link.model.Link;
 import com.linkvault.backend.link.repository.LinkRepository;
 import com.linkvault.backend.merchant.model.Merchant;
 import com.linkvault.backend.merchant.repository.MerchantRepository;
+import com.linkvault.backend.product.model.Product;
+import com.linkvault.backend.product.repository.ProductRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,12 +30,14 @@ public class LinkService {
     private final LinkRepository repository;
     private final CurrentUserService currentUserService;
     private final MerchantRepository merchantRepository;
+    private final ProductRepository productRepository;
 
     public LinkService(LinkRepository repository, CurrentUserService currentUserService,
-            MerchantRepository merchantRepository) {
+            MerchantRepository merchantRepository, ProductRepository productRepository) {
         this.repository = repository;
         this.currentUserService = currentUserService;
         this.merchantRepository = merchantRepository;
+        this.productRepository = productRepository;
     }
 
     public PageResponse<LinkResponse> getAllLinks(Pageable pageable) {
@@ -64,6 +68,17 @@ public class LinkService {
                     .orElseThrow(() -> new LinkNotFoundException("Merchant Not Found"));
 
             link.setMerchant(merchant);
+        }
+
+        if (request.getProductId() != null) {
+
+            Product product = productRepository
+                    .findByIdAndUserId(
+                            request.getProductId(),
+                            currentUser.getId())
+                    .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
+
+            link.setProduct(product);
         }
 
         Link savedLink = repository.save(link);
@@ -111,9 +126,22 @@ public class LinkService {
 
             link.setMerchant(null);
         }
+        if (request.getProductId() != null) {
+
+            Product product = productRepository
+                    .findByIdAndUserId(
+                            request.getProductId(),
+                            currentUser.getId())
+                    .orElseThrow(() -> new LinkNotFoundException("Product Not Found"));
+
+            link.setProduct(product);
+
+        } else {
+
+            link.setProduct(null);
+        }
 
         Link updatedLink = repository.save(link);
-
         return mapToResponse(updatedLink);
     }
 
@@ -157,15 +185,16 @@ public class LinkService {
 
     private LinkResponse mapToResponse(Link link) {
 
+        Merchant merchant = link.getMerchant();
+        Product product = link.getProduct();
+
         return new LinkResponse(
                 link.getId(),
                 link.getTitle(),
                 link.getUrl(),
-                link.getMerchant() != null
-                        ? link.getMerchant().getId()
-                        : null,
-                link.getMerchant() != null
-                        ? link.getMerchant().getName()
-                        : null);
+                merchant != null ? merchant.getId() : null,
+                merchant != null ? merchant.getName() : null,
+                product != null ? product.getId() : null,
+                product != null ? product.getName() : null);
     }
 }

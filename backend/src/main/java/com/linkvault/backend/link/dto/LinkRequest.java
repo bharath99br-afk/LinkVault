@@ -13,6 +13,7 @@ public class LinkRequest {
     private String url;
 
     private Long merchantId;
+    private Long productId;
 
     public LinkRequest() {
     }
@@ -44,5 +45,13 @@ public class LinkRequest {
 
     public void setMerchantId(Long merchantId) {
         this.merchantId = merchantId;
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 }
