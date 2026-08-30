@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.linkvault.backend.common.dto.ApiResponse;
 import com.linkvault.backend.util.ApiResponseUtil;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 @RestControllerAdvice
@@ -72,5 +73,33 @@ public class GlobalExceptionHandler {
                                 null);
 
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(
+                        IllegalArgumentException exception) {
+
+                ApiResponse<Object> response = new ApiResponse<>(
+                                false,
+                                exception.getMessage(),
+                                null);
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(response);
+        }
+
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ApiResponse<Object>> handleHttpMessageNotReadable(
+                        HttpMessageNotReadableException exception) {
+
+                ApiResponse<Object> response = new ApiResponse<>(
+                                false,
+                                "Invalid request body",
+                                null);
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(response);
         }
 }
