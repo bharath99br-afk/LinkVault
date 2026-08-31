@@ -12,12 +12,15 @@ public class MerchantRequest {
     @NotBlank(message = "Website URL cannot be empty")
     private String websiteUrl;
 
+    private Long globalMerchantId;
+
     public MerchantRequest() {
     }
 
-    public MerchantRequest(String name, String websiteUrl) {
+    public MerchantRequest(String name, String websiteUrl, Long globalMerchantId) {
         this.name = name;
         this.websiteUrl = websiteUrl;
+        this.globalMerchantId = globalMerchantId;
     }
 
     public String getName() {
@@ -34,5 +37,13 @@ public class MerchantRequest {
 
     public void setWebsiteUrl(String websiteUrl) {
         this.websiteUrl = websiteUrl;
+    }
+
+    public Long getGlobalMerchantId() {
+        return globalMerchantId;
+    }
+
+    public void setGlobalMerchantId(Long globalMerchantId) {
+        this.globalMerchantId = globalMerchantId;
     }
 }

@@ -3,6 +3,8 @@ package com.linkvault.backend.merchant.service;
 import com.linkvault.backend.common.dto.PageResponse;
 import com.linkvault.backend.exception.DuplicateResourceException;
 import com.linkvault.backend.exception.LinkNotFoundException;
+import com.linkvault.backend.globalmerchant.model.GlobalMerchant;
+import com.linkvault.backend.globalmerchant.repository.GlobalMerchantRepository;
 import com.linkvault.backend.merchant.dto.MerchantRequest;
 import com.linkvault.backend.merchant.dto.MerchantResponse;
 import com.linkvault.backend.merchant.model.Merchant;
@@ -19,13 +21,16 @@ public class MerchantService {
 
     private final MerchantRepository repository;
     private final CurrentUserService currentUserService;
+    private final GlobalMerchantRepository globalMerchantRepository;
 
     public MerchantService(
             MerchantRepository repository,
-            CurrentUserService currentUserService) {
+            CurrentUserService currentUserService,
+            GlobalMerchantRepository globalMerchantRepository) {
 
         this.repository = repository;
         this.currentUserService = currentUserService;
+        this.globalMerchantRepository = globalMerchantRepository;
     }
 
     public PageResponse<MerchantResponse> getMerchants(Pageable pageable) {
@@ -69,6 +74,16 @@ public class MerchantService {
         merchant.setWebsiteUrl(request.getWebsiteUrl());
         merchant.setUser(currentUser);
 
+        if (request.getGlobalMerchantId() != null) {
+
+            GlobalMerchant globalMerchant = globalMerchantRepository
+                    .findById(request.getGlobalMerchantId())
+                    .orElseThrow(() -> new LinkNotFoundException(
+                            "Global Merchant Not Found"));
+
+            merchant.setGlobalMerchant(globalMerchant);
+        }
+
         Merchant savedMerchant = repository.save(merchant);
 
         return mapToResponse(savedMerchant);
@@ -96,6 +111,20 @@ public class MerchantService {
 
         merchant.setName(request.getName());
         merchant.setWebsiteUrl(request.getWebsiteUrl());
+
+        if (request.getGlobalMerchantId() != null) {
+
+            GlobalMerchant globalMerchant = globalMerchantRepository
+                    .findById(request.getGlobalMerchantId())
+                    .orElseThrow(() -> new LinkNotFoundException(
+                            "Global Merchant Not Found"));
+
+            merchant.setGlobalMerchant(globalMerchant);
+
+        } else {
+
+            merchant.setGlobalMerchant(null);
+        }
 
         Merchant updatedMerchant = repository.save(merchant);
 
@@ -135,6 +164,12 @@ public class MerchantService {
         return new MerchantResponse(
                 merchant.getId(),
                 merchant.getName(),
-                merchant.getWebsiteUrl());
+                merchant.getWebsiteUrl(),
+                merchant.getGlobalMerchant() != null
+                        ? merchant.getGlobalMerchant().getId()
+                        : null,
+                merchant.getGlobalMerchant() != null
+                        ? merchant.getGlobalMerchant().getName()
+                        : null);
     }
 }

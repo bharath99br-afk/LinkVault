@@ -10,6 +10,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
+import com.linkvault.backend.globalmerchant.model.GlobalMerchant;
 import com.linkvault.backend.user.model.User;
 
 @Entity
@@ -30,6 +32,10 @@ public class Merchant {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "global_merchant_id")
+    private GlobalMerchant globalMerchant;
 
     public Merchant() {
     }
@@ -70,5 +76,13 @@ public class Merchant {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public GlobalMerchant getGlobalMerchant() {
+        return globalMerchant;
+    }
+
+    public void setGlobalMerchant(GlobalMerchant globalMerchant) {
+        this.globalMerchant = globalMerchant;
     }
 }
