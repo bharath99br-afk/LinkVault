@@ -10,6 +10,8 @@ public class ProductResponse {
     private String websiteUrl;
     private Long merchantId;
     private String merchantName;
+    private Long globalMerchantId;
+    private String globalMerchantName;
 
     public ProductResponse() {
     }
@@ -22,7 +24,9 @@ public class ProductResponse {
             String category,
             String websiteUrl,
             Long merchantId,
-            String merchantName) {
+            String merchantName,
+            Long globalMerchantId,
+            String globalMerchantName) {
 
         this.id = id;
         this.name = name;
@@ -32,6 +36,8 @@ public class ProductResponse {
         this.websiteUrl = websiteUrl;
         this.merchantId = merchantId;
         this.merchantName = merchantName;
+        this.globalMerchantId = globalMerchantId;
+        this.globalMerchantName = globalMerchantName;
     }
 
     public Long getId() {
@@ -96,5 +102,21 @@ public class ProductResponse {
 
     public void setMerchantName(String merchantName) {
         this.merchantName = merchantName;
+    }
+
+    public Long getGlobalMerchantId() {
+        return globalMerchantId;
+    }
+
+    public void setGlobalMerchantId(Long globalMerchantId) {
+        this.globalMerchantId = globalMerchantId;
+    }
+
+    public String getGlobalMerchantName() {
+        return globalMerchantName;
+    }
+
+    public void setGlobalMerchantName(String globalMerchantName) {
+        this.globalMerchantName = globalMerchantName;
     }
 }

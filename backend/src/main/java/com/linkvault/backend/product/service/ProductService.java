@@ -2,6 +2,7 @@ package com.linkvault.backend.product.service;
 
 import com.linkvault.backend.common.dto.PageResponse;
 import com.linkvault.backend.exception.LinkNotFoundException;
+import com.linkvault.backend.globalmerchant.model.GlobalMerchant;
 import com.linkvault.backend.merchant.model.Merchant;
 import com.linkvault.backend.merchant.repository.MerchantRepository;
 import com.linkvault.backend.product.dto.ProductRequest;
@@ -187,6 +188,8 @@ public class ProductService {
 
         Merchant merchant = product.getMerchant();
 
+        GlobalMerchant globalMerchant = merchant != null ? merchant.getGlobalMerchant() : null;
+
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
@@ -194,7 +197,11 @@ public class ProductService {
                 product.getImageUrl(),
                 product.getCategory(),
                 product.getWebsiteUrl(),
+
                 merchant != null ? merchant.getId() : null,
-                merchant != null ? merchant.getName() : null);
+                merchant != null ? merchant.getName() : null,
+
+                globalMerchant != null ? globalMerchant.getId() : null,
+                globalMerchant != null ? globalMerchant.getName() : null);
     }
 }
