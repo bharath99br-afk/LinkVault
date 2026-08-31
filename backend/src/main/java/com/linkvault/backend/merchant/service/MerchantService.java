@@ -5,6 +5,7 @@ import com.linkvault.backend.exception.DuplicateResourceException;
 import com.linkvault.backend.exception.LinkNotFoundException;
 import com.linkvault.backend.globalmerchant.model.GlobalMerchant;
 import com.linkvault.backend.globalmerchant.repository.GlobalMerchantRepository;
+import com.linkvault.backend.globalmerchant.service.GlobalMerchantMatcher;
 import com.linkvault.backend.merchant.dto.MerchantRequest;
 import com.linkvault.backend.merchant.dto.MerchantResponse;
 import com.linkvault.backend.merchant.model.Merchant;
@@ -22,15 +23,18 @@ public class MerchantService {
     private final MerchantRepository repository;
     private final CurrentUserService currentUserService;
     private final GlobalMerchantRepository globalMerchantRepository;
+    private final GlobalMerchantMatcher globalMerchantMatcher;
 
     public MerchantService(
             MerchantRepository repository,
             CurrentUserService currentUserService,
-            GlobalMerchantRepository globalMerchantRepository) {
+            GlobalMerchantRepository globalMerchantRepository,
+            GlobalMerchantMatcher globalMerchantMatcher) {
 
         this.repository = repository;
         this.currentUserService = currentUserService;
         this.globalMerchantRepository = globalMerchantRepository;
+        this.globalMerchantMatcher = globalMerchantMatcher;
     }
 
     public PageResponse<MerchantResponse> getMerchants(Pageable pageable) {
@@ -82,6 +86,12 @@ public class MerchantService {
                             "Global Merchant Not Found"));
 
             merchant.setGlobalMerchant(globalMerchant);
+
+        } else {
+
+            globalMerchantMatcher
+                    .match(request.getName(), request.getWebsiteUrl())
+                    .ifPresent(merchant::setGlobalMerchant);
         }
 
         Merchant savedMerchant = repository.save(merchant);
@@ -124,6 +134,10 @@ public class MerchantService {
         } else {
 
             merchant.setGlobalMerchant(null);
+
+            globalMerchantMatcher
+                    .match(request.getName(), request.getWebsiteUrl())
+                    .ifPresent(merchant::setGlobalMerchant);
         }
 
         Merchant updatedMerchant = repository.save(merchant);

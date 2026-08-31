@@ -15,4 +15,6 @@ public interface GlobalMerchantRepository extends JpaRepository<GlobalMerchant, 
     Page<GlobalMerchant> findByNameContainingIgnoreCase(
             String name,
             Pageable pageable);
+
+    Optional<GlobalMerchant> findByWebsiteUrlIgnoreCase(String websiteUrl);
 }
