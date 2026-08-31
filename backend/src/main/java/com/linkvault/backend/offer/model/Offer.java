@@ -3,12 +3,17 @@ package com.linkvault.backend.offer.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.linkvault.backend.globalmerchant.model.GlobalMerchant;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -50,6 +55,10 @@ public class Offer {
     @NotNull(message = "End date cannot be null")
     private LocalDate endDate;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "global_merchant_id")
+    private GlobalMerchant globalMerchant;
+
     public Offer() {
     }
 
@@ -62,7 +71,8 @@ public class Offer {
             BigDecimal maxDiscount,
             BigDecimal minTransactionAmount,
             LocalDate startDate,
-            LocalDate endDate) {
+            LocalDate endDate,
+            GlobalMerchant globalMerchant) {
 
         this.id = id;
         this.title = title;
@@ -73,6 +83,7 @@ public class Offer {
         this.minTransactionAmount = minTransactionAmount;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.globalMerchant = globalMerchant;
     }
 
     public Long getId() {
@@ -146,4 +157,13 @@ public class Offer {
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
+
+    public GlobalMerchant getGlobalMerchant() {
+        return globalMerchant;
+    }
+
+    public void setGlobalMerchant(GlobalMerchant globalMerchant) {
+        this.globalMerchant = globalMerchant;
+    }
+
 }

@@ -2,6 +2,8 @@ package com.linkvault.backend.offer.service;
 
 import com.linkvault.backend.common.dto.PageResponse;
 import com.linkvault.backend.exception.LinkNotFoundException;
+import com.linkvault.backend.globalmerchant.model.GlobalMerchant;
+import com.linkvault.backend.globalmerchant.repository.GlobalMerchantRepository;
 import com.linkvault.backend.offer.dto.OfferRequest;
 import com.linkvault.backend.offer.dto.OfferResponse;
 import com.linkvault.backend.offer.model.Offer;
@@ -15,9 +17,11 @@ import org.springframework.stereotype.Service;
 public class OfferService {
 
     private final OfferRepository repository;
+    private final GlobalMerchantRepository globalMerchantRepository;
 
-    public OfferService(OfferRepository repository) {
+    public OfferService(OfferRepository repository, GlobalMerchantRepository globalMerchantRepository) {
         this.repository = repository;
+        this.globalMerchantRepository = globalMerchantRepository;
     }
 
     public PageResponse<OfferResponse> getOffers(
@@ -66,6 +70,15 @@ public class OfferService {
                 request.getMinTransactionAmount());
         offer.setStartDate(request.getStartDate());
         offer.setEndDate(request.getEndDate());
+        if (request.getGlobalMerchantId() != null) {
+
+            GlobalMerchant globalMerchant = globalMerchantRepository
+                    .findById(request.getGlobalMerchantId())
+                    .orElseThrow(() -> new LinkNotFoundException(
+                            "Global Merchant Not Found"));
+
+            offer.setGlobalMerchant(globalMerchant);
+        }
 
         Offer savedOffer = repository.save(offer);
 
@@ -92,6 +105,19 @@ public class OfferService {
                 request.getMinTransactionAmount());
         offer.setStartDate(request.getStartDate());
         offer.setEndDate(request.getEndDate());
+        if (request.getGlobalMerchantId() != null) {
+
+            GlobalMerchant globalMerchant = globalMerchantRepository
+                    .findById(request.getGlobalMerchantId())
+                    .orElseThrow(() -> new LinkNotFoundException(
+                            "Global Merchant Not Found"));
+
+            offer.setGlobalMerchant(globalMerchant);
+
+        } else {
+
+            offer.setGlobalMerchant(null);
+        }
 
         Offer updatedOffer = repository.save(offer);
 
@@ -143,6 +169,12 @@ public class OfferService {
                 offer.getMaxDiscount(),
                 offer.getMinTransactionAmount(),
                 offer.getStartDate(),
-                offer.getEndDate());
+                offer.getEndDate(),
+                offer.getGlobalMerchant() != null
+                        ? offer.getGlobalMerchant().getId()
+                        : null,
+                offer.getGlobalMerchant() != null
+                        ? offer.getGlobalMerchant().getName()
+                        : null);
     }
 }

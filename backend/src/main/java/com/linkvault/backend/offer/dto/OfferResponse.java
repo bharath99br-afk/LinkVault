@@ -16,6 +16,8 @@ public class OfferResponse {
     private BigDecimal minTransactionAmount;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Long globalMerchantId;
+    private String globalMerchantName;
 
     public OfferResponse() {
     }
@@ -29,7 +31,9 @@ public class OfferResponse {
             BigDecimal maxDiscount,
             BigDecimal minTransactionAmount,
             LocalDate startDate,
-            LocalDate endDate) {
+            LocalDate endDate,
+            Long globalMerchantId,
+            String globalMerchantName) {
 
         this.id = id;
         this.title = title;
@@ -40,6 +44,8 @@ public class OfferResponse {
         this.minTransactionAmount = minTransactionAmount;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.globalMerchantId = globalMerchantId;
+        this.globalMerchantName = globalMerchantName;
     }
 
     public Long getId() {
@@ -112,5 +118,21 @@ public class OfferResponse {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public Long getGlobalMerchantId() {
+        return globalMerchantId;
+    }
+
+    public void setGlobalMerchantId(Long globalMerchantId) {
+        this.globalMerchantId = globalMerchantId;
+    }
+
+    public String getGlobalMerchantName() {
+        return globalMerchantName;
+    }
+
+    public void setGlobalMerchantName(String globalMerchantName) {
+        this.globalMerchantName = globalMerchantName;
     }
 }

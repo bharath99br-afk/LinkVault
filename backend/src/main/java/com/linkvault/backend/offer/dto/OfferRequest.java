@@ -38,6 +38,8 @@ public class OfferRequest {
     @NotNull(message = "End date cannot be null")
     private LocalDate endDate;
 
+    private Long globalMerchantId;
+
     public OfferRequest() {
     }
 
@@ -49,7 +51,7 @@ public class OfferRequest {
             BigDecimal maxDiscount,
             BigDecimal minTransactionAmount,
             LocalDate startDate,
-            LocalDate endDate) {
+            LocalDate endDate, Long globalMerchantId) {
 
         this.title = title;
         this.description = description;
@@ -59,6 +61,7 @@ public class OfferRequest {
         this.minTransactionAmount = minTransactionAmount;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.globalMerchantId = globalMerchantId;
     }
 
     public String getTitle() {
@@ -123,5 +126,13 @@ public class OfferRequest {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public Long getGlobalMerchantId() {
+        return globalMerchantId;
+    }
+
+    public void setGlobalMerchantId(Long globalMerchantId) {
+        this.globalMerchantId = globalMerchantId;
     }
 }
