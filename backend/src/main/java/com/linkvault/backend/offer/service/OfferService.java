@@ -4,6 +4,8 @@ import com.linkvault.backend.common.dto.PageResponse;
 import com.linkvault.backend.exception.LinkNotFoundException;
 import com.linkvault.backend.globalmerchant.model.GlobalMerchant;
 import com.linkvault.backend.globalmerchant.repository.GlobalMerchantRepository;
+import com.linkvault.backend.offer.applicability.repository.OfferBankApplicabilityRepository;
+import com.linkvault.backend.offer.applicability.repository.OfferCardApplicabilityRepository;
 import com.linkvault.backend.offer.dto.OfferRequest;
 import com.linkvault.backend.offer.dto.OfferResponse;
 import com.linkvault.backend.offer.model.Offer;
@@ -18,10 +20,16 @@ public class OfferService {
 
     private final OfferRepository repository;
     private final GlobalMerchantRepository globalMerchantRepository;
+    private final OfferBankApplicabilityRepository offerBankRepository;
+    private final OfferCardApplicabilityRepository offerCardRepository;
 
-    public OfferService(OfferRepository repository, GlobalMerchantRepository globalMerchantRepository) {
+    public OfferService(OfferRepository repository, GlobalMerchantRepository globalMerchantRepository,
+            OfferBankApplicabilityRepository offerBankRepository,
+            OfferCardApplicabilityRepository offerCardRepository) {
         this.repository = repository;
         this.globalMerchantRepository = globalMerchantRepository;
+        this.offerBankRepository = offerBankRepository;
+        this.offerCardRepository = offerCardRepository;
     }
 
     public PageResponse<OfferResponse> getOffers(
@@ -128,6 +136,12 @@ public class OfferService {
 
         Offer offer = repository.findById(id)
                 .orElseThrow(() -> new LinkNotFoundException("Offer Not Found"));
+
+        offerBankRepository.findByOfferId(id)
+                .forEach(offerBankRepository::delete);
+
+        offerCardRepository.findByOfferId(id)
+                .forEach(offerCardRepository::delete);
 
         repository.delete(offer);
     }
