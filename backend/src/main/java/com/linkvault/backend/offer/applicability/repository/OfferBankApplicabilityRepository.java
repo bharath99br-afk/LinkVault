@@ -14,4 +14,8 @@ public interface OfferBankApplicabilityRepository
     boolean existsByOfferIdAndBankId(
             Long offerId,
             Long bankId);
+
+    boolean existsByOfferIdAndBankIdIn(
+            Long offerId,
+            List<Long> bankIds);
 }
