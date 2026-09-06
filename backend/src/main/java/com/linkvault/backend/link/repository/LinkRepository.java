@@ -16,4 +16,6 @@ public interface LinkRepository extends JpaRepository<Link, Long> {
             Pageable pageable);
 
     Optional<Link> findByIdAndUserId(Long id, Long userId);
+
+    long countByUserId(Long userId);
 }

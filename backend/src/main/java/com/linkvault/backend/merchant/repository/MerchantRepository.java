@@ -19,4 +19,6 @@ public interface MerchantRepository extends JpaRepository<Merchant, Long> {
             Long userId);
 
     Page<Merchant> findByUserId(Long userId, Pageable pageable);
+
+    long countByUserId(Long userId);
 }

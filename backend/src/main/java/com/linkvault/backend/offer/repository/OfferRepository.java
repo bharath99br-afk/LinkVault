@@ -21,4 +21,8 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
     List<Offer> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
             LocalDate today1,
             LocalDate today2);
+
+    long countByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            LocalDate today1,
+            LocalDate today2);
 }

@@ -33,4 +33,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             String name,
             String category,
             Pageable pageable);
+
+    long countByUserId(Long userId);
 }

@@ -22,4 +22,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
             Long userId,
             String name,
             Pageable pageable);
+
+    long countByUserId(Long userId);
 }
