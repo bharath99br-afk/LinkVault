@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,25 +40,45 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+            HttpSecurity http,
+            JwtAuthenticationFilter jwtAuthenticationFilter)
+            throws Exception {
 
         http
+                // JWT-based APIs do not use browser sessions.
                 .csrf(csrf -> csrf.disable())
+
+                // Disable default browser authentication mechanisms.
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
+
+                // Explicitly enable CORS processing in Spring Security.
+                .cors(cors -> {
+                })
+
+                // Do not create or maintain HTTP sessions.
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
+
+                        // Public authentication endpoints.
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login")
                         .permitAll()
-                        .requestMatchers(
-                                "/api/links/**",
-                                "/api/merchants/**")
-                        .authenticated()
-                        .anyRequest().authenticated())
+
+                        // Everything else requires authentication.
+                        .anyRequest()
+                        .authenticated())
+
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(authenticationEntryPoint())
-                        .accessDeniedHandler(accessDeniedHandler()))
+                        .authenticationEntryPoint(
+                                authenticationEntryPoint())
+                        .accessDeniedHandler(
+                                accessDeniedHandler()))
+
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class);
@@ -70,8 +91,11 @@ public class SecurityConfig {
 
         return (request, response, authException) -> {
 
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setStatus(
+                    HttpStatus.UNAUTHORIZED.value());
+
             response.setContentType("application/json");
+
             response.getWriter().write("""
                     {
                         "success": false,
@@ -87,8 +111,11 @@ public class SecurityConfig {
 
         return (request, response, accessDeniedException) -> {
 
-            response.setStatus(HttpStatus.FORBIDDEN.value());
+            response.setStatus(
+                    HttpStatus.FORBIDDEN.value());
+
             response.setContentType("application/json");
+
             response.getWriter().write("""
                     {
                         "success": false,

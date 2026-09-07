@@ -2,29 +2,44 @@ package com.linkvault.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 public class CorsConfig {
 
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
+    public CorsConfigurationSource corsConfigurationSource() {
 
-        return new WebMvcConfigurer() {
+        CorsConfiguration configuration = new CorsConfiguration();
 
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
+        configuration.setAllowedOrigins(
+                List.of("http://localhost:5173"));
 
-                registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:5173")
-                        .allowedMethods(
-                                "GET",
-                                "POST",
-                                "PUT",
-                                "DELETE")
-                        .allowedHeaders("*");
-            }
-        };
+        configuration.setAllowedMethods(
+                List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "OPTIONS"));
+
+        configuration.setAllowedHeaders(
+                List.of(
+                        "Authorization",
+                        "Content-Type"));
+
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration(
+                "/api/**",
+                configuration);
+
+        return source;
     }
 }

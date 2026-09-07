@@ -18,11 +18,24 @@ public class CurrentUserService {
 
     public User getCurrentUser() {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getName() == null) {
+
+            throw new IllegalStateException(
+                    "No authenticated user found");
+        }
 
         String email = authentication.getName();
 
-        return userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new IllegalStateException("Authenticated user not found"));
+        return userRepository
+                .findByEmailIgnoreCase(email)
+                .orElseThrow(
+                        () -> new IllegalStateException(
+                                "Authenticated user not found"));
     }
 }
