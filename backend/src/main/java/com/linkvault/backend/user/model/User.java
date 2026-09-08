@@ -20,7 +20,7 @@ public class User {
 
     @Email(message = "Invalid email address")
     @NotBlank(message = "Email cannot be empty")
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @JsonIgnore
