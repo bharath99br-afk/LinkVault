@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.linkvault.backend.security.CurrentUserService;
 import com.linkvault.backend.user.model.User;
+import org.springframework.transaction.annotation.Transactional;
 
 // public Link getDemoLink() {
 //     return new Link(
@@ -25,6 +26,7 @@ import com.linkvault.backend.user.model.User;
 // }
 
 @Service
+@Transactional
 public class LinkService {
 
     private final LinkRepository repository;

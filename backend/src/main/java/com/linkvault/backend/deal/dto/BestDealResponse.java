@@ -1,10 +1,12 @@
 package com.linkvault.backend.deal.dto;
 
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class BestDealResponse {
 
     private DealOptionResponse bestDeal;
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     private List<DealOptionResponse> alternatives;
 
     public BestDealResponse() {
