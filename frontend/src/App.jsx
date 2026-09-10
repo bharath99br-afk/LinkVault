@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Links from "./pages/Links";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Dashboard from "./pages/Dashboard";
 
 import "./App.css";
 
@@ -15,7 +16,20 @@ function App() {
     <div className="app">
       {user && (
         <header className="navbar">
-          <h1>LinkVault</h1>
+
+          <div className="navbar-left">
+            <h1>LinkVault</h1>
+
+            <nav className="navbar-links">
+              <a href="/">
+                Dashboard
+              </a>
+
+              <a href="/links">
+                Links
+              </a>
+            </nav>
+          </div>
 
           <div className="navbar-right">
             <span>
@@ -26,6 +40,7 @@ function App() {
               Logout
             </button>
           </div>
+
         </header>
       )}
 
@@ -41,6 +56,10 @@ function App() {
         />
 
         <Route element={<ProtectedRoute />}>
+          <Route
+            path="/"
+            element={<Dashboard />}
+          />
           <Route
             path="/"
             element={<Links />}
