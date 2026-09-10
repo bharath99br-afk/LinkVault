@@ -1,40 +1,41 @@
 import { useState } from "react";
 import { createLink } from "../services/linkService";
+import { validateProductUrl } from "../utils/urlUtils";
 
 function AddLinkForm({ onLinkAdded, onCancel, onNotification }) {
-
     const [title, setTitle] = useState("");
     const [url, setUrl] = useState("");
+
+    const [titleError, setTitleError] = useState("");
+    const [urlError, setUrlError] = useState("");
+    const [saving, setSaving] = useState(false);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        console.log("Adding link:", {
-            title,
-            url
-        });
+        setTitleError("");
+        setUrlError("");
 
-        if (!title.trim()) {
-            onNotification({
-                message: "Title is required",
-                type: "error"
-            });
+        const trimmedTitle = title.trim();
+
+        if (!trimmedTitle) {
+            setTitleError("Product title is required.");
             return;
         }
 
-        if (!url.trim()) {
-            onNotification({
-                message: "URL is required",
-                type: "error"
-            });
+        const urlValidation = validateProductUrl(url);
+
+        if (!urlValidation.valid) {
+            setUrlError(urlValidation.message);
             return;
         }
+
+        setSaving(true);
 
         try {
-
             const data = await createLink({
-                title,
-                url
+                title: trimmedTitle,
+                url: urlValidation.value,
             });
 
             console.log("Link created:", data);
@@ -43,79 +44,113 @@ function AddLinkForm({ onLinkAdded, onCancel, onNotification }) {
             setUrl("");
 
             onNotification({
-                message: "Link added successfully",
-                type: "success"
+                message: "Product saved successfully",
+                type: "success",
             });
 
             onLinkAdded();
-
         } catch (error) {
-
             console.error("Error creating link:", error);
-            onNotification({
-                message: "Failed to add link",
-                type: "error"
-            });
 
+            onNotification({
+                message:
+                    error.data?.message ||
+                    "Failed to save the product",
+                type: "error",
+            });
+        } finally {
+            setSaving(false);
         }
     };
 
     return (
         <div className="add-link-form">
+            <h2>Save New Product</h2>
 
-            <h2>Add New Link</h2>
-
-            <form onSubmit={handleSubmit}>
-
+            <form onSubmit={handleSubmit} noValidate>
                 <div className="form-group">
-
                     <label htmlFor="title">
-                        Title
+                        Product Title
                     </label>
 
                     <input
                         id="title"
                         type="text"
                         value={title}
-                        onChange={(event) => setTitle(event.target.value)}
-                        placeholder="Enter link title"
+                        onChange={(event) => {
+                            setTitle(event.target.value);
+
+                            if (titleError) {
+                                setTitleError("");
+                            }
+                        }}
+                        placeholder="e.g. Sony WH-1000XM6"
+                        aria-invalid={Boolean(titleError)}
+                        aria-describedby={
+                            titleError ? "title-error" : undefined
+                        }
                     />
 
+                    {titleError && (
+                        <p
+                            id="title-error"
+                            className="form-field-error"
+                        >
+                            {titleError}
+                        </p>
+                    )}
                 </div>
 
                 <div className="form-group">
-
                     <label htmlFor="url">
-                        URL
+                        Product URL
                     </label>
 
                     <input
                         id="url"
-                        type="url"
+                        type="text"
                         value={url}
-                        onChange={(event) => setUrl(event.target.value)}
-                        placeholder="https://example.com"
+                        onChange={(event) => {
+                            setUrl(event.target.value);
+
+                            if (urlError) {
+                                setUrlError("");
+                            }
+                        }}
+                        placeholder="https://amazon.in/..."
+                        aria-invalid={Boolean(urlError)}
+                        aria-describedby={
+                            urlError ? "url-error" : undefined
+                        }
                     />
 
+                    {urlError && (
+                        <p
+                            id="url-error"
+                            className="form-field-error"
+                        >
+                            {urlError}
+                        </p>
+                    )}
                 </div>
 
                 <div className="form-actions">
-
                     <button
                         type="button"
                         onClick={onCancel}
+                        disabled={saving}
                     >
                         Cancel
                     </button>
 
-                    <button type="submit">
-                        Save Link
+                    <button
+                        type="submit"
+                        disabled={saving}
+                    >
+                        {saving ? "Saving..." : "Save Product"}
                     </button>
-
                 </div>
-
             </form>
-
         </div>
     );
 }

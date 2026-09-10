@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 function SearchBar({ onSearch }) {
-
     const [searchTerm, setSearchTerm] = useState("");
 
     const handleSearch = () => {
@@ -21,13 +20,13 @@ function SearchBar({ onSearch }) {
 
     return (
         <div className="search-bar">
-
             <input
                 type="text"
-                placeholder="Search links..."
+                placeholder="Search your saved products..."
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 onKeyDown={handleKeyDown}
+                aria-label="Search saved products"
             />
 
             <button onClick={handleSearch}>
@@ -40,7 +39,6 @@ function SearchBar({ onSearch }) {
             >
                 Clear
             </button>
-
         </div>
     );
 }

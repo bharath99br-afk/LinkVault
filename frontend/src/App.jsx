@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 
 import Login from "./pages/Login";
@@ -15,6 +15,12 @@ import "./styles/links.css";
 
 function App() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <div className="app">
@@ -40,7 +46,7 @@ function App() {
               {user.name}
             </span>
 
-            <button onClick={logout}>
+            <button onClick={handleLogout}>
               Logout
             </button>
           </div>

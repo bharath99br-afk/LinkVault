@@ -1,7 +1,8 @@
 /* =========================================================
    LINKVAULT LINKS
-   Link management page, search, table and actions
+   Saved products page, search, product list and actions
    ========================================================= */
+
 
 /* ---------- Page Header ---------- */
 
@@ -14,41 +15,75 @@
     justify-content: space-between;
     align-items: flex-start;
 
+    gap: 30px;
     margin-bottom: 24px;
 }
 
 .page-header h1 {
-    margin-bottom: 6px;
+    margin-top: 4px;
+    margin-bottom: 8px;
 }
 
 .page-header p {
+    max-width: 650px;
+
     margin-top: 0;
+    margin-bottom: 0;
 
     color: var(--lv-text-muted);
+    line-height: 1.6;
 }
 
-/* ---------- Add Link Button ---------- */
+.page-eyebrow {
+    display: inline-block;
+
+    margin-bottom: 2px;
+
+    color: var(--lv-primary);
+
+    font-size: 13px;
+    font-weight: 700;
+
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+
+/* ---------- Save Product Button ---------- */
 
 .add-link-button {
+    flex-shrink: 0;
+
     padding: 11px 18px;
 
     border: none;
-    border-radius: 7px;
+    border-radius: 8px;
 
     background: var(--lv-primary);
 
     color: white;
 
     font-size: 15px;
+    font-weight: 600;
 
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .add-link-button:hover {
     background: var(--lv-primary-dark);
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* ---------- Link Form Container ---------- */
+
+/* ---------- Product Form Container ---------- */
 
 .add-link-form {
     margin-bottom: 24px;
@@ -57,13 +92,16 @@
     background: var(--lv-surface);
 
     border: 1px solid var(--lv-border);
-    border-radius: 10px;
+    border-radius: 12px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .add-link-form h2 {
     margin-top: 0;
     margin-bottom: 20px;
 }
+
 
 /* ---------- Search ---------- */
 
@@ -78,19 +116,31 @@
 .search-bar input {
     flex: 1;
 
+    min-width: 0;
+
     padding: 12px 14px;
 
     border: 1px solid #d1d5db;
     border-radius: 8px;
 
     outline: none;
+
+    background: var(--lv-surface);
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .search-bar input:focus {
     border-color: var(--lv-primary);
+
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 .search-bar button {
+    flex-shrink: 0;
+
     padding: 12px 20px;
 
     border: none;
@@ -100,7 +150,11 @@
 
     color: white;
 
+    font-weight: 500;
+
     cursor: pointer;
+
+    transition: background 0.2s ease;
 }
 
 .search-bar button:hover {
@@ -108,23 +162,21 @@
 }
 
 .clear-button {
-    padding: 12px 20px;
+    padding: 12px 20px !important;
 
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
+    border: 1px solid #d1d5db !important;
 
-    background: var(--lv-surface);
+    background: var(--lv-surface) !important;
 
-    color: #374151;
-
-    cursor: pointer;
+    color: #374151 !important;
 }
 
 .clear-button:hover {
-    background: #f3f4f6;
+    background: #f3f4f6 !important;
 }
 
-/* ---------- Link Table ---------- */
+
+/* ---------- Saved Products Section ---------- */
 
 .link-section {
     background: var(--lv-surface);
@@ -132,8 +184,46 @@
     border: 1px solid var(--lv-border);
     border-radius: 12px;
 
-    padding: 30px;
+    overflow: hidden;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
+
+.link-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 22px 24px;
+
+    border-bottom: 1px solid var(--lv-border);
+}
+
+.link-section-header h2 {
+    margin: 0 0 4px;
+
+    font-size: 18px;
+}
+
+.link-section-header p {
+    margin: 0;
+
+    color: var(--lv-text-muted);
+
+    font-size: 14px;
+}
+
+
+/* ---------- Table Wrapper ---------- */
+
+.table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+
+/* ---------- Product Table ---------- */
 
 .link-table {
     width: 100%;
@@ -145,104 +235,319 @@
 
 .link-table th,
 .link-table td {
-    padding: 14px 16px;
+    padding: 16px 20px;
 
     text-align: left;
 
     border-bottom: 1px solid var(--lv-border);
 }
 
-/* ---------- Table Column Widths ---------- */
+.link-table th {
+    background: #f9fafb;
+
+    color: var(--lv-text-muted);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.link-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.link-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.link-table tbody tr:hover {
+    background: #fafafa;
+}
+
+
+/* ---------- Product Column ---------- */
 
 .link-table th:nth-child(1),
 .link-table td:nth-child(1) {
-    width: 10%;
+    width: 34%;
 }
 
 .link-table th:nth-child(2),
 .link-table td:nth-child(2) {
-    width: 25%;
+    width: 41%;
 }
 
 .link-table th:nth-child(3),
 .link-table td:nth-child(3) {
-    width: 50%;
+    width: 25%;
 }
 
-.link-table th:nth-child(4),
-.link-table td:nth-child(4) {
-    width: 15%;
+.product-cell {
+    vertical-align: middle;
 }
 
-/* ---------- Table States ---------- */
+.product-info {
+    min-width: 0;
+}
 
-.link-table th {
-    background: #f9fafb;
+.product-title {
+    display: block;
 
+    overflow: hidden;
+
+    color: var(--lv-text);
+
+    font-size: 15px;
     font-weight: 600;
+
+    line-height: 1.45;
+
+    text-overflow: ellipsis;
 }
 
-.link-table tbody tr:hover {
-    background: #f9fafb;
+
+/* ---------- Product Source / URL ---------- */
+
+.source-cell {
+    min-width: 0;
 }
 
-.link-table a {
-    color: var(--lv-primary);
+.product-url {
+    display: block;
 
-    text-decoration: none;
-}
+    overflow: hidden;
 
-.link-table a:hover {
-    text-decoration: underline;
-}
+    color: var(--lv-text-muted);
 
-/* ---------- Link Actions ---------- */
+    font-size: 13px;
 
-.actions-cell {
+    line-height: 1.4;
+
+    text-overflow: ellipsis;
+
     white-space: nowrap;
 }
 
-.actions-cell button {
-    display: inline-block;
+
+/* ---------- Table Actions ---------- */
+
+.actions-heading {
+    text-align: right !important;
 }
 
-.edit-button {
-    padding: 7px 14px;
+.actions-cell {
+    vertical-align: middle;
 
-    border: none;
-    border-radius: 6px;
+    text-align: right !important;
+
+    white-space: nowrap;
+}
+
+.product-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+/* ---------- Open Action ---------- */
+
+.open-button {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 8px 13px;
+
+    border-radius: 7px;
 
     background: var(--lv-primary);
 
     color: white;
 
-    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
-.edit-button:hover {
+.open-button:hover {
     background: var(--lv-primary-dark);
-}
-
-.delete-button {
-    margin-left: 8px;
-
-    padding: 8px 14px;
-
-    border: none;
-    border-radius: 6px;
-
-    background-color: #dc3545;
 
     color: white;
 
+    text-decoration: none;
+
+    transform: translateY(-1px);
+}
+
+
+/* ---------- Edit Action ---------- */
+
+.edit-button {
+    padding: 7px 12px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    background: var(--lv-surface);
+
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 500;
+
     cursor: pointer;
 
-    font-size: 14px;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.edit-button:hover {
+    background: #f3f4f6;
+
+    border-color: #bfc4ca;
+}
+
+
+/* ---------- Delete Action ---------- */
+
+.delete-button {
+    padding: 7px 10px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: transparent;
+
+    color: #b42318;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
 }
 
 .delete-button:hover {
-    background-color: #bb2d3b;
+    background: #fef3f2;
+
+    color: #912018;
 }
+
+
+/* ---------- Loading / Error / Empty States ---------- */
+
+.link-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 260px;
+
+    padding: 40px 24px;
+
+    text-align: center;
+}
+
+.link-state h2 {
+    margin: 14px 0 8px;
+
+    font-size: 19px;
+}
+
+.link-state p {
+    max-width: 520px;
+
+    margin: 0;
+
+    color: var(--lv-text-muted);
+
+    line-height: 1.6;
+}
+
+.state-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    height: 46px;
+
+    border-radius: 50%;
+
+    background: #f3f4f6;
+
+    color: var(--lv-text-muted);
+
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.error-state .state-icon {
+    background: #fef3f2;
+
+    color: #b42318;
+}
+
+
+/* ---------- Loading Spinner ---------- */
+
+.loading-spinner {
+    width: 30px;
+    height: 30px;
+
+    border: 3px solid #e5e7eb;
+    border-top-color: var(--lv-primary);
+
+    border-radius: 50%;
+
+    animation: linkvault-spin 0.8s linear infinite;
+}
+
+@keyframes linkvault-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ---------- Retry Button ---------- */
+
+.retry-button {
+    margin-top: 20px;
+
+    padding: 9px 16px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: var(--lv-primary);
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.retry-button:hover {
+    background: var(--lv-primary-dark);
+}
+
 
 /* ---------- Notifications ---------- */
 
@@ -296,6 +601,7 @@
     padding: 0;
 }
 
+
 /* ---------- Pagination ---------- */
 
 .pagination {
@@ -324,6 +630,10 @@
     cursor: pointer;
 
     font-size: 16px;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .pagination button:hover:not(:disabled):not(.active) {
@@ -352,4 +662,316 @@
     opacity: 0.5;
 
     cursor: not-allowed;
+}
+
+
+/* ---------- Responsive Layout ---------- */
+
+@media (max-width: 900px) {
+    .page-header {
+        flex-direction: column;
+    }
+
+    .add-link-button {
+        width: 100%;
+    }
+
+    .link-table {
+        min-width: 720px;
+    }
+}
+
+@media (max-width: 600px) {
+    .search-bar {
+        flex-wrap: wrap;
+    }
+
+    .search-bar input {
+        flex-basis: 100%;
+    }
+
+    .search-bar button {
+        flex: 1;
+    }
+
+    .clear-button {
+        flex: 1;
+    }
+
+    .link-section-header {
+        padding: 18px;
+    }
+
+    .notification {
+        left: 15px;
+        right: 15px;
+
+        min-width: 0;
+    }
+}
+
+/* =========================================================
+   PRODUCT FORM VALIDATION
+   Inline validation states and field-level feedback
+   ========================================================= */
+
+.form-field-error {
+    margin-top: 6px;
+    margin-bottom: 0;
+
+    color: #b42318;
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.add-link-form input[aria-invalid="true"] {
+    border-color: #dc3545;
+}
+
+.add-link-form input[aria-invalid="true"]:focus {
+    border-color: #dc3545;
+
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.08);
+}
+
+/* =========================================================
+   CONFIRMATION MODAL
+   Used for destructive actions such as removing a product
+   ========================================================= */
+
+/* ---------- Modal Overlay ---------- */
+
+.modal-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    background: rgba(15, 23, 42, 0.48);
+
+    z-index: 2000;
+}
+
+
+/* ---------- Modal Container ---------- */
+
+.confirm-modal {
+    position: relative;
+
+    width: min(100%, 460px);
+
+    background: var(--lv-surface);
+
+    border: 1px solid var(--lv-border);
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.18);
+
+    overflow: hidden;
+}
+
+
+/* ---------- Close Button ---------- */
+
+.modal-close-button {
+    position: absolute;
+
+    top: 18px;
+    right: 18px;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: #64748b;
+
+    font-size: 24px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.modal-close-button:hover {
+    background: #f1f5f9;
+
+    color: #172033;
+}
+
+
+/* ---------- Warning Icon ---------- */
+
+.modal-icon {
+    width: 48px;
+    height: 48px;
+
+    margin: 28px auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #fef2f2;
+
+    color: #dc2626;
+
+    font-size: 22px;
+    font-weight: 700;
+}
+
+
+/* ---------- Modal Content ---------- */
+
+.modal-content {
+    padding: 0 36px 28px;
+
+    text-align: center;
+}
+
+.modal-content h2 {
+    margin: 0 0 10px;
+
+    color: #172033;
+
+    font-size: 21px;
+    line-height: 1.3;
+}
+
+.modal-content p {
+    margin: 0;
+
+    color: var(--lv-text-muted);
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ---------- Modal Actions ---------- */
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding: 18px 24px;
+
+    border-top: 1px solid var(--lv-border);
+
+    background: #fafbfc;
+}
+
+.modal-actions button {
+    min-height: 40px;
+
+    padding: 9px 17px;
+
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* ---------- Cancel ---------- */
+
+.modal-cancel-button {
+    border: 1px solid #d1d5db;
+
+    background: var(--lv-surface);
+
+    color: #374151;
+}
+
+.modal-cancel-button:hover {
+    background: #f3f4f6;
+}
+
+
+/* ---------- Destructive Confirmation ---------- */
+
+.modal-confirm-button {
+    border: 1px solid #dc3545;
+
+    background: #dc3545;
+
+    color: white;
+}
+
+.modal-confirm-button:hover {
+    background: #bb2d3b;
+
+    border-color: #bb2d3b;
+}
+
+
+/* ---------- Mobile Modal ---------- */
+
+@media (max-width: 520px) {
+    .modal-overlay {
+        padding: 16px;
+    }
+
+    .modal-content {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .modal-actions button {
+        width: 100%;
+    }
+}
+
+/* ---------- Form Messages ---------- */
+
+.form-message {
+    margin-top: 8px;
+    margin-bottom: 0;
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.form-message-error {
+    color: #b42318;
+}
+
+
+/* ---------- Form Button States ---------- */
+
+.form-actions button:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+/* ---------- Edit Form Scroll Anchor ---------- */
+
+.edit-form-anchor {
+    scroll-margin-top: 24px;
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../hooks/useAuth";
 import { getLoginErrorMessage } from "../services/authErrors";
@@ -8,7 +8,6 @@ function Login() {
     const { login } = useAuth();
 
     const navigate = useNavigate();
-    const location = useLocation();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -20,7 +19,6 @@ function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const from = location.state?.from?.pathname || "/";
 
     const validate = () => {
         let valid = true;
@@ -60,7 +58,7 @@ function Login() {
 
         try {
             await login(email.trim(), password);
-            navigate(from, { replace: true });
+            navigate("/", { replace: true });
         } catch (error) {
             setServerError(getLoginErrorMessage(error));
         } finally {
