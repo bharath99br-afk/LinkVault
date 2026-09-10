@@ -1,0 +1,437 @@
+/* =========================================================
+   LINKVAULT AUTHENTICATION
+   Login + Register page styles
+   ========================================================= */
+
+/* ---------- Authentication Page ---------- */
+
+.auth-page {
+    min-height: 100vh;
+
+    background:
+        radial-gradient(circle at 15% 20%,
+            rgba(81, 70, 229, 0.10),
+            transparent 32%),
+        radial-gradient(circle at 85% 80%,
+            rgba(22, 163, 74, 0.08),
+            transparent 30%),
+        var(--lv-background);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 32px;
+}
+
+.auth-layout {
+    width: min(1100px, 100%);
+    min-height: 650px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    background: var(--lv-surface);
+
+    border: 1px solid var(--lv-border);
+    border-radius: var(--lv-radius-lg);
+
+    overflow: hidden;
+
+    box-shadow: var(--lv-shadow);
+}
+
+/* ---------- Brand Panel ---------- */
+
+.auth-brand-panel {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 64px;
+
+    background:
+        linear-gradient(145deg,
+            #4f46e5 0%,
+            #5b50e8 45%,
+            #4338ca 100%);
+
+    color: white;
+}
+
+.auth-brand-panel::after {
+    content: "";
+
+    position: absolute;
+
+    width: 300px;
+    height: 300px;
+
+    right: -100px;
+    bottom: -120px;
+
+    border-radius: 50%;
+
+    border: 60px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Brand Identity ---------- */
+
+.brand-mark {
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.16);
+
+    font-weight: 800;
+    letter-spacing: -0.04em;
+
+    margin-bottom: 14px;
+}
+
+.brand-name {
+    margin: 0 0 50px;
+
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* ---------- Brand Heading ---------- */
+
+.auth-brand-panel h1 {
+    margin: 0;
+
+    max-width: 500px;
+
+    font-size: clamp(38px, 4vw, 58px);
+    line-height: 1.02;
+
+    letter-spacing: -0.045em;
+}
+
+.auth-brand-panel h1 span {
+    color: #c7ffb9;
+}
+
+.brand-description {
+    max-width: 480px;
+
+    margin: 24px 0 34px;
+
+    color: rgba(255, 255, 255, 0.82);
+
+    font-size: 17px;
+    line-height: 1.65;
+}
+
+/* ---------- Value Points ---------- */
+
+.value-points {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    font-size: 15px;
+}
+
+.value-points div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.value-points span {
+    width: 22px;
+    height: 22px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(199, 255, 185, 0.18);
+
+    color: #c7ffb9;
+
+    font-weight: 800;
+}
+
+/* ---------- Saving Highlight ---------- */
+
+.saving-highlight {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    max-width: 420px;
+
+    margin-top: 14px;
+    padding: 18px;
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.saving-icon {
+    width: 46px;
+    height: 46px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: rgba(199, 255, 185, 0.16);
+
+    color: #c7ffb9;
+
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.saving-highlight strong {
+    font-size: 15px;
+}
+
+.saving-highlight p {
+    margin: 4px 0 0;
+
+    color: rgba(255, 255, 255, 0.72);
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* ---------- Authentication Form Panel ---------- */
+
+.auth-form-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 48px;
+}
+
+.auth-card {
+    width: min(420px, 100%);
+}
+
+.auth-heading {
+    margin-bottom: 30px;
+}
+
+.auth-heading h2 {
+    margin: 0 0 8px;
+
+    color: var(--lv-text);
+
+    font-size: 30px;
+    letter-spacing: -0.035em;
+}
+
+.auth-heading p {
+    margin: 0;
+
+    color: var(--lv-text-muted);
+
+    line-height: 1.5;
+}
+
+/* ---------- Mobile Brand ---------- */
+
+.mobile-brand {
+    display: none;
+}
+
+/* ---------- Password ---------- */
+
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper input {
+    padding-right: 68px;
+}
+
+.password-toggle {
+    position: absolute;
+
+    top: 50%;
+    right: 10px;
+
+    transform: translateY(-50%);
+
+    border: none;
+    background: transparent;
+
+    color: var(--lv-primary);
+
+    font-size: 13px;
+    font-weight: 650;
+
+    cursor: pointer;
+}
+
+/* ---------- Authentication Submit ---------- */
+
+.auth-submit {
+    width: 100%;
+
+    margin-top: 6px;
+
+    padding: 14px 18px;
+
+    border: none;
+    border-radius: var(--lv-radius-sm);
+
+    background: var(--lv-primary);
+
+    color: white;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.auth-submit:hover:not(:disabled) {
+    background: var(--lv-primary-dark);
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 8px 20px rgba(81, 70, 229, 0.20);
+}
+
+.auth-submit:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.auth-submit:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+}
+
+/* ---------- Authentication Messages ---------- */
+
+.auth-message {
+    padding: 12px 14px;
+
+    margin-bottom: 20px;
+
+    border-radius: var(--lv-radius-sm);
+
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.auth-message-error {
+    border: 1px solid #fecaca;
+
+    background: var(--lv-error-soft);
+
+    color: #991b1b;
+}
+
+.auth-message-success {
+    border: 1px solid #bbf7d0;
+
+    background: var(--lv-success-soft);
+
+    color: #166534;
+}
+
+/* ---------- Authentication Footer ---------- */
+
+.auth-footer {
+    margin: 24px 0 0;
+
+    text-align: center;
+
+    color: var(--lv-text-muted);
+
+    font-size: 14px;
+}
+
+.auth-footer a {
+    color: var(--lv-primary);
+
+    font-weight: 650;
+
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Authentication Responsive ---------- */
+
+@media (max-width: 800px) {
+    .auth-page {
+        padding: 16px;
+    }
+
+    .auth-layout {
+        min-height: auto;
+
+        grid-template-columns: 1fr;
+    }
+
+    .auth-brand-panel {
+        display: none;
+    }
+
+    .auth-form-panel {
+        padding: 32px 22px;
+    }
+
+    .mobile-brand {
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 10px;
+
+        margin-bottom: 34px;
+
+        color: var(--lv-text);
+    }
+
+    .mobile-brand .brand-mark {
+        width: 38px;
+        height: 38px;
+
+        margin: 0;
+
+        background: var(--lv-primary);
+
+        color: white;
+    }
+
+    .auth-heading h2 {
+        font-size: 27px;
+    }
+}

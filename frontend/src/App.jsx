@@ -8,6 +8,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 
 import "./App.css";
+import "./styles/auth.css";
+import "./styles/dashboard.css";
+import "./styles/forms.css";
+import "./styles/links.css";
 
 function App() {
   const { user, logout } = useAuth();
@@ -61,7 +65,7 @@ function App() {
             element={<Dashboard />}
           />
           <Route
-            path="/"
+            path="/links"
             element={<Links />}
           />
         </Route>

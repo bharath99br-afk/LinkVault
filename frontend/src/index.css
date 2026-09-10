@@ -1,6 +1,41 @@
+/* =========================================================
+   LINKVAULT GLOBAL STYLES
+   Global reset, typography and design tokens
+   ========================================================= */
+
 * {
   box-sizing: border-box;
 }
+
+/* ---------- Design Tokens ---------- */
+
+:root {
+  --lv-primary: #5146e5;
+  --lv-primary-dark: #4338ca;
+  --lv-primary-soft: #eeedff;
+
+  --lv-success: #16a34a;
+  --lv-success-soft: #dcfce7;
+
+  --lv-text: #172033;
+  --lv-text-muted: #667085;
+
+  --lv-background: #f6f8fc;
+  --lv-surface: #ffffff;
+
+  --lv-border: #e3e7ef;
+  --lv-error: #dc2626;
+  --lv-error-soft: #fef2f2;
+
+  --lv-radius-sm: 8px;
+  --lv-radius-md: 14px;
+  --lv-radius-lg: 22px;
+
+  --lv-shadow:
+    0 20px 50px rgba(23, 32, 51, 0.08);
+}
+
+/* ---------- Global Typography ---------- */
 
 html {
   font-family:
@@ -16,12 +51,13 @@ html {
 body {
   margin: 0;
 
-  background: #f6f8fc;
-
-  color: #172033;
+  background: var(--lv-background);
+  color: var(--lv-text);
 
   -webkit-font-smoothing: antialiased;
 }
+
+/* ---------- Global Form Controls ---------- */
 
 button,
 input,
