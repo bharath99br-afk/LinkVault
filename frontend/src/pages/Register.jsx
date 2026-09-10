@@ -41,9 +41,9 @@ function Register() {
         if (!password) {
             nextErrors.password =
                 "Please create a password.";
-        } else if (password.length < 6) {
+        } else if (password.length < 8) {
             nextErrors.password =
-                "Password must be at least 6 characters.";
+                "Password must be at least 8 characters.";
         }
 
         setErrors(nextErrors);
@@ -272,7 +272,7 @@ function Register() {
                                                 ? "input-error"
                                                 : ""
                                         }
-                                        placeholder="At least 6 characters"
+                                        placeholder="At least 8 characters"
                                     />
 
                                     <button
