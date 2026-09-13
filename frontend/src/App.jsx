@@ -6,12 +6,14 @@ import Register from "./pages/Register";
 import Links from "./pages/Links";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import Products from "./pages/Products";
 
 import "./App.css";
 import "./styles/auth.css";
 import "./styles/dashboard.css";
 import "./styles/forms.css";
 import "./styles/links.css";
+import "./styles/products.css";
 
 function App() {
   const { user, logout } = useAuth();
@@ -37,6 +39,10 @@ function App() {
 
               <a href="/links">
                 Links
+              </a>
+
+              <a href="/products">
+                Products
               </a>
             </nav>
           </div>
@@ -73,6 +79,10 @@ function App() {
           <Route
             path="/links"
             element={<Links />}
+          />
+          <Route
+            path="/products"
+            element={<Products />}
           />
         </Route>
 
