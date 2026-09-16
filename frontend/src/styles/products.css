@@ -7,7 +7,7 @@
 
 .products-page {
     min-height: calc(100vh - 80px);
-    padding: 48px 0 72px;
+    /* padding: 48px 0 72px; */
     background: var(--lv-background);
 }
 
@@ -35,7 +35,7 @@
     letter-spacing: -0.04em;
 }
 
-.products-header p {
+.products-header>div>p:last-child {
     max-width: 650px;
     margin: 0;
     color: var(--lv-text-muted);
