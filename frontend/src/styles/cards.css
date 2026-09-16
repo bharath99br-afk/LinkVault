@@ -1,0 +1,510 @@
+/* =========================================================
+   LINKVAULT CARDS
+   Saved payment cards and card management
+   ========================================================= */
+
+/* ---------- Cards Page ---------- */
+
+.cards-page {
+    padding-top: 48px;
+    padding-bottom: 64px;
+}
+
+.cards-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 32px;
+    margin-bottom: 32px;
+}
+
+.cards-eyebrow {
+    margin: 0 0 8px;
+    color: var(--lv-primary);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.cards-header h1 {
+    margin: 0 0 10px;
+    color: var(--lv-text);
+    font-size: clamp(30px, 4vw, 42px);
+    letter-spacing: -0.04em;
+}
+
+.cards-header>div>p:last-child {
+    max-width: 650px;
+    margin: 0;
+    color: var(--lv-text-muted);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.cards-add-button {
+    flex-shrink: 0;
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--lv-primary);
+    color: white;
+    font-weight: 700;
+}
+
+/* ---------- Cards Search ---------- */
+
+.cards-section {
+    overflow: hidden;
+    background: var(--lv-surface);
+    border: 1px solid var(--lv-border);
+    border-radius: var(--lv-radius-md);
+    box-shadow: 0 8px 24px rgba(23, 32, 51, 0.04);
+}
+
+.cards-search-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--lv-border);
+}
+
+.cards-search-group {
+    flex: 1;
+}
+
+.cards-search-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--lv-text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.cards-search-group input {
+    width: 100%;
+    padding: 12px 13px;
+    border: 1px solid var(--lv-border);
+    border-radius: 8px;
+    background: white;
+    color: var(--lv-text);
+    outline: none;
+}
+
+.cards-search-group input:focus {
+    border-color: var(--lv-primary);
+    box-shadow: 0 0 0 3px var(--lv-primary-soft);
+}
+
+.cards-search-button {
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--lv-primary);
+    color: white;
+    font-weight: 700;
+}
+
+/* ---------- Cards List ---------- */
+
+.cards-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    padding: 24px;
+}
+
+.card-item {
+    padding: 18px;
+    border: 1px solid var(--lv-border);
+    border-radius: 16px;
+    background: var(--lv-surface);
+    box-shadow: 0 8px 22px rgba(23, 32, 51, 0.04);
+}
+
+/* ---------- Card Visual ---------- */
+
+.card-visual {
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 22px;
+    border-radius: 15px;
+    background: linear-gradient(135deg,
+            #5146e5,
+            #6d5dfc);
+    color: white;
+}
+
+.card-visual-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-visual-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.card-type-badge {
+    padding: 5px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.card-number {
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+}
+
+.card-visual-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 13px;
+}
+
+.card-visual-bottom span:first-child {
+    font-weight: 700;
+}
+
+.card-visual-bottom span:last-child {
+    opacity: 0.85;
+}
+
+/* ---------- Card Actions ---------- */
+
+.card-item-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 16px;
+}
+
+.card-edit-button,
+.card-delete-button {
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.card-edit-button {
+    border: 1px solid var(--lv-border);
+    background: var(--lv-surface);
+    color: var(--lv-text);
+}
+
+.card-delete-button {
+    border: 0;
+    background: transparent;
+    color: #b91c1c;
+}
+
+/* ---------- Cards Empty + Loading ---------- */
+
+.cards-empty-state {
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.cards-empty-icon {
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    border-radius: 13px;
+    background: var(--lv-primary-soft);
+    color: var(--lv-primary);
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.cards-empty-state h2 {
+    margin: 0 0 8px;
+    color: var(--lv-text);
+    font-size: 20px;
+}
+
+.cards-empty-state p {
+    margin: 0;
+    color: var(--lv-text-muted);
+    font-size: 14px;
+}
+
+.cards-loading {
+    padding: 80px 20px;
+    text-align: center;
+    color: var(--lv-text-muted);
+}
+
+/* ---------- Cards Pagination ---------- */
+
+.cards-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 20px;
+    border-top: 1px solid var(--lv-border);
+}
+
+.cards-pagination button {
+    padding: 8px 12px;
+    border: 1px solid var(--lv-border);
+    border-radius: 7px;
+    background: var(--lv-surface);
+    color: var(--lv-text);
+    font-weight: 600;
+}
+
+.cards-pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.cards-pagination span {
+    color: var(--lv-text-muted);
+    font-size: 13px;
+}
+
+/* ---------- Card Forms ---------- */
+
+.card-form-card {
+    margin-bottom: 32px;
+    padding: 30px;
+    background: var(--lv-surface);
+    border: 1px solid var(--lv-border);
+    border-radius: var(--lv-radius-md);
+    box-shadow: 0 8px 24px rgba(23, 32, 51, 0.04);
+}
+
+.card-form-heading {
+    margin-bottom: 28px;
+}
+
+.card-form-eyebrow {
+    margin: 0 0 7px;
+    color: var(--lv-primary);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.card-form-heading h2 {
+    margin: 0 0 8px;
+    color: var(--lv-text);
+    font-size: 24px;
+}
+
+.card-form-heading>p:last-child {
+    margin: 0;
+    color: var(--lv-text-muted);
+    font-size: 14px;
+}
+
+.card-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 18px;
+}
+
+.card-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--lv-text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.card-form-group input,
+.card-form-group select {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 13px;
+    border: 1px solid var(--lv-border);
+    border-radius: 8px;
+    background: white;
+    color: var(--lv-text);
+    outline: none;
+}
+
+.card-form-group input:focus,
+.card-form-group select:focus {
+    border-color: var(--lv-primary);
+    box-shadow: 0 0 0 3px var(--lv-primary-soft);
+}
+
+.card-input-error {
+    border-color: #ef4444 !important;
+    background: #fffafa !important;
+}
+
+.card-field-error {
+    display: block;
+    margin-top: 7px;
+    color: #b91c1c;
+    font-size: 12px;
+}
+
+.card-field-help {
+    margin: 7px 0 0;
+    color: var(--lv-text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.card-inline-error {
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background: var(--lv-error-soft);
+    color: #991b1b;
+    font-size: 13px;
+}
+
+.card-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid var(--lv-border);
+}
+
+.card-secondary-button,
+.card-primary-button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.card-secondary-button {
+    border: 1px solid var(--lv-border);
+    background: var(--lv-surface);
+    color: var(--lv-text);
+}
+
+.card-primary-button {
+    border: 0;
+    background: var(--lv-primary);
+    color: white;
+}
+
+/* ---------- Cards Responsive ---------- */
+
+@media (max-width: 800px) {
+    .cards-list {
+        grid-template-columns: 1fr;
+    }
+
+    .card-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .cards-page {
+        padding-top: 32px;
+    }
+
+    .cards-header {
+        flex-direction: column;
+    }
+
+    .cards-add-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .cards-search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cards-search-button {
+        width: 100%;
+    }
+
+    .card-form-card {
+        padding: 22px;
+    }
+
+    .card-visual {
+        min-height: 175px;
+        padding: 18px;
+    }
+
+    .card-number {
+        font-size: 17px;
+    }
+
+    .card-visual-bottom {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .card-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .card-secondary-button,
+    .card-primary-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 800px) {
+    .cards-search-actions {
+        width: 100%;
+    }
+
+    .cards-search-actions .cards-search-button,
+    .cards-search-actions .cards-clear-button {
+        flex: 1;
+    }
+}
+
+/* =========================================================
+   CARD SEARCH ACTIONS
+   ========================================================= */
+
+.cards-search-actions {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.cards-clear-button {
+    padding: 11px 17px;
+    border: 1px solid var(--lv-border);
+    border-radius: var(--lv-radius-sm);
+    background: white;
+    color: var(--lv-text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 650;
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.cards-clear-button:hover {
+    background: #f8f9fc;
+}

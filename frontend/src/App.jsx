@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Merchants from "./pages/Merchants";
+import Cards from "./pages/Cards";
 
 import "./App.css";
 import "./styles/auth.css";
@@ -16,6 +17,7 @@ import "./styles/forms.css";
 import "./styles/links.css";
 import "./styles/products.css";
 import "./styles/merchants.css";
+import "./styles/cards.css";
 
 function App() {
   const { user, logout } = useAuth();
@@ -49,6 +51,10 @@ function App() {
 
               <a href="/merchants">
                 Merchants
+              </a>
+
+              <a href="/cards">
+                Cards
               </a>
             </nav>
           </div>
@@ -94,6 +100,11 @@ function App() {
           <Route
             path="/merchants"
             element={<Merchants />}
+          />
+
+          <Route
+            path="/cards"
+            element={<Cards />}
           />
 
         </Route>

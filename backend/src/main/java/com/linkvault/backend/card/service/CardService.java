@@ -14,6 +14,7 @@ import com.linkvault.backend.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CardService {
@@ -32,6 +33,7 @@ public class CardService {
         this.currentUserService = currentUserService;
     }
 
+    @Transactional(readOnly = true)
     public PageResponse<CardResponse> getCards(
             String name,
             Pageable pageable) {
@@ -57,6 +59,7 @@ public class CardService {
         return mapToPageResponse(page);
     }
 
+    @Transactional(readOnly = true)
     public CardResponse getCard(Long id) {
 
         User currentUser = currentUserService.getCurrentUser();
@@ -69,6 +72,7 @@ public class CardService {
         return mapToResponse(card);
     }
 
+    @Transactional
     public CardResponse addCard(CardRequest request) {
 
         User currentUser = currentUserService.getCurrentUser();
@@ -88,6 +92,7 @@ public class CardService {
         return mapToResponse(savedCard);
     }
 
+    @Transactional
     public CardResponse updateCard(
             Long id,
             CardRequest request) {
@@ -111,6 +116,7 @@ public class CardService {
         return mapToResponse(updatedCard);
     }
 
+    @Transactional
     public void deleteCard(Long id) {
 
         User currentUser = currentUserService.getCurrentUser();
