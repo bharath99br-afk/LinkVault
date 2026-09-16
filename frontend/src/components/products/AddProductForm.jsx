@@ -5,6 +5,8 @@ import {
     normalizeProductUrl,
 } from "../../utils/productUtils";
 
+import { previewProduct } from "../../services/productService";
+
 const INITIAL_FORM = {
     name: "",
     description: "",
@@ -24,9 +26,18 @@ function AddProductForm({
     const [form, setForm] = useState(INITIAL_FORM);
     const [errors, setErrors] = useState({});
 
+    const [sourceUrl, setSourceUrl] = useState("");
+
+    const [preview, setPreview] = useState(null);
+    const [previewLoading, setPreviewLoading] = useState(false);
+    const [previewError, setPreviewError] = useState("");
+
     useEffect(() => {
         setForm(INITIAL_FORM);
         setErrors({});
+        setSourceUrl("");
+        setPreview(null);
+        setPreviewError("");
     }, []);
 
     const updateField = (field, value) => {
@@ -39,6 +50,72 @@ function AddProductForm({
             ...current,
             [field]: "",
         }));
+    };
+
+    const validateSourceUrl = () => {
+        const normalizedUrl = sourceUrl.trim();
+
+        if (!normalizedUrl) {
+            setPreviewError("Please enter a product URL.");
+            return false;
+        }
+
+        if (!isValidProductUrl(normalizedUrl)) {
+            setPreviewError("Please enter a valid product URL.");
+            return false;
+        }
+
+        setPreviewError("");
+        return true;
+    };
+
+    const handlePreview = async () => {
+        if (!validateSourceUrl()) {
+            return;
+        }
+
+        setPreviewLoading(true);
+        setPreviewError("");
+        setPreview(null);
+
+        try {
+            const normalizedUrl = normalizeProductUrl(
+                sourceUrl.trim()
+            );
+
+            const response = await previewProduct(normalizedUrl);
+            const data = response?.data;
+
+            if (!data) {
+                throw new Error(
+                    "Product information could not be retrieved."
+                );
+            }
+
+            setPreview(data);
+
+            setForm((current) => ({
+                ...current,
+                name: data.name || "",
+                description: data.description || "",
+                imageUrl: data.imageUrl || "",
+                category: data.category || "",
+                websiteUrl:
+                    data.websiteUrl || normalizedUrl,
+            }));
+        } catch (requestError) {
+            console.error(
+                "Failed to generate product preview:",
+                requestError
+            );
+
+            setPreviewError(
+                requestError?.message ||
+                "Unable to generate a product preview."
+            );
+        } finally {
+            setPreviewLoading(false);
+        }
     };
 
     const validate = () => {
@@ -71,7 +148,7 @@ function AddProductForm({
 
         if (!websiteUrl) {
             nextErrors.websiteUrl =
-                "Please enter the product website URL.";
+                "Product website URL is required.";
         } else if (!isValidProductUrl(websiteUrl)) {
             nextErrors.websiteUrl =
                 "Please enter a valid website URL.";
@@ -101,6 +178,20 @@ function AddProductForm({
         });
     };
 
+    const handleChangeUrl = (event) => {
+        setSourceUrl(event.target.value);
+
+        if (preview) {
+            setPreview(null);
+            setPreviewError("");
+            setForm(INITIAL_FORM);
+        }
+
+        if (previewError) {
+            setPreviewError("");
+        }
+    };
+
     return (
         <section className="product-form-card">
             <div className="product-form-heading">
@@ -108,10 +199,12 @@ function AddProductForm({
                     <p className="product-form-eyebrow">
                         Add to your vault
                     </p>
+
                     <h2>Save a product</h2>
+
                     <p>
-                        Keep a product ready for smarter purchase
-                        decisions later.
+                        Paste a product link and LinkVault will
+                        identify the product for you.
                     </p>
                 </div>
             </div>
@@ -121,192 +214,347 @@ function AddProductForm({
                 onSubmit={handleSubmit}
                 noValidate
             >
-                <div className="product-form-grid">
+                {/* -------------------------------------------------
+                    PRODUCT URL / PREVIEW
+                -------------------------------------------------- */}
+
+                <div className="product-url-intelligence">
                     <div className="product-form-group product-form-full">
-                        <label htmlFor="product-name">
-                            Product name
+                        <label htmlFor="product-source-url">
+                            Product URL
                         </label>
 
-                        <input
-                            id="product-name"
-                            type="text"
-                            value={form.name}
-                            onChange={(event) =>
-                                updateField(
-                                    "name",
-                                    event.target.value
-                                )
-                            }
-                            placeholder="e.g. Sony WH-1000XM5"
-                            maxLength={150}
-                            className={
-                                errors.name
-                                    ? "product-input-error"
-                                    : ""
-                            }
-                        />
+                        <div className="product-url-preview-row">
+                            <input
+                                id="product-source-url"
+                                type="text"
+                                value={sourceUrl}
+                                onChange={handleChangeUrl}
+                                placeholder="Paste a product link from a shopping website"
+                                disabled={
+                                    previewLoading || submitting
+                                }
+                                autoComplete="url"
+                            />
 
-                        {errors.name && (
+                            <button
+                                type="button"
+                                className="product-preview-button"
+                                onClick={handlePreview}
+                                disabled={
+                                    previewLoading ||
+                                    submitting ||
+                                    !sourceUrl.trim()
+                                }
+                            >
+                                {previewLoading
+                                    ? "Identifying..."
+                                    : "Identify Product"}
+                            </button>
+                        </div>
+
+                        <p className="product-url-help">
+                            LinkVault will extract available product
+                            details from the source page.
+                        </p>
+
+                        {previewError && (
                             <span className="product-field-error">
-                                {errors.name}
+                                {previewError}
                             </span>
                         )}
                     </div>
 
-                    <div className="product-form-group product-form-full">
-                        <label htmlFor="product-description">
-                            Description
-                        </label>
+                    {/* -------------------------------------------------
+                        PRODUCT PREVIEW
+                    -------------------------------------------------- */}
 
-                        <textarea
-                            id="product-description"
-                            value={form.description}
-                            onChange={(event) =>
-                                updateField(
-                                    "description",
-                                    event.target.value
-                                )
-                            }
-                            placeholder="Optional notes about this product"
-                            maxLength={500}
-                            rows={3}
-                            className={
-                                errors.description
-                                    ? "product-input-error"
-                                    : ""
-                            }
-                        />
+                    {preview && (
+                        <div className="product-preview-card">
+                            {/* -------------------------------------------------
+            PREVIEW HEADER / STATUS
+        -------------------------------------------------- */}
+                            <div className="product-preview-header">
+                                <div>
+                                    <p className="product-preview-eyebrow">
+                                        Product identified
+                                    </p>
+                                    <p className="product-preview-source">
+                                        Details extracted from the source page
+                                    </p>
+                                </div>
 
-                        {errors.description && (
-                            <span className="product-field-error">
-                                {errors.description}
-                            </span>
-                        )}
-                    </div>
+                                <div className="product-preview-status">
+                                    <span
+                                        className="product-preview-check"
+                                        aria-hidden="true"
+                                    >
+                                        ✓
+                                    </span>
 
-                    <div className="product-form-group">
-                        <label htmlFor="product-category">
-                            Category
-                        </label>
+                                    <span>Ready to save</span>
+                                </div>
+                            </div>
 
-                        <input
-                            id="product-category"
-                            type="text"
-                            value={form.category}
-                            onChange={(event) =>
-                                updateField(
-                                    "category",
-                                    event.target.value
-                                )
-                            }
-                            placeholder="e.g. Electronics"
-                            maxLength={100}
-                            className={
-                                errors.category
-                                    ? "product-input-error"
-                                    : ""
-                            }
-                        />
+                            {/* -------------------------------------------------
+            PREVIEW CONTENT
+        -------------------------------------------------- */}
+                            <div className="product-preview-body">
+                                <div className="product-preview-image">
+                                    {preview.imageUrl ? (
+                                        <img
+                                            src={preview.imageUrl}
+                                            alt={
+                                                preview.name ||
+                                                "Product preview"
+                                            }
+                                            onError={(event) => {
+                                                event.currentTarget.style.display =
+                                                    "none";
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="product-preview-image-placeholder"
+                                            aria-hidden="true"
+                                        >
+                                            <span>⌁</span>
+                                        </div>
+                                    )}
+                                </div>
 
-                        {errors.category && (
-                            <span className="product-field-error">
-                                {errors.category}
-                            </span>
-                        )}
-                    </div>
+                                <div className="product-preview-details">
+                                    <h3>
+                                        {preview.name ||
+                                            "Unnamed product"}
+                                    </h3>
 
-                    <div className="product-form-group">
-                        <label htmlFor="product-merchant">
-                            Merchant
-                        </label>
+                                    {preview.description && (
+                                        <p className="product-preview-description">
+                                            {preview.description}
+                                        </p>
+                                    )}
 
-                        <select
-                            id="product-merchant"
-                            value={form.merchantId}
-                            onChange={(event) =>
-                                updateField(
-                                    "merchantId",
-                                    event.target.value
-                                )
-                            }
-                            disabled={merchantsLoading}
-                        >
-                            <option value="">
-                                {merchantsLoading
-                                    ? "Loading merchants..."
-                                    : "No merchant"}
-                            </option>
+                                    <div className="product-preview-meta">
+                                        {preview.merchantName && (
+                                            <span>
+                                                <strong>Merchant:</strong>{" "}
+                                                {preview.merchantName}
+                                            </span>
+                                        )}
 
-                            {merchants.map((merchant) => (
-                                <option
-                                    key={merchant.id}
-                                    value={merchant.id}
-                                >
-                                    {merchant.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                                        {preview.category && (
+                                            <span className="product-preview-category">
+                                                {preview.category}
+                                            </span>
+                                        )}
 
-                    <div className="product-form-group product-form-full">
-                        <label htmlFor="product-website">
-                            Product website
-                        </label>
-
-                        <input
-                            id="product-website"
-                            type="text"
-                            value={form.websiteUrl}
-                            onChange={(event) =>
-                                updateField(
-                                    "websiteUrl",
-                                    event.target.value
-                                )
-                            }
-                            placeholder="www.example.com/product"
-                            className={
-                                errors.websiteUrl
-                                    ? "product-input-error"
-                                    : ""
-                            }
-                        />
-
-                        {errors.websiteUrl && (
-                            <span className="product-field-error">
-                                {errors.websiteUrl}
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="product-form-group product-form-full">
-                        <label htmlFor="product-image">
-                            Image URL
-                            <span className="product-label-optional">
-                                Optional
-                            </span>
-                        </label>
-
-                        <input
-                            id="product-image"
-                            type="text"
-                            value={form.imageUrl}
-                            onChange={(event) =>
-                                updateField(
-                                    "imageUrl",
-                                    event.target.value
-                                )
-                            }
-                            placeholder="https://example.com/product-image.jpg"
-                        />
-                    </div>
+                                        {preview.price != null && (
+                                            <span className="product-preview-price">
+                                                {preview.currency
+                                                    ? `${preview.currency} `
+                                                    : ""}
+                                                {preview.price}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
+
+                {/* -------------------------------------------------
+                    PRODUCT DETAILS
+                -------------------------------------------------- */}
+
+                {preview && (
+                    <div className="product-form-grid">
+                        <div className="product-form-group product-form-full">
+                            <label htmlFor="product-name">
+                                Product name
+                            </label>
+
+                            <input
+                                id="product-name"
+                                type="text"
+                                value={form.name}
+                                onChange={(event) =>
+                                    updateField(
+                                        "name",
+                                        event.target.value
+                                    )
+                                }
+                                placeholder="e.g. Sony WH-1000XM5"
+                                maxLength={150}
+                                className={
+                                    errors.name
+                                        ? "product-input-error"
+                                        : ""
+                                }
+                                disabled={submitting}
+                            />
+
+                            {errors.name && (
+                                <span className="product-field-error">
+                                    {errors.name}
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="product-form-group product-form-full">
+                            <label htmlFor="product-description">
+                                Description
+                            </label>
+
+                            <textarea
+                                id="product-description"
+                                value={form.description}
+                                onChange={(event) =>
+                                    updateField(
+                                        "description",
+                                        event.target.value
+                                    )
+                                }
+                                placeholder="Optional notes about this product"
+                                maxLength={500}
+                                rows={3}
+                                className={
+                                    errors.description
+                                        ? "product-input-error"
+                                        : ""
+                                }
+                                disabled={submitting}
+                            />
+
+                            {errors.description && (
+                                <span className="product-field-error">
+                                    {errors.description}
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="product-form-group">
+                            <label htmlFor="product-category">
+                                Category
+                            </label>
+
+                            <input
+                                id="product-category"
+                                type="text"
+                                value={form.category}
+                                onChange={(event) =>
+                                    updateField(
+                                        "category",
+                                        event.target.value
+                                    )
+                                }
+                                placeholder="e.g. Electronics"
+                                maxLength={100}
+                                className={
+                                    errors.category
+                                        ? "product-input-error"
+                                        : ""
+                                }
+                                disabled={submitting}
+                            />
+
+                            {errors.category && (
+                                <span className="product-field-error">
+                                    {errors.category}
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="product-form-group">
+                            <label htmlFor="product-merchant">
+                                Your merchant
+                            </label>
+
+                            <select
+                                id="product-merchant"
+                                value={form.merchantId}
+                                onChange={(event) =>
+                                    updateField(
+                                        "merchantId",
+                                        event.target.value
+                                    )
+                                }
+                                disabled={
+                                    merchantsLoading ||
+                                    submitting
+                                }
+                            >
+                                <option value="">
+                                    {merchantsLoading
+                                        ? "Loading merchants..."
+                                        : "Select merchant"}
+                                </option>
+
+                                {merchants.map((merchant) => (
+                                    <option
+                                        key={merchant.id}
+                                        value={merchant.id}
+                                    >
+                                        {merchant.name}
+                                    </option>
+                                ))}
+                            </select>
+
+                            {preview?.merchantName && (
+                                <p className="product-merchant-detected">
+                                    Detected:{" "}
+                                    <strong>
+                                        {preview.merchantName}
+                                    </strong>
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="product-form-group product-form-full">
+                            <label htmlFor="product-website">
+                                Product website
+                            </label>
+
+                            <input
+                                id="product-website"
+                                type="text"
+                                value={form.websiteUrl}
+                                onChange={(event) =>
+                                    updateField(
+                                        "websiteUrl",
+                                        event.target.value
+                                    )
+                                }
+                                className={
+                                    errors.websiteUrl
+                                        ? "product-input-error"
+                                        : ""
+                                }
+                                disabled={submitting}
+                            />
+
+                            {errors.websiteUrl && (
+                                <span className="product-field-error">
+                                    {errors.websiteUrl}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* -------------------------------------------------
+                    ACTIONS
+                -------------------------------------------------- */}
 
                 <div className="product-form-actions">
                     <button
                         type="button"
                         className="product-secondary-button"
                         onClick={onCancel}
-                        disabled={submitting}
+                        disabled={
+                            submitting || previewLoading
+                        }
                     >
                         Cancel
                     </button>
@@ -314,7 +562,11 @@ function AddProductForm({
                     <button
                         type="submit"
                         className="product-primary-button"
-                        disabled={submitting}
+                        disabled={
+                            submitting ||
+                            previewLoading ||
+                            !preview
+                        }
                     >
                         {submitting
                             ? "Saving..."

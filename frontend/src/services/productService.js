@@ -31,6 +31,20 @@ export async function getProduct(id) {
     return apiRequest(`/products/${id}`);
 }
 
+/**
+ * Generates product metadata from the supplied product URL.
+ *
+ * This does not create or save a product.
+ */
+export async function previewProduct(url) {
+    return apiRequest("/products/preview", {
+        method: "POST",
+        body: JSON.stringify({
+            url,
+        }),
+    });
+}
+
 export async function createProduct(product) {
     return apiRequest("/products", {
         method: "POST",
