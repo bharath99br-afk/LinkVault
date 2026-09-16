@@ -23,6 +23,7 @@ function EditProductForm({
     });
 
     const [errors, setErrors] = useState({});
+    const [imageLoadError, setImageLoadError] = useState(false);
 
     useEffect(() => {
         if (!product) {
@@ -41,6 +42,7 @@ function EditProductForm({
         });
 
         setErrors({});
+        setImageLoadError(false);
     }, [product]);
 
     const updateField = (field, value) => {
@@ -315,24 +317,37 @@ function EditProductForm({
                     </div>
 
                     <div className="product-form-group product-form-full">
-                        <label htmlFor="edit-product-image">
-                            Image URL
-                            <span className="product-label-optional">
-                                Optional
-                            </span>
-                        </label>
+                        <div className="product-edit-image-heading">
+                            <label>Product image</label>
 
-                        <input
-                            id="edit-product-image"
-                            type="text"
-                            value={form.imageUrl}
-                            onChange={(event) =>
-                                updateField(
-                                    "imageUrl",
-                                    event.target.value
-                                )
-                            }
-                        />
+                            <span className="product-label-source">
+                                Source-derived
+                            </span>
+                        </div>
+
+                        <div className="product-edit-image-preview">
+                            {form.imageUrl && !imageLoadError ? (
+                                <img
+                                    src={form.imageUrl}
+                                    alt={form.name || "Product preview"}
+                                    className="product-edit-image"
+                                    onError={() => setImageLoadError(true)}
+                                />
+                            ) : (
+                                <div className="product-edit-image-placeholder">
+                                    <span className="product-edit-image-placeholder-mark">
+                                        LV
+                                    </span>
+
+                                    <span>No image available</span>
+                                </div>
+                            )}
+                        </div>
+
+                        <p className="product-edit-image-help">
+                            Image is sourced from the saved product data and cannot be
+                            edited manually.
+                        </p>
                     </div>
                 </div>
 
