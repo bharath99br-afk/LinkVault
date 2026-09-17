@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import com.linkvault.backend.card.catalog.model.CardProduct;
 
 @Entity
 @Table(name = "cards")
@@ -41,6 +42,10 @@ public class Card {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "card_product_id")
+    private CardProduct cardProduct;
 
     public Card() {
     }
@@ -103,5 +108,13 @@ public class Card {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public CardProduct getCardProduct() {
+        return cardProduct;
+    }
+
+    public void setCardProduct(CardProduct cardProduct) {
+        this.cardProduct = cardProduct;
     }
 }

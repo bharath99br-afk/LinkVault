@@ -21,6 +21,8 @@ public class CardRequest {
     @NotNull(message = "Bank ID cannot be null")
     private Long bankId;
 
+    private Long cardProductId;
+
     public CardRequest() {
     }
 
@@ -66,5 +68,13 @@ public class CardRequest {
 
     public void setBankId(Long bankId) {
         this.bankId = bankId;
+    }
+
+    public Long getCardProductId() {
+        return cardProductId;
+    }
+
+    public void setCardProductId(Long cardProductId) {
+        this.cardProductId = cardProductId;
     }
 }

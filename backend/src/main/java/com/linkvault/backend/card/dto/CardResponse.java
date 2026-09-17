@@ -8,6 +8,8 @@ public class CardResponse {
     private String cardType;
     private Long bankId;
     private String bankName;
+    private Long cardProductId;
+    private String cardProductName;
 
     public CardResponse() {
     }
@@ -18,7 +20,9 @@ public class CardResponse {
             String lastFourDigits,
             String cardType,
             Long bankId,
-            String bankName) {
+            String bankName,
+            Long cardProductId,
+            String cardProductName) {
 
         this.id = id;
         this.name = name;
@@ -26,6 +30,8 @@ public class CardResponse {
         this.cardType = cardType;
         this.bankId = bankId;
         this.bankName = bankName;
+        this.cardProductId = cardProductId;
+        this.cardProductName = cardProductName;
     }
 
     public Long getId() {
@@ -74,5 +80,21 @@ public class CardResponse {
 
     public void setBankName(String bankName) {
         this.bankName = bankName;
+    }
+
+    public Long getCardProductId() {
+        return cardProductId;
+    }
+
+    public void setCardProductId(Long cardProductId) {
+        this.cardProductId = cardProductId;
+    }
+
+    public String getCardProductName() {
+        return cardProductName;
+    }
+
+    public void setCardProductName(String cardProductName) {
+        this.cardProductName = cardProductName;
     }
 }

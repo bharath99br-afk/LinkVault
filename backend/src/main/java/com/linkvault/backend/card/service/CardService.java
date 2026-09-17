@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.linkvault.backend.card.catalog.model.CardProduct;
+import com.linkvault.backend.card.catalog.repository.CardProductRepository;
 
 @Service
 public class CardService {
@@ -22,15 +24,18 @@ public class CardService {
     private final CardRepository repository;
     private final BankRepository bankRepository;
     private final CurrentUserService currentUserService;
+    private final CardProductRepository cardProductRepository;
 
     public CardService(
             CardRepository repository,
             BankRepository bankRepository,
-            CurrentUserService currentUserService) {
+            CurrentUserService currentUserService,
+            CardProductRepository cardProductRepository) {
 
         this.repository = repository;
         this.bankRepository = bankRepository;
         this.currentUserService = currentUserService;
+        this.cardProductRepository = cardProductRepository;
     }
 
     @Transactional(readOnly = true)
@@ -78,6 +83,9 @@ public class CardService {
         User currentUser = currentUserService.getCurrentUser();
 
         Bank bank = resolveBank(request.getBankId());
+        CardProduct cardProduct = resolveCardProduct(
+                request.getCardProductId(),
+                bank);
 
         Card card = new Card();
 
@@ -85,6 +93,7 @@ public class CardService {
         card.setLastFourDigits(request.getLastFourDigits());
         card.setCardType(request.getCardType());
         card.setBank(bank);
+        card.setCardProduct(cardProduct);
         card.setUser(currentUser);
 
         Card savedCard = repository.save(card);
@@ -105,11 +114,15 @@ public class CardService {
                 .orElseThrow(() -> new LinkNotFoundException("Card Not Found"));
 
         Bank bank = resolveBank(request.getBankId());
+        CardProduct cardProduct = resolveCardProduct(
+                request.getCardProductId(),
+                bank);
 
         card.setName(request.getName());
         card.setLastFourDigits(request.getLastFourDigits());
         card.setCardType(request.getCardType());
         card.setBank(bank);
+        card.setCardProduct(cardProduct);
 
         Card updatedCard = repository.save(card);
 
@@ -135,6 +148,27 @@ public class CardService {
                 .orElseThrow(() -> new LinkNotFoundException("Bank Not Found"));
     }
 
+    private CardProduct resolveCardProduct(
+            Long cardProductId,
+            Bank bank) {
+
+        if (cardProductId == null) {
+            return null;
+        }
+
+        CardProduct cardProduct = cardProductRepository
+                .findByIdAndActiveTrue(cardProductId)
+                .orElseThrow(() -> new LinkNotFoundException(
+                        "Card Product Not Found"));
+
+        if (!cardProduct.getBank().getId().equals(bank.getId())) {
+            throw new IllegalArgumentException(
+                    "Card Product does not belong to selected Bank");
+        }
+
+        return cardProduct;
+    }
+
     private PageResponse<CardResponse> mapToPageResponse(
             Page<Card> page) {
 
@@ -154,6 +188,7 @@ public class CardService {
     private CardResponse mapToResponse(Card card) {
 
         Bank bank = card.getBank();
+        CardProduct cardProduct = card.getCardProduct();
 
         return new CardResponse(
                 card.getId(),
@@ -161,6 +196,8 @@ public class CardService {
                 card.getLastFourDigits(),
                 card.getCardType(),
                 bank != null ? bank.getId() : null,
-                bank != null ? bank.getName() : null);
+                bank != null ? bank.getName() : null,
+                cardProduct != null ? cardProduct.getId() : null,
+                cardProduct != null ? cardProduct.getName() : null);
     }
 }
