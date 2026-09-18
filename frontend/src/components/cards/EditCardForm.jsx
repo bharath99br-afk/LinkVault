@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { getCardProducts } from "../../services/cardProductService";
+
 function EditCardForm({
     card,
     banks,
@@ -13,8 +15,15 @@ function EditCardForm({
         lastFourDigits: "",
         cardType: "",
         bankId: "",
+        cardProductId: "",
+        customCard: false,
     });
 
+    const [cardProducts, setCardProducts] = useState([]);
+    const [cardProductsLoading, setCardProductsLoading] =
+        useState(false);
+    const [cardProductsError, setCardProductsError] =
+        useState("");
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
@@ -24,15 +33,67 @@ function EditCardForm({
 
         setForm({
             name: card.name || "",
-            lastFourDigits: card.lastFourDigits || "",
+            lastFourDigits:
+                card.lastFourDigits || "",
             cardType: card.cardType || "",
             bankId: card.bankId
                 ? String(card.bankId)
                 : "",
+            cardProductId: card.cardProductId
+                ? String(card.cardProductId)
+                : "",
+            customCard: !card.cardProductId,
         });
 
         setErrors({});
     }, [card]);
+
+    useEffect(() => {
+        if (
+            !form.bankId ||
+            form.customCard
+        ) {
+            setCardProducts([]);
+            setCardProductsLoading(false);
+            setCardProductsError("");
+            return;
+        }
+
+        const loadCardProducts = async () => {
+            setCardProductsLoading(true);
+            setCardProductsError("");
+
+            try {
+                const response = await getCardProducts({
+                    bankId: form.bankId,
+                    page: 0,
+                    size: 50,
+                });
+
+                setCardProducts(
+                    response.data.content || []
+                );
+            } catch (error) {
+                console.error(
+                    "Card product load error:",
+                    error
+                );
+
+                setCardProducts([]);
+                setCardProductsError(
+                    error.data?.message ||
+                    "Failed to load card products."
+                );
+            } finally {
+                setCardProductsLoading(false);
+            }
+        };
+
+        loadCardProducts();
+    }, [
+        form.bankId,
+        form.customCard,
+    ]);
 
     const updateField = (field, value) => {
         setForm((current) => ({
@@ -47,14 +108,83 @@ function EditCardForm({
         }));
     };
 
+    const handleBankChange = (value) => {
+        setForm((current) => ({
+            ...current,
+            bankId: value,
+            cardProductId: "",
+            name: "",
+            cardType: "CREDIT",
+            customCard: false,
+        }));
+
+        setErrors((current) => ({
+            ...current,
+            bankId: "",
+            cardProductId: "",
+            name: "",
+            cardType: "",
+            form: "",
+        }));
+    };
+
+    const handleCardProductChange = (value) => {
+        const selectedProduct =
+            cardProducts.find(
+                (product) =>
+                    String(product.id) === value
+            );
+
+        if (!selectedProduct) {
+            setForm((current) => ({
+                ...current,
+                cardProductId: "",
+                name: "",
+                cardType: "CREDIT",
+            }));
+
+            return;
+        }
+
+        setForm((current) => ({
+            ...current,
+            cardProductId: value,
+            name: selectedProduct.name,
+            cardType: selectedProduct.cardType,
+            customCard: false,
+        }));
+
+        setErrors((current) => ({
+            ...current,
+            cardProductId: "",
+            name: "",
+            cardType: "",
+            form: "",
+        }));
+    };
+
+    const handleCustomCardToggle = () => {
+        setForm((current) => ({
+            ...current,
+            customCard: !current.customCard,
+            cardProductId: "",
+            name: "",
+            cardType: "CREDIT",
+        }));
+
+        setErrors({});
+    };
+
     const validate = () => {
         const nextErrors = {};
 
         const name = form.name.trim();
-        const lastFour = form.lastFourDigits.trim();
+        const lastFour =
+            form.lastFourDigits.trim();
 
         if (!name) {
-            nextErrors.name = "Please enter a card name.";
+            nextErrors.name =
+                "Please enter a card name.";
         } else if (name.length < 2) {
             nextErrors.name =
                 "Card name must be at least 2 characters.";
@@ -78,6 +208,14 @@ function EditCardForm({
                 "Please select a bank.";
         }
 
+        if (
+            !form.customCard &&
+            !form.cardProductId
+        ) {
+            nextErrors.cardProductId =
+                "Please select a card product.";
+        }
+
         setErrors(nextErrors);
 
         return Object.keys(nextErrors).length === 0;
@@ -92,24 +230,35 @@ function EditCardForm({
 
         const normalized = {
             name: form.name.trim(),
-            lastFourDigits: form.lastFourDigits.trim(),
+            lastFourDigits:
+                form.lastFourDigits.trim(),
             cardType: form.cardType,
             bankId: Number(form.bankId),
+            cardProductId: form.customCard
+                ? null
+                : Number(form.cardProductId),
         };
 
         const original = {
             name: card.name || "",
-            lastFourDigits: card.lastFourDigits || "",
+            lastFourDigits:
+                card.lastFourDigits || "",
             cardType: card.cardType || "",
             bankId: card.bankId || null,
+            cardProductId:
+                card.cardProductId || null,
         };
 
         const unchanged =
             normalized.name === original.name &&
             normalized.lastFourDigits ===
             original.lastFourDigits &&
-            normalized.cardType === original.cardType &&
-            normalized.bankId === original.bankId;
+            normalized.cardType ===
+            original.cardType &&
+            normalized.bankId ===
+            original.bankId &&
+            normalized.cardProductId ===
+            original.cardProductId;
 
         if (unchanged) {
             setErrors({
@@ -132,7 +281,8 @@ function EditCardForm({
                 <h2>Edit card</h2>
 
                 <p>
-                    Keep your saved card information accurate.
+                    Keep your saved card information
+                    accurate.
                 </p>
             </div>
 
@@ -148,37 +298,8 @@ function EditCardForm({
                 noValidate
             >
                 <div className="card-form-grid">
-                    <div className="card-form-group">
-                        <label htmlFor="edit-card-name">
-                            Card name
-                        </label>
 
-                        <input
-                            id="edit-card-name"
-                            type="text"
-                            value={form.name}
-                            onChange={(event) =>
-                                updateField(
-                                    "name",
-                                    event.target.value
-                                )
-                            }
-                            maxLength={100}
-                            disabled={submitting}
-                            className={
-                                errors.name
-                                    ? "card-input-error"
-                                    : ""
-                            }
-                        />
-
-                        {errors.name && (
-                            <span className="card-field-error">
-                                {errors.name}
-                            </span>
-                        )}
-                    </div>
-
+                    {/* Bank */}
                     <div className="card-form-group">
                         <label htmlFor="edit-card-bank">
                             Bank
@@ -188,8 +309,7 @@ function EditCardForm({
                             id="edit-card-bank"
                             value={form.bankId}
                             onChange={(event) =>
-                                updateField(
-                                    "bankId",
+                                handleBankChange(
                                     event.target.value
                                 )
                             }
@@ -226,6 +346,131 @@ function EditCardForm({
                         )}
                     </div>
 
+                    {/* Card Product */}
+                    <div className="card-form-group">
+                        <label htmlFor="edit-card-product">
+                            Card product
+                        </label>
+
+                        <select
+                            id="edit-card-product"
+                            value={
+                                form.cardProductId
+                            }
+                            onChange={(event) =>
+                                handleCardProductChange(
+                                    event.target.value
+                                )
+                            }
+                            disabled={
+                                !form.bankId ||
+                                form.customCard ||
+                                cardProductsLoading ||
+                                submitting
+                            }
+                            className={
+                                errors.cardProductId
+                                    ? "card-input-error"
+                                    : ""
+                            }
+                        >
+                            <option value="">
+                                {!form.bankId
+                                    ? "Select bank first"
+                                    : cardProductsLoading
+                                        ? "Loading card products..."
+                                        : "Select card product"}
+                            </option>
+
+                            {cardProducts.map(
+                                (product) => (
+                                    <option
+                                        key={product.id}
+                                        value={product.id}
+                                    >
+                                        {product.name}
+                                    </option>
+                                )
+                            )}
+                        </select>
+
+                        {errors.cardProductId && (
+                            <span className="card-field-error">
+                                {errors.cardProductId}
+                            </span>
+                        )}
+
+                        {cardProductsError && (
+                            <span className="card-field-error">
+                                {cardProductsError}
+                            </span>
+                        )}
+
+                        {!cardProductsLoading &&
+                            !cardProductsError &&
+                            form.bankId &&
+                            !form.customCard &&
+                            cardProducts.length === 0 && (
+                                <p className="card-field-help">
+                                    No card products are currently
+                                    listed for this bank.
+                                </p>
+                            )}
+
+                        <button
+                            type="button"
+                            className="card-custom-toggle"
+                            onClick={
+                                handleCustomCardToggle
+                            }
+                            disabled={submitting}
+                        >
+                            {form.customCard
+                                ? "← Choose a listed card"
+                                : "Card not listed?"}
+                        </button>
+                    </div>
+
+                    {/* Custom Card Name */}
+                    {form.customCard && (
+                        <div className="card-form-group">
+                            <label htmlFor="edit-card-name">
+                                Custom card name
+                            </label>
+
+                            <input
+                                id="edit-card-name"
+                                type="text"
+                                value={form.name}
+                                onChange={(event) =>
+                                    updateField(
+                                        "name",
+                                        event.target.value
+                                    )
+                                }
+                                maxLength={100}
+                                disabled={submitting}
+                                className={
+                                    errors.name
+                                        ? "card-input-error"
+                                        : ""
+                                }
+                            />
+
+                            {errors.name && (
+                                <span className="card-field-error">
+                                    {errors.name}
+                                </span>
+                            )}
+
+                            <p className="card-field-help">
+                                This card is currently saved as
+                                a custom card.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Last 4 */}
                     <div className="card-form-group">
                         <label htmlFor="edit-card-last-four">
                             Last 4 digits
@@ -236,14 +481,15 @@ function EditCardForm({
                             type="text"
                             inputMode="numeric"
                             maxLength={4}
-                            value={form.lastFourDigits}
+                            value={
+                                form.lastFourDigits
+                            }
                             onChange={(event) =>
                                 updateField(
                                     "lastFourDigits",
-                                    event.target.value.replace(
-                                        /\D/g,
-                                        ""
-                                    ).slice(0, 4)
+                                    event.target.value
+                                        .replace(/\D/g, "")
+                                        .slice(0, 4)
                                 )
                             }
                             disabled={submitting}
@@ -261,6 +507,7 @@ function EditCardForm({
                         )}
                     </div>
 
+                    {/* Card Type */}
                     <div className="card-form-group">
                         <label htmlFor="edit-card-type">
                             Card type
@@ -275,7 +522,10 @@ function EditCardForm({
                                     event.target.value
                                 )
                             }
-                            disabled={submitting}
+                            disabled={
+                                !form.customCard ||
+                                submitting
+                            }
                         >
                             <option value="CREDIT">
                                 Credit Card
@@ -285,6 +535,19 @@ function EditCardForm({
                                 Debit Card
                             </option>
                         </select>
+
+                        {!form.customCard && (
+                            <p className="card-field-help">
+                                Card type is determined by the
+                                selected card product.
+                            </p>
+                        )}
+
+                        {errors.cardType && (
+                            <span className="card-field-error">
+                                {errors.cardType}
+                            </span>
+                        )}
                     </div>
                 </div>
 
@@ -301,7 +564,10 @@ function EditCardForm({
                     <button
                         type="submit"
                         className="card-primary-button"
-                        disabled={submitting}
+                        disabled={
+                            submitting ||
+                            cardProductsLoading
+                        }
                     >
                         {submitting
                             ? "Updating..."

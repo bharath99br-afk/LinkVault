@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { getCardProducts } from "../../services/cardProductService";
 
 const INITIAL_FORM = {
+    bankId: "",
+    cardProductId: "",
+    customCard: false,
     name: "",
     lastFourDigits: "",
     cardType: "CREDIT",
-    bankId: "",
 };
 
 function AddCardForm({
@@ -15,7 +19,51 @@ function AddCardForm({
     submitting,
 }) {
     const [form, setForm] = useState(INITIAL_FORM);
+    const [cardProducts, setCardProducts] = useState([]);
+    const [cardProductsLoading, setCardProductsLoading] =
+        useState(false);
+    const [cardProductsError, setCardProductsError] =
+        useState("");
     const [errors, setErrors] = useState({});
+
+    useEffect(() => {
+        if (!form.bankId || form.customCard) {
+            setCardProducts([]);
+            setCardProductsLoading(false);
+            setCardProductsError("");
+            return;
+        }
+
+        const loadCardProducts = async () => {
+            setCardProductsLoading(true);
+            setCardProductsError("");
+
+            try {
+                const response = await getCardProducts({
+                    bankId: form.bankId,
+                    page: 0,
+                    size: 50,
+                });
+
+                setCardProducts(response.data.content || []);
+            } catch (error) {
+                console.error(
+                    "Card product load error:",
+                    error
+                );
+
+                setCardProducts([]);
+                setCardProductsError(
+                    error.data?.message ||
+                    "Failed to load card products."
+                );
+            } finally {
+                setCardProductsLoading(false);
+            }
+        };
+
+        loadCardProducts();
+    }, [form.bankId, form.customCard]);
 
     const updateField = (field, value) => {
         setForm((current) => ({
@@ -26,7 +74,70 @@ function AddCardForm({
         setErrors((current) => ({
             ...current,
             [field]: "",
+            form: "",
         }));
+    };
+
+    const handleBankChange = (value) => {
+        setForm((current) => ({
+            ...current,
+            bankId: value,
+            cardProductId: "",
+            name: "",
+            cardType: "CREDIT",
+        }));
+
+        setErrors((current) => ({
+            ...current,
+            bankId: "",
+            cardProductId: "",
+            name: "",
+            form: "",
+        }));
+    };
+
+    const handleCardProductChange = (value) => {
+        const selectedProduct = cardProducts.find(
+            (product) => String(product.id) === value
+        );
+
+        if (!selectedProduct) {
+            setForm((current) => ({
+                ...current,
+                cardProductId: "",
+                name: "",
+                cardType: "CREDIT",
+            }));
+
+            return;
+        }
+
+        setForm((current) => ({
+            ...current,
+            cardProductId: value,
+            name: selectedProduct.name,
+            cardType: selectedProduct.cardType,
+        }));
+
+        setErrors((current) => ({
+            ...current,
+            cardProductId: "",
+            name: "",
+            cardType: "",
+            form: "",
+        }));
+    };
+
+    const handleCustomCardToggle = () => {
+        setForm((current) => ({
+            ...current,
+            customCard: !current.customCard,
+            cardProductId: "",
+            name: "",
+            cardType: "CREDIT",
+        }));
+
+        setErrors({});
     };
 
     const validate = () => {
@@ -35,29 +146,35 @@ function AddCardForm({
         const name = form.name.trim();
         const lastFour = form.lastFourDigits.trim();
 
-        if (!name) {
-            nextErrors.name = "Please enter a card name.";
-        } else if (name.length < 2) {
-            nextErrors.name =
-                "Card name must be at least 2 characters.";
-        } else if (name.length > 100) {
-            nextErrors.name =
-                "Card name cannot exceed 100 characters.";
+        if (!form.bankId) {
+            nextErrors.bankId =
+                "Please select a bank.";
+        }
+
+        if (form.customCard) {
+            if (!name) {
+                nextErrors.name =
+                    "Please enter a card name.";
+            } else if (name.length < 2) {
+                nextErrors.name =
+                    "Card name must be at least 2 characters.";
+            } else if (name.length > 100) {
+                nextErrors.name =
+                    "Card name cannot exceed 100 characters.";
+            }
+
+            if (!form.cardType) {
+                nextErrors.cardType =
+                    "Please select a card type.";
+            }
+        } else if (!form.cardProductId) {
+            nextErrors.cardProductId =
+                "Please select a card product.";
         }
 
         if (!/^\d{4}$/.test(lastFour)) {
             nextErrors.lastFourDigits =
                 "Please enter exactly 4 digits.";
-        }
-
-        if (!form.cardType) {
-            nextErrors.cardType =
-                "Please select a card type.";
-        }
-
-        if (!form.bankId) {
-            nextErrors.bankId =
-                "Please select a bank.";
         }
 
         setErrors(nextErrors);
@@ -108,9 +225,13 @@ function AddCardForm({
 
         onSubmit({
             name: form.name.trim(),
-            lastFourDigits: form.lastFourDigits.trim(),
+            lastFourDigits:
+                form.lastFourDigits.trim(),
             cardType: form.cardType,
             bankId: Number(form.bankId),
+            cardProductId: form.customCard
+                ? null
+                : Number(form.cardProductId),
         });
     };
 
@@ -124,7 +245,8 @@ function AddCardForm({
                 <h2>Add card</h2>
 
                 <p>
-                    Save a card so LinkVault can match it
+                    Choose your bank and card product so
+                    LinkVault can match your card accurately
                     against eligible offers.
                 </p>
             </div>
@@ -135,44 +257,8 @@ function AddCardForm({
                 noValidate
             >
                 <div className="card-form-grid">
-                    <div className="card-form-group">
-                        <label htmlFor="card-name">
-                            Card name
-                        </label>
 
-                        <input
-                            id="card-name"
-                            type="text"
-                            value={form.name}
-                            onChange={(event) =>
-                                updateField(
-                                    "name",
-                                    event.target.value
-                                )
-                            }
-                            onBlur={(event) =>
-                                validateField(
-                                    "name",
-                                    event.target.value
-                                )
-                            }
-                            maxLength={100}
-                            disabled={submitting}
-                            placeholder="e.g. HDFC Regalia"
-                            className={
-                                errors.name
-                                    ? "card-input-error"
-                                    : ""
-                            }
-                        />
-
-                        {errors.name && (
-                            <span className="card-field-error">
-                                {errors.name}
-                            </span>
-                        )}
-                    </div>
-
+                    {/* Bank */}
                     <div className="card-form-group">
                         <label htmlFor="card-bank">
                             Bank
@@ -182,8 +268,7 @@ function AddCardForm({
                             id="card-bank"
                             value={form.bankId}
                             onChange={(event) =>
-                                updateField(
-                                    "bankId",
+                                handleBankChange(
                                     event.target.value
                                 )
                             }
@@ -220,6 +305,139 @@ function AddCardForm({
                         )}
                     </div>
 
+                    {/* Card Product */}
+                    <div className="card-form-group">
+                        <label htmlFor="card-product">
+                            Card product
+                        </label>
+
+                        <select
+                            id="card-product"
+                            value={form.cardProductId}
+                            onChange={(event) =>
+                                handleCardProductChange(
+                                    event.target.value
+                                )
+                            }
+                            disabled={
+                                !form.bankId ||
+                                form.customCard ||
+                                cardProductsLoading ||
+                                submitting
+                            }
+                            className={
+                                errors.cardProductId
+                                    ? "card-input-error"
+                                    : ""
+                            }
+                        >
+                            <option value="">
+                                {!form.bankId
+                                    ? "Select bank first"
+                                    : cardProductsLoading
+                                        ? "Loading card products..."
+                                        : "Select card product"}
+                            </option>
+
+                            {cardProducts.map(
+                                (product) => (
+                                    <option
+                                        key={product.id}
+                                        value={product.id}
+                                    >
+                                        {product.name}
+                                    </option>
+                                )
+                            )}
+                        </select>
+
+                        {errors.cardProductId && (
+                            <span className="card-field-error">
+                                {errors.cardProductId}
+                            </span>
+                        )}
+
+                        {cardProductsError && (
+                            <span className="card-field-error">
+                                {cardProductsError}
+                            </span>
+                        )}
+
+                        {!cardProductsLoading &&
+                            !cardProductsError &&
+                            form.bankId &&
+                            !form.customCard &&
+                            cardProducts.length === 0 && (
+                                <p className="card-field-help">
+                                    No card products are currently
+                                    listed for this bank.
+                                </p>
+                            )}
+
+                        <button
+                            type="button"
+                            className="card-custom-toggle"
+                            onClick={
+                                handleCustomCardToggle
+                            }
+                            disabled={
+                                submitting
+                            }
+                        >
+                            {form.customCard
+                                ? "← Choose a listed card"
+                                : "Card not listed?"}
+                        </button>
+                    </div>
+
+                    {/* Custom Card Name */}
+                    {form.customCard && (
+                        <div className="card-form-group">
+                            <label htmlFor="card-name">
+                                Custom card name
+                            </label>
+
+                            <input
+                                id="card-name"
+                                type="text"
+                                value={form.name}
+                                onChange={(event) =>
+                                    updateField(
+                                        "name",
+                                        event.target.value
+                                    )
+                                }
+                                onBlur={(event) =>
+                                    validateField(
+                                        "name",
+                                        event.target.value
+                                    )
+                                }
+                                maxLength={100}
+                                disabled={submitting}
+                                placeholder="e.g. HDFC Diners Club"
+                                className={
+                                    errors.name
+                                        ? "card-input-error"
+                                        : ""
+                                }
+                            />
+
+                            {errors.name && (
+                                <span className="card-field-error">
+                                    {errors.name}
+                                </span>
+                            )}
+
+                            <p className="card-field-help">
+                                This card will be saved as a custom
+                                card because it is not in the LinkVault
+                                catalogue yet.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Last 4 */}
                     <div className="card-form-group">
                         <label htmlFor="card-last-four">
                             Last 4 digits
@@ -234,10 +452,9 @@ function AddCardForm({
                             onChange={(event) =>
                                 updateField(
                                     "lastFourDigits",
-                                    event.target.value.replace(
-                                        /\D/g,
-                                        ""
-                                    ).slice(0, 4)
+                                    event.target.value
+                                        .replace(/\D/g, "")
+                                        .slice(0, 4)
                                 )
                             }
                             onBlur={(event) =>
@@ -267,6 +484,7 @@ function AddCardForm({
                         )}
                     </div>
 
+                    {/* Card Type */}
                     <div className="card-form-group">
                         <label htmlFor="card-type">
                             Card type
@@ -281,7 +499,10 @@ function AddCardForm({
                                     event.target.value
                                 )
                             }
-                            disabled={submitting}
+                            disabled={
+                                !form.customCard ||
+                                submitting
+                            }
                         >
                             <option value="CREDIT">
                                 Credit Card
@@ -291,6 +512,13 @@ function AddCardForm({
                                 Debit Card
                             </option>
                         </select>
+
+                        {!form.customCard && (
+                            <p className="card-field-help">
+                                Card type is determined by the
+                                selected card product.
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -307,7 +535,10 @@ function AddCardForm({
                     <button
                         type="submit"
                         className="card-primary-button"
-                        disabled={submitting}
+                        disabled={
+                            submitting ||
+                            cardProductsLoading
+                        }
                     >
                         {submitting
                             ? "Saving..."
