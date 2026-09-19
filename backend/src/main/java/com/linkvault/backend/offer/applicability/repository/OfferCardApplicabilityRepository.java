@@ -7,12 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface OfferCardApplicabilityRepository
-        extends JpaRepository<OfferCardApplicability, Long> {
+                extends JpaRepository<OfferCardApplicability, Long> {
 
-    List<OfferCardApplicability> findByOfferId(Long offerId);
+        List<OfferCardApplicability> findByOfferId(Long offerId);
 
-    boolean existsByOfferIdAndBankIdAndCardNameIgnoreCase(
-            Long offerId,
-            Long bankId,
-            String cardName);
+        boolean existsByOfferIdAndCardProductId(
+                        Long offerId,
+                        Long cardProductId);
 }

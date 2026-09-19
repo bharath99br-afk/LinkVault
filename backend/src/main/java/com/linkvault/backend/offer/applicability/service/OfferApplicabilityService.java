@@ -2,6 +2,8 @@ package com.linkvault.backend.offer.applicability.service;
 
 import com.linkvault.backend.bank.model.Bank;
 import com.linkvault.backend.bank.repository.BankRepository;
+import com.linkvault.backend.card.catalog.model.CardProduct;
+import com.linkvault.backend.card.catalog.repository.CardProductRepository;
 import com.linkvault.backend.exception.DuplicateResourceException;
 import com.linkvault.backend.exception.LinkNotFoundException;
 import com.linkvault.backend.offer.applicability.dto.OfferBankApplicabilityRequest;
@@ -14,120 +16,149 @@ import com.linkvault.backend.offer.model.Offer;
 import com.linkvault.backend.offer.repository.OfferRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OfferApplicabilityService {
 
-    private final OfferRepository offerRepository;
-    private final BankRepository bankRepository;
-    private final OfferBankApplicabilityRepository offerBankRepository;
-    private final OfferCardApplicabilityRepository offerCardRepository;
+        private final OfferRepository offerRepository;
+        private final BankRepository bankRepository;
+        private final CardProductRepository cardProductRepository;
+        private final OfferBankApplicabilityRepository offerBankRepository;
+        private final OfferCardApplicabilityRepository offerCardRepository;
 
-    public OfferApplicabilityService(
-            OfferRepository offerRepository,
-            BankRepository bankRepository,
-            OfferBankApplicabilityRepository offerBankRepository,
-            OfferCardApplicabilityRepository offerCardRepository) {
+        public OfferApplicabilityService(
+                        OfferRepository offerRepository,
+                        BankRepository bankRepository,
+                        CardProductRepository cardProductRepository,
+                        OfferBankApplicabilityRepository offerBankRepository,
+                        OfferCardApplicabilityRepository offerCardRepository) {
 
-        this.offerRepository = offerRepository;
-        this.bankRepository = bankRepository;
-        this.offerBankRepository = offerBankRepository;
-        this.offerCardRepository = offerCardRepository;
-    }
-
-    public void addBankApplicability(
-            Long offerId,
-            OfferBankApplicabilityRequest request) {
-
-        Offer offer = getOffer(offerId);
-
-        Bank bank = getBank(request.getBankId());
-
-        if (offerBankRepository.existsByOfferIdAndBankId(
-                offerId,
-                bank.getId())) {
-
-            throw new DuplicateResourceException(
-                    "Offer is already applicable to this bank");
+                this.offerRepository = offerRepository;
+                this.bankRepository = bankRepository;
+                this.cardProductRepository = cardProductRepository;
+                this.offerBankRepository = offerBankRepository;
+                this.offerCardRepository = offerCardRepository;
         }
 
-        OfferBankApplicability applicability = new OfferBankApplicability();
+        @Transactional
+        public void addBankApplicability(
+                        Long offerId,
+                        OfferBankApplicabilityRequest request) {
 
-        applicability.setOffer(offer);
-        applicability.setBank(bank);
+                Offer offer = getOffer(offerId);
+                Bank bank = getBank(request.getBankId());
 
-        offerBankRepository.save(applicability);
-    }
+                if (offerBankRepository.existsByOfferIdAndBankId(
+                                offerId,
+                                bank.getId())) {
 
-    public void addCardApplicability(
-            Long offerId,
-            OfferCardApplicabilityRequest request) {
+                        throw new DuplicateResourceException(
+                                        "Offer is already applicable to this bank");
+                }
 
-        Offer offer = getOffer(offerId);
+                OfferBankApplicability applicability = new OfferBankApplicability();
 
-        Bank bank = getBank(request.getBankId());
+                applicability.setOffer(offer);
+                applicability.setBank(bank);
 
-        if (offerCardRepository
-                .existsByOfferIdAndBankIdAndCardNameIgnoreCase(
-                        offerId,
-                        bank.getId(),
-                        request.getCardName())) {
-
-            throw new DuplicateResourceException(
-                    "Offer is already applicable to this card");
+                offerBankRepository.save(applicability);
         }
 
-        OfferCardApplicability applicability = new OfferCardApplicability();
+        @Transactional
+        public void addCardApplicability(
+                        Long offerId,
+                        OfferCardApplicabilityRequest request) {
 
-        applicability.setOffer(offer);
-        applicability.setBank(bank);
-        applicability.setCardName(request.getCardName());
+                Offer offer = getOffer(offerId);
 
-        offerCardRepository.save(applicability);
-    }
+                CardProduct cardProduct = cardProductRepository
+                                .findByIdAndActiveTrue(request.getCardProductId())
+                                .orElseThrow(() -> new LinkNotFoundException(
+                                                "Card Product Not Found"));
 
-    public void removeBankApplicability(
-            Long offerId,
-            Long bankId) {
+                if (offerCardRepository.existsByOfferIdAndCardProductId(
+                                offerId,
+                                cardProduct.getId())) {
 
-        OfferBankApplicability applicability = offerBankRepository.findByOfferId(offerId)
-                .stream()
-                .filter(item -> item.getBank().getId().equals(bankId))
-                .findFirst()
-                .orElseThrow(() -> new LinkNotFoundException(
-                        "Offer bank applicability not found"));
+                        throw new DuplicateResourceException(
+                                        "Offer is already applicable to this card product");
+                }
 
-        offerBankRepository.delete(applicability);
-    }
+                OfferCardApplicability applicability = new OfferCardApplicability();
 
-    public void removeCardApplicability(
-            Long offerId,
-            Long bankId,
-            String cardName) {
+                applicability.setOffer(offer);
+                applicability.setCardProduct(cardProduct);
 
-        OfferCardApplicability applicability = offerCardRepository.findByOfferId(offerId)
-                .stream()
-                .filter(item -> item.getBank().getId().equals(bankId)
-                        && item.getCardName()
-                                .equalsIgnoreCase(cardName))
-                .findFirst()
-                .orElseThrow(() -> new LinkNotFoundException(
-                        "Offer card applicability not found"));
+                /*
+                 * Keep legacy fields synchronized during the transition.
+                 */
+                applicability.setBank(cardProduct.getBank());
+                applicability.setCardName(cardProduct.getName());
 
-        offerCardRepository.delete(applicability);
-    }
+                offerCardRepository.save(applicability);
+        }
 
-    private Offer getOffer(Long offerId) {
+        @Transactional
+        public void removeBankApplicability(
+                        Long offerId,
+                        Long bankId) {
 
-        return offerRepository.findById(offerId)
-                .orElseThrow(() -> new LinkNotFoundException(
-                        "Offer Not Found"));
-    }
+                OfferBankApplicability applicability = offerBankRepository.findByOfferId(offerId)
+                                .stream()
+                                .filter(item -> item.getBank().getId().equals(bankId))
+                                .findFirst()
+                                .orElseThrow(() -> new LinkNotFoundException(
+                                                "Offer bank applicability not found"));
 
-    private Bank getBank(Long bankId) {
+                offerBankRepository.delete(applicability);
+        }
 
-        return bankRepository.findById(bankId)
-                .orElseThrow(() -> new LinkNotFoundException(
-                        "Bank Not Found"));
-    }
+        @Transactional
+        public void removeCardApplicability(
+                        Long offerId,
+                        Long cardProductId) {
+
+                OfferCardApplicability applicability = offerCardRepository.findByOfferId(offerId)
+                                .stream()
+                                .filter(item -> item.getCardProduct().getId()
+                                                .equals(cardProductId))
+                                .findFirst()
+                                .orElseThrow(() -> new LinkNotFoundException(
+                                                "Offer card applicability not found"));
+
+                offerCardRepository.delete(applicability);
+        }
+
+        @Transactional(readOnly = true)
+        public java.util.List<OfferBankApplicability> getBankApplicability(
+                        Long offerId) {
+
+                getOffer(offerId);
+
+                return offerBankRepository.findByOfferId(offerId);
+        }
+
+        @Transactional(readOnly = true)
+        public java.util.List<OfferCardApplicability> getCardApplicability(
+                        Long offerId) {
+
+                getOffer(offerId);
+
+                return offerCardRepository.findByOfferId(offerId);
+        }
+
+        private Offer getOffer(Long offerId) {
+
+                return offerRepository.findById(offerId)
+                                .orElseThrow(() -> new LinkNotFoundException(
+                                                "Offer Not Found"));
+        }
+
+        private Bank getBank(Long bankId) {
+
+                return bankRepository.findById(bankId)
+                                .orElseThrow(() -> new LinkNotFoundException(
+                                                "Bank Not Found"));
+        }
 }
