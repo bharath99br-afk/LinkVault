@@ -14,181 +14,186 @@ import com.linkvault.backend.offer.repository.OfferRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OfferService {
 
-    private final OfferRepository repository;
-    private final GlobalMerchantRepository globalMerchantRepository;
-    private final OfferBankApplicabilityRepository offerBankRepository;
-    private final OfferCardApplicabilityRepository offerCardRepository;
+        private final OfferRepository repository;
+        private final GlobalMerchantRepository globalMerchantRepository;
+        private final OfferBankApplicabilityRepository offerBankRepository;
+        private final OfferCardApplicabilityRepository offerCardRepository;
 
-    public OfferService(OfferRepository repository, GlobalMerchantRepository globalMerchantRepository,
-            OfferBankApplicabilityRepository offerBankRepository,
-            OfferCardApplicabilityRepository offerCardRepository) {
-        this.repository = repository;
-        this.globalMerchantRepository = globalMerchantRepository;
-        this.offerBankRepository = offerBankRepository;
-        this.offerCardRepository = offerCardRepository;
-    }
-
-    public PageResponse<OfferResponse> getOffers(
-            String title,
-            Pageable pageable) {
-
-        Page<Offer> page;
-
-        if (title == null || title.isBlank()) {
-
-            page = repository.findAllByOrderByStartDateDesc(
-                    pageable);
-
-        } else {
-
-            page = repository.findByTitleContainingIgnoreCase(
-                    title,
-                    pageable);
+        public OfferService(OfferRepository repository, GlobalMerchantRepository globalMerchantRepository,
+                        OfferBankApplicabilityRepository offerBankRepository,
+                        OfferCardApplicabilityRepository offerCardRepository) {
+                this.repository = repository;
+                this.globalMerchantRepository = globalMerchantRepository;
+                this.offerBankRepository = offerBankRepository;
+                this.offerCardRepository = offerCardRepository;
         }
 
-        return mapToPageResponse(page);
-    }
+        @Transactional(readOnly = true)
+        public PageResponse<OfferResponse> getOffers(
+                        String title,
+                        Pageable pageable) {
 
-    public OfferResponse getOffer(Long id) {
+                Page<Offer> page;
 
-        Offer offer = repository.findById(id)
-                .orElseThrow(() -> new LinkNotFoundException("Offer Not Found"));
+                if (title == null || title.isBlank()) {
 
-        return mapToResponse(offer);
-    }
+                        page = repository.findAllByOrderByStartDateDesc(
+                                        pageable);
 
-    public OfferResponse addOffer(OfferRequest request) {
+                } else {
 
-        validateDates(
-                request.getStartDate(),
-                request.getEndDate());
+                        page = repository.findByTitleContainingIgnoreCase(
+                                        title,
+                                        pageable);
+                }
 
-        Offer offer = new Offer();
-
-        offer.setTitle(request.getTitle());
-        offer.setDescription(request.getDescription());
-        offer.setDiscountType(request.getDiscountType());
-        offer.setDiscountValue(request.getDiscountValue());
-        offer.setMaxDiscount(request.getMaxDiscount());
-        offer.setMinTransactionAmount(
-                request.getMinTransactionAmount());
-        offer.setStartDate(request.getStartDate());
-        offer.setEndDate(request.getEndDate());
-        if (request.getGlobalMerchantId() != null) {
-
-            GlobalMerchant globalMerchant = globalMerchantRepository
-                    .findById(request.getGlobalMerchantId())
-                    .orElseThrow(() -> new LinkNotFoundException(
-                            "Global Merchant Not Found"));
-
-            offer.setGlobalMerchant(globalMerchant);
+                return mapToPageResponse(page);
         }
 
-        Offer savedOffer = repository.save(offer);
+        @Transactional(readOnly = true)
+        public OfferResponse getOffer(Long id) {
 
-        return mapToResponse(savedOffer);
-    }
+                Offer offer = repository.findById(id)
+                                .orElseThrow(() -> new LinkNotFoundException("Offer Not Found"));
 
-    public OfferResponse updateOffer(
-            Long id,
-            OfferRequest request) {
-
-        validateDates(
-                request.getStartDate(),
-                request.getEndDate());
-
-        Offer offer = repository.findById(id)
-                .orElseThrow(() -> new LinkNotFoundException("Offer Not Found"));
-
-        offer.setTitle(request.getTitle());
-        offer.setDescription(request.getDescription());
-        offer.setDiscountType(request.getDiscountType());
-        offer.setDiscountValue(request.getDiscountValue());
-        offer.setMaxDiscount(request.getMaxDiscount());
-        offer.setMinTransactionAmount(
-                request.getMinTransactionAmount());
-        offer.setStartDate(request.getStartDate());
-        offer.setEndDate(request.getEndDate());
-        if (request.getGlobalMerchantId() != null) {
-
-            GlobalMerchant globalMerchant = globalMerchantRepository
-                    .findById(request.getGlobalMerchantId())
-                    .orElseThrow(() -> new LinkNotFoundException(
-                            "Global Merchant Not Found"));
-
-            offer.setGlobalMerchant(globalMerchant);
-
-        } else {
-
-            offer.setGlobalMerchant(null);
+                return mapToResponse(offer);
         }
 
-        Offer updatedOffer = repository.save(offer);
+        @Transactional
+        public OfferResponse addOffer(OfferRequest request) {
 
-        return mapToResponse(updatedOffer);
-    }
+                validateDates(
+                                request.getStartDate(),
+                                request.getEndDate());
 
-    public void deleteOffer(Long id) {
+                Offer offer = new Offer();
 
-        Offer offer = repository.findById(id)
-                .orElseThrow(() -> new LinkNotFoundException("Offer Not Found"));
+                offer.setTitle(request.getTitle());
+                offer.setDescription(request.getDescription());
+                offer.setDiscountType(request.getDiscountType());
+                offer.setDiscountValue(request.getDiscountValue());
+                offer.setMaxDiscount(request.getMaxDiscount());
+                offer.setMinTransactionAmount(
+                                request.getMinTransactionAmount());
+                offer.setStartDate(request.getStartDate());
+                offer.setEndDate(request.getEndDate());
+                if (request.getGlobalMerchantId() != null) {
 
-        offerBankRepository.findByOfferId(id)
-                .forEach(offerBankRepository::delete);
+                        GlobalMerchant globalMerchant = globalMerchantRepository
+                                        .findById(request.getGlobalMerchantId())
+                                        .orElseThrow(() -> new LinkNotFoundException(
+                                                        "Global Merchant Not Found"));
 
-        offerCardRepository.findByOfferId(id)
-                .forEach(offerCardRepository::delete);
+                        offer.setGlobalMerchant(globalMerchant);
+                }
 
-        repository.delete(offer);
-    }
+                Offer savedOffer = repository.save(offer);
 
-    private void validateDates(
-            java.time.LocalDate startDate,
-            java.time.LocalDate endDate) {
-
-        if (endDate.isBefore(startDate)) {
-            throw new IllegalArgumentException(
-                    "End date cannot be before start date");
+                return mapToResponse(savedOffer);
         }
-    }
 
-    private PageResponse<OfferResponse> mapToPageResponse(
-            Page<Offer> page) {
+        @Transactional
+        public OfferResponse updateOffer(
+                        Long id,
+                        OfferRequest request) {
 
-        return new PageResponse<>(
-                page.getContent()
-                        .stream()
-                        .map(this::mapToResponse)
-                        .toList(),
-                page.getNumber(),
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages(),
-                page.isFirst(),
-                page.isLast());
-    }
+                validateDates(
+                                request.getStartDate(),
+                                request.getEndDate());
 
-    private OfferResponse mapToResponse(Offer offer) {
+                Offer offer = repository.findById(id)
+                                .orElseThrow(() -> new LinkNotFoundException("Offer Not Found"));
 
-        return new OfferResponse(
-                offer.getId(),
-                offer.getTitle(),
-                offer.getDescription(),
-                offer.getDiscountType(),
-                offer.getDiscountValue(),
-                offer.getMaxDiscount(),
-                offer.getMinTransactionAmount(),
-                offer.getStartDate(),
-                offer.getEndDate(),
-                offer.getGlobalMerchant() != null
-                        ? offer.getGlobalMerchant().getId()
-                        : null,
-                offer.getGlobalMerchant() != null
-                        ? offer.getGlobalMerchant().getName()
-                        : null);
-    }
+                offer.setTitle(request.getTitle());
+                offer.setDescription(request.getDescription());
+                offer.setDiscountType(request.getDiscountType());
+                offer.setDiscountValue(request.getDiscountValue());
+                offer.setMaxDiscount(request.getMaxDiscount());
+                offer.setMinTransactionAmount(
+                                request.getMinTransactionAmount());
+                offer.setStartDate(request.getStartDate());
+                offer.setEndDate(request.getEndDate());
+                if (request.getGlobalMerchantId() != null) {
+
+                        GlobalMerchant globalMerchant = globalMerchantRepository
+                                        .findById(request.getGlobalMerchantId())
+                                        .orElseThrow(() -> new LinkNotFoundException(
+                                                        "Global Merchant Not Found"));
+
+                        offer.setGlobalMerchant(globalMerchant);
+
+                } else {
+
+                        offer.setGlobalMerchant(null);
+                }
+
+                Offer updatedOffer = repository.save(offer);
+
+                return mapToResponse(updatedOffer);
+        }
+
+        public void deleteOffer(Long id) {
+
+                Offer offer = repository.findById(id)
+                                .orElseThrow(() -> new LinkNotFoundException("Offer Not Found"));
+
+                offerBankRepository.findByOfferId(id)
+                                .forEach(offerBankRepository::delete);
+
+                offerCardRepository.findByOfferId(id)
+                                .forEach(offerCardRepository::delete);
+
+                repository.delete(offer);
+        }
+
+        private void validateDates(
+                        java.time.LocalDate startDate,
+                        java.time.LocalDate endDate) {
+
+                if (endDate.isBefore(startDate)) {
+                        throw new IllegalArgumentException(
+                                        "End date cannot be before start date");
+                }
+        }
+
+        private PageResponse<OfferResponse> mapToPageResponse(
+                        Page<Offer> page) {
+
+                return new PageResponse<>(
+                                page.getContent()
+                                                .stream()
+                                                .map(this::mapToResponse)
+                                                .toList(),
+                                page.getNumber(),
+                                page.getSize(),
+                                page.getTotalElements(),
+                                page.getTotalPages(),
+                                page.isFirst(),
+                                page.isLast());
+        }
+
+        private OfferResponse mapToResponse(Offer offer) {
+
+                return new OfferResponse(
+                                offer.getId(),
+                                offer.getTitle(),
+                                offer.getDescription(),
+                                offer.getDiscountType(),
+                                offer.getDiscountValue(),
+                                offer.getMaxDiscount(),
+                                offer.getMinTransactionAmount(),
+                                offer.getStartDate(),
+                                offer.getEndDate(),
+                                offer.getGlobalMerchant() != null
+                                                ? offer.getGlobalMerchant().getId()
+                                                : null,
+                                offer.getGlobalMerchant() != null
+                                                ? offer.getGlobalMerchant().getName()
+                                                : null);
+        }
 }

@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Merchants from "./pages/Merchants";
 import Cards from "./pages/Cards";
+import Offers from "./pages/Offers";
 
 import "./App.css";
 import "./styles/auth.css";
@@ -18,6 +19,7 @@ import "./styles/links.css";
 import "./styles/products.css";
 import "./styles/merchants.css";
 import "./styles/cards.css";
+import "./styles/offers.css";
 
 function App() {
   const { user, logout } = useAuth();
@@ -55,6 +57,10 @@ function App() {
 
               <a href="/cards">
                 Cards
+              </a>
+
+              <a href="/offers">
+                Offers
               </a>
             </nav>
           </div>
@@ -105,6 +111,11 @@ function App() {
           <Route
             path="/cards"
             element={<Cards />}
+          />
+
+          <Route
+            path="/offers"
+            element={<Offers />}
           />
 
         </Route>
