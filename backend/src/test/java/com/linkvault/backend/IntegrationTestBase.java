@@ -29,306 +29,302 @@ import org.springframework.test.annotation.DirtiesContext;
 
 @Testcontainers
 @SpringBootTest(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"
+                "spring.jpa.hibernate.ddl-auto=create-drop"
 })
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class IntegrationTestBase {
 
-    static {
-        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
-    }
+        static {
+                TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
+        }
 
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres =
-            new PostgreSQLContainer<>("postgres:17");
+        @Container
+        @ServiceConnection
+        static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17");
 
-    @Autowired
-    protected MockMvc mockMvc;
+        @Autowired
+        protected MockMvc mockMvc;
 
-    @Autowired
-    protected ObjectMapper objectMapper;
+        @Autowired
+        protected ObjectMapper objectMapper;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+        @Autowired
+        private JdbcTemplate jdbcTemplate;
 
-    @BeforeEach
-    void resetDatabase() {
-        jdbcTemplate.execute("""
-                TRUNCATE TABLE
-                    offer_card_applicability,
-                    offer_bank_applicability,
-                    links,
-                    products,
-                    merchants,
-                    cards,
-                    offers,
-                    global_merchants,
-                    banks,
-                    users
-                RESTART IDENTITY CASCADE
-                """);
-    }
+        @BeforeEach
+        void resetDatabase() {
+                jdbcTemplate.execute("""
+                                TRUNCATE TABLE
+                                    saved_offers,
+                                    offer_card_applicability,
+                                    offer_bank_applicability,
+                                    links,
+                                    products,
+                                    merchants,
+                                    cards,
+                                    offers,
+                                    global_merchants,
+                                    banks,
+                                    users
+                                RESTART IDENTITY CASCADE
+                                """);
+        }
 
-    protected String uniqueEmail(String prefix) {
-        return prefix + "-" + UUID.randomUUID() + "@example.com";
-    }
+        protected String uniqueEmail(String prefix) {
+                return prefix + "-" + UUID.randomUUID() + "@example.com";
+        }
 
-    protected String registerAndLogin(String name, String email)
-            throws Exception {
+        protected String registerAndLogin(String name, String email)
+                        throws Exception {
 
-        String password = "Password@123";
+                String password = "Password@123";
 
-        String registerJson = """
-                {
-                    "name": "%s",
-                    "email": "%s",
-                    "password": "%s"
+                String registerJson = """
+                                {
+                                    "name": "%s",
+                                    "email": "%s",
+                                    "password": "%s"
+                                }
+                                """.formatted(name, email, password);
+
+                mockMvc.perform(
+                                post("/api/auth/register")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(registerJson))
+                                .andExpect(status().isCreated());
+
+                String loginJson = """
+                                {
+                                    "email": "%s",
+                                    "password": "%s"
+                                }
+                                """.formatted(email, password);
+
+                MvcResult result = mockMvc.perform(
+                                post("/api/auth/login")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(loginJson))
+                                .andExpect(status().isOk())
+                                .andReturn();
+
+                JsonNode root = objectMapper.readTree(result.getResponse().getContentAsString());
+
+                return root.path("data").path("token").asText();
+        }
+
+        protected String auth(String token) {
+                return "Bearer " + token;
+        }
+
+        protected long extractId(MvcResult result) throws Exception {
+                JsonNode root = objectMapper.readTree(result.getResponse().getContentAsString());
+
+                return root.path("data").path("id").asLong();
+        }
+
+        protected long createBank(String token, String name)
+                        throws Exception {
+
+                String json = """
+                                {
+                                    "name": "%s"
+                                }
+                                """.formatted(name);
+
+                MvcResult result = mockMvc.perform(
+                                post("/api/banks")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                return extractId(result);
+        }
+
+        protected long createCard(
+                        String token,
+                        String name,
+                        long bankId)
+                        throws Exception {
+
+                String json = """
+                                {
+                                    "name": "%s",
+                                    "lastFourDigits": "1234",
+                                    "cardType": "CREDIT",
+                                    "bankId": %d
+                                }
+                                """.formatted(name, bankId);
+
+                MvcResult result = mockMvc.perform(
+                                post("/api/cards")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                return extractId(result);
+        }
+
+        protected long createGlobalMerchant(
+                        String token,
+                        String name)
+                        throws Exception {
+
+                String json = """
+                                {
+                                    "name": "%s",
+                                    "websiteUrl": "https://%s.example.com"
+                                }
+                                """.formatted(name, name.toLowerCase().replace(" ", ""));
+
+                MvcResult result = mockMvc.perform(
+                                post("/api/global-merchants")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                return extractId(result);
+        }
+
+        protected long createMerchant(
+                        String token,
+                        String name,
+                        Long globalMerchantId)
+                        throws Exception {
+
+                String globalMerchantPart = globalMerchantId == null
+                                ? ""
+                                : ", \"globalMerchantId\": " + globalMerchantId;
+
+                String json = """
+                                {
+                                    "name": "%s",
+                                    "websiteUrl": "https://%s.example.com"%s
+                                }
+                                """.formatted(
+                                name,
+                                name.toLowerCase().replace(" ", ""),
+                                globalMerchantPart);
+
+                MvcResult result = mockMvc.perform(
+                                post("/api/merchants")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                return extractId(result);
+        }
+
+        protected long createProduct(
+                        String token,
+                        String name,
+                        long merchantId)
+                        throws Exception {
+
+                String json = """
+                                {
+                                    "name": "%s",
+                                    "description": "Integration test product",
+                                    "category": "Electronics",
+                                    "websiteUrl": "https://product.example.com",
+                                    "merchantId": %d
+                                }
+                                """.formatted(name, merchantId);
+
+                MvcResult result = mockMvc.perform(
+                                post("/api/products")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                return extractId(result);
+        }
+
+        protected long createLink(
+                        String token,
+                        String title,
+                        Long merchantId,
+                        Long productId)
+                        throws Exception {
+
+                StringBuilder json = new StringBuilder("""
+                                {
+                                    "title": "%s",
+                                    "url": "https://example.com/product"
+                                """.formatted(title));
+
+                if (merchantId != null) {
+                        json.append("""
+                                        ,
+                                        "merchantId": %d
+                                        """.formatted(merchantId));
                 }
-                """.formatted(name, email, password);
 
-        mockMvc.perform(
-                post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(registerJson))
-                .andExpect(status().isCreated());
-
-        String loginJson = """
-                {
-                    "email": "%s",
-                    "password": "%s"
+                if (productId != null) {
+                        json.append("""
+                                        ,
+                                        "productId": %d
+                                        """.formatted(productId));
                 }
-                """.formatted(email, password);
 
-        MvcResult result = mockMvc.perform(
-                post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginJson))
-                .andExpect(status().isOk())
-                .andReturn();
+                json.append("}");
 
-        JsonNode root =
-                objectMapper.readTree(result.getResponse().getContentAsString());
+                MvcResult result = mockMvc.perform(
+                                post("/api/links")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json.toString()))
+                                .andExpect(status().isCreated())
+                                .andReturn();
 
-        return root.path("data").path("token").asText();
-    }
+                return extractId(result);
+        }
 
-    protected String auth(String token) {
-        return "Bearer " + token;
-    }
+        protected long createOffer(
+                        String token,
+                        String title,
+                        BigDecimal discountValue,
+                        Long globalMerchantId)
+                        throws Exception {
 
-    protected long extractId(MvcResult result) throws Exception {
-        JsonNode root =
-                objectMapper.readTree(result.getResponse().getContentAsString());
+                String merchantPart = globalMerchantId == null
+                                ? ""
+                                : ", \"globalMerchantId\": " + globalMerchantId;
 
-        return root.path("data").path("id").asLong();
-    }
+                String json = """
+                                {
+                                    "title": "%s",
+                                    "description": "Integration test offer",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": %s,
+                                    "startDate": "%s",
+                                    "endDate": "%s"%s
+                                }
+                                """.formatted(
+                                title,
+                                discountValue.toPlainString(),
+                                LocalDate.now().minusDays(1),
+                                LocalDate.now().plusDays(30),
+                                merchantPart);
 
-    protected long createBank(String token, String name)
-            throws Exception {
+                MvcResult result = mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andReturn();
 
-        String json = """
-                {
-                    "name": "%s"
-                }
-                """.formatted(name);
-
-        MvcResult result = mockMvc.perform(
-                post("/api/banks")
-                        .header("Authorization", auth(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        return extractId(result);
-    }
-
-    protected long createCard(
-            String token,
-            String name,
-            long bankId)
-            throws Exception {
-
-        String json = """
-                {
-                    "name": "%s",
-                    "lastFourDigits": "1234",
-                    "cardType": "CREDIT",
-                    "bankId": %d
-                }
-                """.formatted(name, bankId);
-
-        MvcResult result = mockMvc.perform(
-                post("/api/cards")
-                        .header("Authorization", auth(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        return extractId(result);
-    }
-
-    protected long createGlobalMerchant(
-            String token,
-            String name)
-            throws Exception {
-
-        String json = """
-                {
-                    "name": "%s",
-                    "websiteUrl": "https://%s.example.com"
-                }
-                """.formatted(name, name.toLowerCase().replace(" ", ""));
-
-        MvcResult result = mockMvc.perform(
-                post("/api/global-merchants")
-                        .header("Authorization", auth(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        return extractId(result);
-    }
-
-    protected long createMerchant(
-            String token,
-            String name,
-            Long globalMerchantId)
-            throws Exception {
-
-        String globalMerchantPart =
-                globalMerchantId == null
-                        ? ""
-                        : ", \"globalMerchantId\": " + globalMerchantId;
-
-        String json = """
-                {
-                    "name": "%s",
-                    "websiteUrl": "https://%s.example.com"%s
-                }
-                """.formatted(
-                        name,
-                        name.toLowerCase().replace(" ", ""),
-                        globalMerchantPart);
-
-        MvcResult result = mockMvc.perform(
-                post("/api/merchants")
-                        .header("Authorization", auth(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        return extractId(result);
-    }
-
-    protected long createProduct(
-            String token,
-            String name,
-            long merchantId)
-            throws Exception {
-
-        String json = """
-                {
-                    "name": "%s",
-                    "description": "Integration test product",
-                    "category": "Electronics",
-                    "websiteUrl": "https://product.example.com",
-                    "merchantId": %d
-                }
-                """.formatted(name, merchantId);
-
-        MvcResult result = mockMvc.perform(
-                post("/api/products")
-                        .header("Authorization", auth(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        return extractId(result);
-    }
-
-protected long createLink(
-        String token,
-        String title,
-        Long merchantId,
-        Long productId)
-        throws Exception {
-
-    StringBuilder json = new StringBuilder("""
-            {
-                "title": "%s",
-                "url": "https://example.com/product"
-            """.formatted(title));
-
-    if (merchantId != null) {
-        json.append("""
-                ,
-                "merchantId": %d
-                """.formatted(merchantId));
-    }
-
-    if (productId != null) {
-        json.append("""
-                ,
-                "productId": %d
-                """.formatted(productId));
-    }
-
-    json.append("}");
-
-    MvcResult result = mockMvc.perform(
-            post("/api/links")
-                    .header("Authorization", auth(token))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(json.toString()))
-            .andExpect(status().isCreated())
-            .andReturn();
-
-    return extractId(result);
-}
-
-    protected long createOffer(
-            String token,
-            String title,
-            BigDecimal discountValue,
-            Long globalMerchantId)
-            throws Exception {
-
-        String merchantPart =
-                globalMerchantId == null
-                        ? ""
-                        : ", \"globalMerchantId\": " + globalMerchantId;
-
-        String json = """
-                {
-                    "title": "%s",
-                    "description": "Integration test offer",
-                    "discountType": "PERCENTAGE",
-                    "discountValue": %s,
-                    "startDate": "%s",
-                    "endDate": "%s"%s
-                }
-                """.formatted(
-                        title,
-                        discountValue.toPlainString(),
-                        LocalDate.now().minusDays(1),
-                        LocalDate.now().plusDays(30),
-                        merchantPart);
-
-        MvcResult result = mockMvc.perform(
-                post("/api/offers")
-                        .header("Authorization", auth(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        return extractId(result);
-    }
+                return extractId(result);
+        }
 }

@@ -1,5 +1,9 @@
 function formatAmount(value) {
-    if (value === null || value === undefined || value === "") {
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
         return null;
     }
 
@@ -32,10 +36,16 @@ function formatDiscount(offer) {
 
 function getOfferStatus(offer) {
     const today = new Date();
+
     today.setHours(0, 0, 0, 0);
 
-    const startDate = new Date(`${offer.startDate}T00:00:00`);
-    const endDate = new Date(`${offer.endDate}T00:00:00`);
+    const startDate = new Date(
+        `${offer.startDate}T00:00:00`
+    );
+
+    const endDate = new Date(
+        `${offer.endDate}T00:00:00`
+    );
 
     if (today < startDate) {
         return {
@@ -51,7 +61,8 @@ function getOfferStatus(offer) {
         };
     }
 
-    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    const millisecondsPerDay =
+        1000 * 60 * 60 * 24;
 
     const daysRemaining = Math.ceil(
         (endDate.getTime() - today.getTime()) /
@@ -63,7 +74,9 @@ function getOfferStatus(offer) {
             label:
                 daysRemaining === 0
                     ? "ENDS TODAY"
-                    : `ENDS IN ${daysRemaining} DAY${daysRemaining === 1 ? "" : "S"
+                    : `ENDS IN ${daysRemaining} DAY${daysRemaining === 1
+                        ? ""
+                        : "S"
                     }`,
             className: "ending",
         };
@@ -80,7 +93,9 @@ function formatDate(date) {
         return "";
     }
 
-    const parsedDate = new Date(`${date}T00:00:00`);
+    const parsedDate = new Date(
+        `${date}T00:00:00`
+    );
 
     if (Number.isNaN(parsedDate.getTime())) {
         return date;
@@ -102,6 +117,8 @@ function OfferList({ offers }) {
         <div className="offers-list">
             {offers.map((offer) => {
                 const status = getOfferStatus(offer);
+                const isGeneralOffer =
+                    !offer.globalMerchantName;
 
                 return (
                     <article
@@ -109,8 +126,16 @@ function OfferList({ offers }) {
                         className={`offer-card offer-card-${status.className}`}
                     >
                         <div className="offer-card-top">
-                            <div className="offer-discount">
-                                {formatDiscount(offer)}
+                            <div>
+                                <span className="offer-discovery-label">
+                                    {isGeneralOffer
+                                        ? "PAYMENT OFFER"
+                                        : "MERCHANT DEAL"}
+                                </span>
+
+                                <div className="offer-discount">
+                                    {formatDiscount(offer)}
+                                </div>
                             </div>
 
                             <span
@@ -122,13 +147,18 @@ function OfferList({ offers }) {
 
                         <div className="offer-card-content">
                             <div className="offer-card-heading">
-                                <p className="offer-eyebrow">
-                                    {offer.globalMerchantName
-                                        ? "MERCHANT OFFER"
-                                        : "GENERAL OFFER"}
-                                </p>
-
                                 <h2>{offer.title}</h2>
+
+                                {offer.globalMerchantName ? (
+                                    <p className="offer-merchant-name">
+                                        {offer.globalMerchantName}
+                                    </p>
+                                ) : (
+                                    <p className="offer-merchant-name">
+                                        Available across eligible
+                                        purchases
+                                    </p>
+                                )}
                             </div>
 
                             {offer.description && (
@@ -138,45 +168,6 @@ function OfferList({ offers }) {
                             )}
 
                             <div className="offer-details">
-                                {offer.globalMerchantName && (
-                                    <div className="offer-detail">
-                                        <span className="offer-detail-icon">
-                                            ◉
-                                        </span>
-
-                                        <div>
-                                            <span className="offer-detail-label">
-                                                Merchant
-                                            </span>
-
-                                            <strong>
-                                                {
-                                                    offer.globalMerchantName
-                                                }
-                                            </strong>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {!offer.globalMerchantName && (
-                                    <div className="offer-detail">
-                                        <span className="offer-detail-icon">
-                                            ✦
-                                        </span>
-
-                                        <div>
-                                            <span className="offer-detail-label">
-                                                Availability
-                                            </span>
-
-                                            <strong>
-                                                Available across eligible
-                                                purchases
-                                            </strong>
-                                        </div>
-                                    </div>
-                                )}
-
                                 {offer.minTransactionAmount && (
                                     <div className="offer-detail">
                                         <span className="offer-detail-icon">
@@ -220,14 +211,23 @@ function OfferList({ offers }) {
 
                             <div className="offer-card-footer">
                                 <div className="offer-validity">
-                                    <span>Valid</span>
+                                    <span>
+                                        Valid until
+                                    </span>
 
                                     <strong>
-                                        {formatDate(offer.startDate)}
-                                        {" — "}
-                                        {formatDate(offer.endDate)}
+                                        {formatDate(
+                                            offer.endDate
+                                        )}
                                     </strong>
                                 </div>
+
+                                <span className="offer-discovery-action">
+                                    Offer details
+                                    <span aria-hidden="true">
+                                        →
+                                    </span>
+                                </span>
                             </div>
                         </div>
                     </article>

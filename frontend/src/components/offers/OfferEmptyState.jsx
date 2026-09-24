@@ -2,25 +2,33 @@ function OfferEmptyState({ searching }) {
     return (
         <div className="offers-empty-state">
             <div className="offers-empty-icon">
-                $
+                ✦
             </div>
 
             {searching ? (
                 <>
-                    <h2>No offers found</h2>
+                    <h2>
+                        No matching offers
+                    </h2>
 
                     <p>
-                        We couldn't find any offers matching your search.
-                        Try another title or clear your search.
+                        We couldn't find an offer
+                        matching your search. Try
+                        another keyword or explore all
+                        available offers.
                     </p>
                 </>
             ) : (
                 <>
-                    <h2>Your savings vault is empty</h2>
+                    <h2>
+                        No offers available yet
+                    </h2>
 
                     <p>
-                        Add offers to LinkVault and keep your discounts,
-                        cashback opportunities, and payment benefits in one place.
+                        We're building your offer
+                        discovery space. Check back as
+                        more merchant deals and payment
+                        offers become available.
                     </p>
                 </>
             )}

@@ -1155,3 +1155,93 @@
         margin-right: 20px;
     }
 }
+
+/* =========================================================
+   Customer Offer Discovery
+   ========================================================= */
+
+.offers-discovery-intro {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin: 24px 0;
+    padding: 18px 20px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 16px;
+    background: var(--card-background, #ffffff);
+}
+
+.offers-discovery-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 12px;
+    background: #f3f4f6;
+    font-size: 20px;
+}
+
+.offers-discovery-intro strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 15px;
+}
+
+.offers-discovery-intro p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+
+.offer-discovery-label {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.offer-merchant-name {
+    margin: 5px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.offer-discovery-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.offer-discovery-action span {
+    font-size: 16px;
+    transition: transform 0.15s ease;
+}
+
+.offer-card:hover .offer-discovery-action span {
+    transform: translateX(3px);
+}
+
+@media (max-width: 700px) {
+    .offers-discovery-intro {
+        padding: 16px;
+    }
+
+    .offer-card-footer {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .offer-discovery-action {
+        font-size: 12px;
+    }
+}
