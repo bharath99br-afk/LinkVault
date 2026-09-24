@@ -108,7 +108,10 @@ function formatDate(date) {
     });
 }
 
-function OfferList({ offers }) {
+function OfferList({ offers,
+    savedOfferIds,
+    savingOfferIds,
+    onSaveOffer, }) {
     if (!offers.length) {
         return null;
     }
@@ -119,6 +122,9 @@ function OfferList({ offers }) {
                 const status = getOfferStatus(offer);
                 const isGeneralOffer =
                     !offer.globalMerchantName;
+                const isSaved = savedOfferIds.has(offer.id);
+                const isSaving = savingOfferIds.has(offer.id);
+                const isExpired = status.className === "expired";
 
                 return (
                     <article
@@ -216,18 +222,25 @@ function OfferList({ offers }) {
                                     </span>
 
                                     <strong>
-                                        {formatDate(
-                                            offer.endDate
-                                        )}
+                                        {formatDate(offer.endDate)}
                                     </strong>
                                 </div>
 
-                                <span className="offer-discovery-action">
-                                    Offer details
-                                    <span aria-hidden="true">
-                                        →
-                                    </span>
-                                </span>
+                                <button
+                                    type="button"
+                                    className={`offer-save-discovery-button ${isSaved ? "saved" : ""
+                                        }`}
+                                    disabled={isSaved || isSaving || isExpired}
+                                    onClick={() => onSaveOffer(offer.id)}
+                                >
+                                    {isSaving
+                                        ? "Saving..."
+                                        : isSaved
+                                            ? "✓ Saved"
+                                            : isExpired
+                                                ? "Expired"
+                                                : "Save Offer"}
+                                </button>
                             </div>
                         </div>
                     </article>

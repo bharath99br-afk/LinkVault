@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getOffers } from "../services/offerService";
+import { getOffers, saveOffer } from "../services/offerService";
 
 import OfferList from "../components/offers/OfferList";
 import OfferEmptyState from "../components/offers/OfferEmptyState";
@@ -8,6 +8,14 @@ import Notification from "../components/Notification";
 
 function Offers() {
     const [offers, setOffers] = useState([]);
+
+    const [savedOfferIds, setSavedOfferIds] = useState(
+        new Set()
+    );
+
+    const [savingOfferIds, setSavingOfferIds] = useState(
+        new Set()
+    );
 
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
@@ -72,6 +80,64 @@ function Offers() {
 
         return () => clearTimeout(timer);
     }, [notification]);
+
+    const handleSaveOffer = async (offerId) => {
+        if (savedOfferIds.has(offerId)) {
+            return;
+        }
+
+        setSavingOfferIds((current) => {
+            const next = new Set(current);
+            next.add(offerId);
+            return next;
+        });
+
+        try {
+            await saveOffer(offerId);
+
+            setSavedOfferIds((current) => {
+                const next = new Set(current);
+                next.add(offerId);
+                return next;
+            });
+
+            setNotification({
+                message: "Offer saved to your savings vault.",
+                type: "success",
+            });
+        } catch (error) {
+            console.error(
+                "Save offer error:",
+                error
+            );
+
+            if (error.status === 409) {
+                setSavedOfferIds((current) => {
+                    const next = new Set(current);
+                    next.add(offerId);
+                    return next;
+                });
+
+                setNotification({
+                    message: "Offer is already saved.",
+                    type: "info",
+                });
+            } else {
+                setNotification({
+                    message:
+                        error.data?.message ||
+                        "Failed to save offer.",
+                    type: "error",
+                });
+            }
+        } finally {
+            setSavingOfferIds((current) => {
+                const next = new Set(current);
+                next.delete(offerId);
+                return next;
+            });
+        }
+    };
 
     const handleSearch = (term) => {
         const normalizedTerm = term.trim();
@@ -202,7 +268,12 @@ function Offers() {
                         )}
                     />
                 ) : (
-                    <OfferList offers={offers} />
+                    <OfferList
+                        offers={offers}
+                        savedOfferIds={savedOfferIds}
+                        savingOfferIds={savingOfferIds}
+                        onSaveOffer={handleSaveOffer}
+                    />
                 )}
 
                 {!loading && totalPages > 1 && (

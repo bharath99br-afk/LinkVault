@@ -59,3 +59,9 @@ export async function addOfferCardApplicability(
         }),
     });
 }
+
+export async function saveOffer(offerId) {
+    return apiRequest(`/saved-offers/${offerId}`, {
+        method: "POST",
+    });
+}

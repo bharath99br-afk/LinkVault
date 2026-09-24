@@ -587,6 +587,12 @@
     background-color: #dc3545;
 }
 
+.notification.info {
+    background: #eef2ff;
+    color: #3730a3;
+    border: 1px solid #c7d2fe;
+}
+
 .notification button {
     border: none;
 
