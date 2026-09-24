@@ -1289,7 +1289,44 @@
 }
 
 @media (max-width: 560px) {
-    .offer-save-discovery-button {
+
+    .offer-save-discovery-button,
+    .offer-unsave-button {
         width: 100%;
     }
+}
+
+.offer-unsave-button {
+    min-width: 92px;
+    min-height: 36px;
+    padding: 8px 13px;
+
+    border: 1px solid var(--lv-border);
+    border-radius: 8px;
+
+    background: white;
+    color: var(--lv-text);
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.offer-unsave-button:hover:not(:disabled) {
+    border-color: #dc2626;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.offer-unsave-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
 }

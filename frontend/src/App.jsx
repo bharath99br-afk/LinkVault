@@ -10,6 +10,7 @@ import Products from "./pages/Products";
 import Merchants from "./pages/Merchants";
 import Cards from "./pages/Cards";
 import Offers from "./pages/Offers";
+import SavedOffers from "./pages/SavedOffers";
 
 import "./App.css";
 import "./styles/auth.css";
@@ -61,6 +62,10 @@ function App() {
 
               <a href="/offers">
                 Offers
+              </a>
+
+              <a href="/saved-offers">
+                Saved
               </a>
             </nav>
           </div>
@@ -118,6 +123,10 @@ function App() {
             element={<Offers />}
           />
 
+          <Route
+            path="/saved-offers"
+            element={<SavedOffers />}
+          />
         </Route>
 
         <Route

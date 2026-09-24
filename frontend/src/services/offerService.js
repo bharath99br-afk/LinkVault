@@ -65,3 +65,17 @@ export async function saveOffer(offerId) {
         method: "POST",
     });
 }
+
+export async function getSavedOffers() {
+    return apiRequest("/saved-offers");
+}
+
+export async function getSavedOffer(offerId) {
+    return apiRequest(`/saved-offers/${offerId}`);
+}
+
+export async function unsaveOffer(offerId) {
+    return apiRequest(`/saved-offers/${offerId}`, {
+        method: "DELETE",
+    });
+}
