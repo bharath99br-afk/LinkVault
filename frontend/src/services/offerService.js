@@ -79,3 +79,19 @@ export async function unsaveOffer(offerId) {
         method: "DELETE",
     });
 }
+
+export async function getOfferBankApplicability(
+    offerId
+) {
+    return apiRequest(
+        `/offers/${offerId}/banks`
+    );
+}
+
+export async function getOfferCardApplicability(
+    offerId
+) {
+    return apiRequest(
+        `/offers/${offerId}/cards`
+    );
+}

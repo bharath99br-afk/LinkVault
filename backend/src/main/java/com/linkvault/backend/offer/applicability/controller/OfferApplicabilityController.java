@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.linkvault.backend.offer.applicability.dto.OfferCardApplicabilityResponse;
+import com.linkvault.backend.offer.applicability.dto.OfferBankApplicabilityResponse;
 
 @RestController
 @RequestMapping("/api/offers")
@@ -42,7 +44,7 @@ public class OfferApplicabilityController {
         }
 
         @GetMapping("/{offerId}/banks")
-        public ResponseEntity<ApiResponse<List<OfferBankApplicability>>> getBankApplicability(
+        public ResponseEntity<ApiResponse<List<OfferBankApplicabilityResponse>>> getBankApplicability(
                         @PathVariable Long offerId) {
 
                 return ApiResponseUtil.success(
@@ -79,7 +81,7 @@ public class OfferApplicabilityController {
         }
 
         @GetMapping("/{offerId}/cards")
-        public ResponseEntity<ApiResponse<List<OfferCardApplicability>>> getCardApplicability(
+        public ResponseEntity<ApiResponse<List<OfferCardApplicabilityResponse>>> getCardApplicability(
                         @PathVariable Long offerId) {
 
                 return ApiResponseUtil.success(

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 
-import { getOffers, saveOffer } from "../services/offerService";
+import { getOffers, saveOffer, getOfferCardApplicability, getOfferBankApplicability } from "../services/offerService";
 
 import OfferList from "../components/offers/OfferList";
 import OfferEmptyState from "../components/offers/OfferEmptyState";
 import Notification from "../components/Notification";
+import { getCards } from "../services/cardService";
 
 function Offers() {
     const [offers, setOffers] = useState([]);
@@ -29,6 +30,14 @@ function Offers() {
         type: "",
     });
 
+    const [userCards, setUserCards] = useState([]);
+
+    const [offerApplicability, setOfferApplicability] =
+        useState({});
+
+    const [applicabilityLoading, setApplicabilityLoading] =
+        useState(false);
+
     const loadOffers = async (
         title = "",
         page = 0
@@ -42,9 +51,14 @@ function Offers() {
                 size: 10,
             });
 
-            setOffers(response?.data?.content || []);
+            const loadedOffers =
+                response?.data?.content || [];
+            setOffers(loadedOffers);
             setCurrentPage(response?.data?.page || 0);
             setTotalPages(response?.data?.totalPages || 0);
+            loadOfferApplicability(
+                loadedOffers
+            );
         } catch (error) {
             console.error(
                 "Offer load error:",
@@ -62,8 +76,86 @@ function Offers() {
         }
     };
 
+    const loadUserCards = async () => {
+        try {
+            const response = await getCards({
+                page: 0,
+                size: 100,
+            });
+
+            setUserCards(
+                response?.data?.content || []
+            );
+        } catch (error) {
+            console.error(
+                "User card load error:",
+                error
+            );
+
+            setUserCards([]);
+        }
+    };
+
+    const loadOfferApplicability = async (
+        offerList
+    ) => {
+        if (!offerList.length) {
+            setOfferApplicability({});
+            return;
+        }
+
+        setApplicabilityLoading(true);
+
+        try {
+            const results = await Promise.all(
+                offerList.map(async (offer) => {
+                    const [
+                        bankResponse,
+                        cardResponse,
+                    ] = await Promise.all([
+                        getOfferBankApplicability(
+                            offer.id
+                        ),
+                        getOfferCardApplicability(
+                            offer.id
+                        ),
+                    ]);
+
+                    return {
+                        offerId: offer.id,
+                        banks:
+                            bankResponse?.data || [],
+                        cards:
+                            cardResponse?.data || [],
+                    };
+                })
+            );
+
+            const nextApplicability = {};
+
+            results.forEach((result) => {
+                nextApplicability[result.offerId] =
+                    result;
+            });
+
+            setOfferApplicability(
+                nextApplicability
+            );
+        } catch (error) {
+            console.error(
+                "Offer applicability load error:",
+                error
+            );
+
+            setOfferApplicability({});
+        } finally {
+            setApplicabilityLoading(false);
+        }
+    };
+
     useEffect(() => {
         loadOffers();
+        loadUserCards();
     }, []);
 
     useEffect(() => {
@@ -273,6 +365,9 @@ function Offers() {
                         savedOfferIds={savedOfferIds}
                         savingOfferIds={savingOfferIds}
                         onSaveOffer={handleSaveOffer}
+                        userCards={userCards}
+                        offerApplicability={offerApplicability}
+                        applicabilityLoading={applicabilityLoading}
                     />
                 )}
 

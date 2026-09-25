@@ -108,10 +108,98 @@ function formatDate(date) {
     });
 }
 
-function OfferList({ offers,
+function getOfferApplicabilityStatus(
+    offerId,
+    userCards,
+    offerApplicability
+) {
+    const applicability =
+        offerApplicability[offerId];
+
+    if (!applicability) {
+        return {
+            status: "UNKNOWN",
+            label: "",
+            detail: "",
+        };
+    }
+
+    const {
+        banks = [],
+        cards = [],
+    } = applicability;
+
+    if (cards.length > 0) {
+        const matchedCard = cards
+            .flatMap((offerCard) =>
+                userCards.filter(
+                    (userCard) =>
+                        userCard.cardProductId !== null &&
+                        Number(userCard.cardProductId) ===
+                        Number(offerCard.cardProductId)
+                )
+            )[0];
+
+        if (matchedCard) {
+            return {
+                status: "APPLICABLE",
+                label: "Matches your card",
+                detail:
+                    matchedCard.cardProductName ||
+                    matchedCard.name,
+            };
+        }
+
+        return {
+            status: "NOT_APPLICABLE",
+            label: "Not applicable to your cards",
+            detail: "Requires a different card",
+        };
+    }
+
+    if (banks.length > 0) {
+        const matchedCard = userCards.find(
+            (userCard) =>
+                banks.some(
+                    (offerBank) =>
+                        Number(userCard.bankId) ===
+                        Number(offerBank.bankId)
+                )
+        );
+
+        if (matchedCard) {
+            return {
+                status: "APPLICABLE",
+                label: "Matches your bank",
+                detail:
+                    matchedCard.bankName ||
+                    matchedCard.name,
+            };
+        }
+
+        return {
+            status: "NOT_APPLICABLE",
+            label: "Not applicable to your cards",
+            detail: "Requires a different bank",
+        };
+    }
+
+    return {
+        status: "GENERAL",
+        label: "Available for your cards",
+        detail: "No card restriction",
+    };
+}
+
+function OfferList({
+    offers,
     savedOfferIds,
     savingOfferIds,
-    onSaveOffer, }) {
+    onSaveOffer,
+    userCards,
+    offerApplicability,
+    applicabilityLoading,
+}) {
     if (!offers.length) {
         return null;
     }
@@ -125,6 +213,12 @@ function OfferList({ offers,
                 const isSaved = savedOfferIds.has(offer.id);
                 const isSaving = savingOfferIds.has(offer.id);
                 const isExpired = status.className === "expired";
+                const applicabilityStatus =
+                    getOfferApplicabilityStatus(
+                        offer.id,
+                        userCards,
+                        offerApplicability
+                    );
 
                 return (
                     <article
@@ -172,6 +266,50 @@ function OfferList({ offers,
                                     {offer.description}
                                 </p>
                             )}
+
+                            {applicabilityLoading ? (
+                                <div className="offer-applicability-status loading">
+                                    <span className="offer-applicability-icon">
+                                        ◌
+                                    </span>
+
+                                    <div>
+                                        <strong>
+                                            Checking your card eligibility
+                                        </strong>
+
+                                        <small>
+                                            Matching this offer against your cards
+                                        </small>
+                                    </div>
+                                </div>
+                            ) : applicabilityStatus.status !== "UNKNOWN" ? (
+                                <div
+                                    className={`offer-applicability-status ${applicabilityStatus.status.toLowerCase()}`}
+                                >
+                                    <span className="offer-applicability-icon">
+                                        {applicabilityStatus.status ===
+                                            "APPLICABLE"
+                                            ? "✓"
+                                            : applicabilityStatus.status ===
+                                                "NOT_APPLICABLE"
+                                                ? "!"
+                                                : "✦"}
+                                    </span>
+
+                                    <div className="offer-applicability-content">
+                                        <strong>
+                                            {applicabilityStatus.label}
+                                        </strong>
+
+                                        {applicabilityStatus.detail && (
+                                            <small>
+                                                {applicabilityStatus.detail}
+                                            </small>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : null}
 
                             <div className="offer-details">
                                 {offer.minTransactionAmount && (

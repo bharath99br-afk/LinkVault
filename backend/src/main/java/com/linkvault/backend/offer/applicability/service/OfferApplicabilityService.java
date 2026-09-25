@@ -17,6 +17,8 @@ import com.linkvault.backend.offer.repository.OfferRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.linkvault.backend.offer.applicability.dto.OfferCardApplicabilityResponse;
+import com.linkvault.backend.offer.applicability.dto.OfferBankApplicabilityResponse;
 
 @Service
 public class OfferApplicabilityService {
@@ -131,21 +133,37 @@ public class OfferApplicabilityService {
         }
 
         @Transactional(readOnly = true)
-        public java.util.List<OfferBankApplicability> getBankApplicability(
+        public java.util.List<OfferBankApplicabilityResponse> getBankApplicability(
                         Long offerId) {
 
                 getOffer(offerId);
 
-                return offerBankRepository.findByOfferId(offerId);
+                return offerBankRepository.findByOfferId(offerId)
+                                .stream()
+                                .map(item -> new OfferBankApplicabilityResponse(
+                                                item.getId(),
+                                                item.getOffer().getId(),
+                                                item.getBank().getId(),
+                                                item.getBank().getName()))
+                                .toList();
         }
 
         @Transactional(readOnly = true)
-        public java.util.List<OfferCardApplicability> getCardApplicability(
+        public java.util.List<OfferCardApplicabilityResponse> getCardApplicability(
                         Long offerId) {
 
                 getOffer(offerId);
 
-                return offerCardRepository.findByOfferId(offerId);
+                return offerCardRepository.findByOfferId(offerId)
+                                .stream()
+                                .map(item -> new OfferCardApplicabilityResponse(
+                                                item.getId(),
+                                                item.getOffer().getId(),
+                                                item.getBank().getId(),
+                                                item.getBank().getName(),
+                                                item.getCardProduct().getId(),
+                                                item.getCardProduct().getName()))
+                                .toList();
         }
 
         private Offer getOffer(Long offerId) {
