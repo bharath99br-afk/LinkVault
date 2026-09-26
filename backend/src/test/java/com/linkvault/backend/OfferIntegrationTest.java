@@ -7,9 +7,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import static org.assertj.core.api.Assertions.assertThat;
+import tools.jackson.databind.JsonNode;
 
 class OfferIntegrationTest extends IntegrationTestBase {
 
@@ -340,5 +344,60 @@ class OfferIntegrationTest extends IntegrationTestBase {
                                                 .content(offerJson))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.data.sourceUrl").doesNotExist());
+        }
+
+        @Test
+        void offerShouldBeCreatedThroughIngestion() throws Exception {
+
+                String token = registerAndLogin(
+                                "Ingestion User",
+                                uniqueEmail("ingestion"));
+
+                long merchantId = createGlobalMerchant(
+                                token,
+                                "Amazon");
+
+                String json = """
+                                {
+                                    "title": "Amazon discount offer",
+                                    "description": "Integration ingestion test offer",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "maxDiscount": 1000,
+                                    "minTransactionAmount": 500,
+                                    "startDate": "%s",
+                                    "endDate": "%s",
+                                    "globalMerchantId": %d,
+                                    "sourceUrl": "https://amazon.example.com/offer"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30),
+                                merchantId);
+
+                MvcResult result = mockMvc.perform(
+                                post("/api/offers/ingest")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                JsonNode root = objectMapper.readTree(
+                                result.getResponse().getContentAsString());
+
+                JsonNode offer = root.path("data");
+
+                assertThat(offer.path("title").asText())
+                                .isEqualTo("Amazon discount offer");
+
+                assertThat(offer.path("discountValue").asDouble())
+                                .isEqualTo(10.0);
+
+                assertThat(offer.path("globalMerchantId").asLong())
+                                .isEqualTo(merchantId);
+
+                assertThat(offer.path("sourceUrl").asText())
+                                .isEqualTo("https://amazon.example.com/offer");
         }
 }
