@@ -332,6 +332,44 @@
     text-align: right;
 }
 
+.offer-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.offer-view-source-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 8px 13px;
+    border: 1px solid var(--lv-border);
+    border-radius: 8px;
+    background: white;
+    color: var(--lv-text);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.offer-view-source-button:hover {
+    border-color: var(--lv-primary);
+    background: var(--lv-primary-soft);
+    color: var(--lv-primary);
+    transform: translateY(-1px);
+}
+
 
 /* ---------- Expired Offers ---------- */
 
@@ -498,6 +536,17 @@
 
     .offer-validity strong {
         text-align: left;
+    }
+
+    .offer-card-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .offer-view-source-button,
+    .offer-save-discovery-button {
+        width: 100%;
     }
 }
 
@@ -1428,4 +1477,10 @@
 .offer-applicability-status.loading .offer-applicability-icon {
     background: #f0efff;
     color: var(--lv-primary);
+}
+
+.offers-test-action {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 20px 0;
 }

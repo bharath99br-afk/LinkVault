@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import com.linkvault.backend.globalmerchant.model.GlobalMerchant;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -58,6 +59,10 @@ public class Offer {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "global_merchant_id")
     private GlobalMerchant globalMerchant;
+
+    @Column(name = "source_url", length = 2048)
+    @Size(max = 2048, message = "Source URL must not exceed 2048 characters")
+    private String sourceUrl;
 
     public Offer() {
     }
@@ -164,6 +169,14 @@ public class Offer {
 
     public void setGlobalMerchant(GlobalMerchant globalMerchant) {
         this.globalMerchant = globalMerchant;
+    }
+
+    public String getSourceUrl() {
+        return sourceUrl;
+    }
+
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
     }
 
 }

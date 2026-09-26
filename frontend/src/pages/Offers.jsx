@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
 
-import { getOffers, saveOffer, getOfferCardApplicability, getOfferBankApplicability } from "../services/offerService";
+import {
+    getOffers, saveOffer, getOfferCardApplicability, getOfferBankApplicability, createOffer,
+    addOfferBankApplicability,
+    addOfferCardApplicability,
+} from "../services/offerService";
 
 import OfferList from "../components/offers/OfferList";
 import OfferEmptyState from "../components/offers/OfferEmptyState";
 import Notification from "../components/Notification";
 import { getCards } from "../services/cardService";
+
+import AddOfferForm from "../components/offers/AddOfferForm";
+import { getGlobalMerchants } from "../services/merchantService";
+import { getBanks } from "../services/bankService";
 
 function Offers() {
     const [offers, setOffers] = useState([]);
@@ -37,6 +45,16 @@ function Offers() {
 
     const [applicabilityLoading, setApplicabilityLoading] =
         useState(false);
+
+    const [showAddOfferForm, setShowAddOfferForm] = useState(false);
+
+    const [banks, setBanks] = useState([]);
+    const [banksLoading, setBanksLoading] = useState(false);
+
+    const [globalMerchants, setGlobalMerchants] = useState([]);
+    const [globalMerchantsLoading, setGlobalMerchantsLoading] = useState(false);
+
+    const [offerSubmitting, setOfferSubmitting] = useState(false);
 
     const loadOffers = async (
         title = "",
@@ -150,6 +168,88 @@ function Offers() {
             setOfferApplicability({});
         } finally {
             setApplicabilityLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!showAddOfferForm) {
+            return;
+        }
+
+        const loadOfferFormData = async () => {
+            try {
+                setBanksLoading(true);
+                setGlobalMerchantsLoading(true);
+
+                const [banksResponse, merchantsResponse] = await Promise.all([
+                    getBanks({ page: 0, size: 100 }),
+                    getGlobalMerchants({ page: 0, size: 100 }),
+                ]);
+
+                setBanks(banksResponse?.data?.content || []);
+                setGlobalMerchants(merchantsResponse?.data?.content || []);
+            } catch (error) {
+                console.error("Failed to load offer form data:", error);
+
+                setNotification({
+                    message: "Failed to load offer form data.",
+                    type: "error",
+                });
+            } finally {
+                setBanksLoading(false);
+                setGlobalMerchantsLoading(false);
+            }
+        };
+
+        loadOfferFormData();
+    }, [showAddOfferForm]);
+
+    const handleCreateOffer = async ({
+        offer,
+        applicabilityMode,
+        bankIds,
+        cardProductIds,
+    }) => {
+        try {
+            setOfferSubmitting(true);
+
+            const createdOffer = await createOffer(offer);
+
+            const offerId = createdOffer.id;
+
+            if (applicabilityMode === "BANK") {
+                await Promise.all(
+                    bankIds.map((bankId) =>
+                        addOfferBankApplicability(offerId, bankId)
+                    )
+                );
+            }
+
+            if (applicabilityMode === "CARD") {
+                await Promise.all(
+                    cardProductIds.map((cardProductId) =>
+                        addOfferCardApplicability(offerId, cardProductId)
+                    )
+                );
+            }
+
+            setNotification({
+                message: "Offer created successfully.",
+                type: "success",
+            });
+
+            setShowAddOfferForm(false);
+
+            await loadOffers(searchTerm, currentPage);
+        } catch (error) {
+            console.error("Failed to create offer:", error);
+
+            setNotification({
+                message: error.message || "Failed to create offer.",
+                type: "error",
+            });
+        } finally {
+            setOfferSubmitting(false);
         }
     };
 
@@ -341,6 +441,30 @@ function Offers() {
                         )}
                     </div>
                 </div>
+
+                {/* {!showAddOfferForm && (
+                    <div className="offers-test-action">
+                        <button
+                            type="button"
+                            className="offers-add-button"
+                            onClick={() => setShowAddOfferForm(true)}
+                        >
+                            + Add Offer
+                        </button>
+                    </div>
+                )} */}
+                {showAddOfferForm && (
+                    <AddOfferForm
+                        globalMerchants={globalMerchants}
+                        globalMerchantsLoading={globalMerchantsLoading}
+                        banks={banks}
+                        banksLoading={banksLoading}
+                        onSubmit={handleCreateOffer}
+                        onCancel={() => setShowAddOfferForm(false)}
+                        submitting={offerSubmitting}
+                    />
+                )}
+
 
 
                 {loading ? (

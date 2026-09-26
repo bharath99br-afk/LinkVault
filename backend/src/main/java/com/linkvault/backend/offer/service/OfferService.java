@@ -82,6 +82,7 @@ public class OfferService {
                                 request.getMinTransactionAmount());
                 offer.setStartDate(request.getStartDate());
                 offer.setEndDate(request.getEndDate());
+                offer.setSourceUrl(request.getSourceUrl());
                 if (request.getGlobalMerchantId() != null) {
 
                         GlobalMerchant globalMerchant = globalMerchantRepository
@@ -118,6 +119,7 @@ public class OfferService {
                                 request.getMinTransactionAmount());
                 offer.setStartDate(request.getStartDate());
                 offer.setEndDate(request.getEndDate());
+                offer.setSourceUrl(request.getSourceUrl());
                 if (request.getGlobalMerchantId() != null) {
 
                         GlobalMerchant globalMerchant = globalMerchantRepository
@@ -194,6 +196,7 @@ public class OfferService {
                                                 : null,
                                 offer.getGlobalMerchant() != null
                                                 ? offer.getGlobalMerchant().getName()
-                                                : null);
+                                                : null,
+                                offer.getSourceUrl());
         }
 }

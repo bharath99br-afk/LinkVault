@@ -40,6 +40,9 @@ public class OfferRequest {
 
     private Long globalMerchantId;
 
+    @Size(max = 2048, message = "Source URL must not exceed 2048 characters")
+    private String sourceUrl;
+
     public OfferRequest() {
     }
 
@@ -51,7 +54,7 @@ public class OfferRequest {
             BigDecimal maxDiscount,
             BigDecimal minTransactionAmount,
             LocalDate startDate,
-            LocalDate endDate, Long globalMerchantId) {
+            LocalDate endDate, Long globalMerchantId, String sourceUrl) {
 
         this.title = title;
         this.description = description;
@@ -62,6 +65,7 @@ public class OfferRequest {
         this.startDate = startDate;
         this.endDate = endDate;
         this.globalMerchantId = globalMerchantId;
+        this.sourceUrl = sourceUrl;
     }
 
     public String getTitle() {
@@ -134,5 +138,13 @@ public class OfferRequest {
 
     public void setGlobalMerchantId(Long globalMerchantId) {
         this.globalMerchantId = globalMerchantId;
+    }
+
+    public String getSourceUrl() {
+        return sourceUrl;
+    }
+
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
     }
 }

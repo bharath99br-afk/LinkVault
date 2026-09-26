@@ -87,6 +87,8 @@ function AddOfferForm({
     const [globalMerchantId, setGlobalMerchantId] =
         useState("");
 
+    const [sourceUrl, setSourceUrl] = useState("");
+
     const [applicabilityMode, setApplicabilityMode] =
         useState("GENERAL");
 
@@ -173,6 +175,14 @@ function AddOfferForm({
             return "Select at least one applicable card product.";
         }
 
+        if (sourceUrl.trim()) {
+            try {
+                new URL(sourceUrl.trim());
+            } catch {
+                return "Please enter a valid source URL.";
+            }
+        }
+
         return "";
     };
 
@@ -207,6 +217,7 @@ function AddOfferForm({
                 globalMerchantId
                     ? Number(globalMerchantId)
                     : null,
+            sourceUrl: sourceUrl.trim() || null,
         };
 
         await onSubmit({
@@ -316,6 +327,27 @@ function AddOfferForm({
 
                                 <span className="offer-field-hint">
                                     {description.length}/500
+                                </span>
+                            </div>
+
+                            <div className="offer-field offer-field-full">
+                                <label htmlFor="source-url">
+                                    Source URL
+                                </label>
+
+                                <input
+                                    id="source-url"
+                                    type="url"
+                                    value={sourceUrl}
+                                    onChange={(event) =>
+                                        setSourceUrl(event.target.value)
+                                    }
+                                    maxLength={2048}
+                                    placeholder="https://example.com/offer"
+                                />
+
+                                <span className="offer-field-hint">
+                                    Optional. Link to the original page where this offer was found.
                                 </span>
                             </div>
 

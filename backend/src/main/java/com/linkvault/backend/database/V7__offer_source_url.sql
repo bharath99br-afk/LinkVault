@@ -1,0 +1,6 @@
+BEGIN;
+
+ALTER TABLE offers
+    ADD COLUMN source_url VARCHAR(2048);
+
+COMMIT;

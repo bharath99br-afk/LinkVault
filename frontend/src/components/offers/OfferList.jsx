@@ -364,21 +364,33 @@ function OfferList({
                                     </strong>
                                 </div>
 
-                                <button
-                                    type="button"
-                                    className={`offer-save-discovery-button ${isSaved ? "saved" : ""
-                                        }`}
-                                    disabled={isSaved || isSaving || isExpired}
-                                    onClick={() => onSaveOffer(offer.id)}
-                                >
-                                    {isSaving
-                                        ? "Saving..."
-                                        : isSaved
-                                            ? "✓ Saved"
-                                            : isExpired
-                                                ? "Expired"
-                                                : "Save Offer"}
-                                </button>
+                                <div className="offer-card-actions">
+                                    {offer.sourceUrl && (
+                                        <a
+                                            href={offer.sourceUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="offer-save-discovery-button"
+                                        >
+                                            View Offer ↗
+                                        </a>
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        className={`offer-save-discovery-button ${isSaved ? "saved" : ""}`}
+                                        disabled={isSaved || isSaving || isExpired}
+                                        onClick={() => onSaveOffer(offer.id)}
+                                    >
+                                        {isSaving
+                                            ? "Saving..."
+                                            : isSaved
+                                                ? "✓ Saved"
+                                                : isExpired
+                                                    ? "Expired"
+                                                    : "Save Offer"}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </article>

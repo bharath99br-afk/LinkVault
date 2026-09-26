@@ -18,6 +18,7 @@ public class OfferResponse {
     private LocalDate endDate;
     private Long globalMerchantId;
     private String globalMerchantName;
+    private String sourceUrl;
 
     public OfferResponse() {
     }
@@ -33,7 +34,8 @@ public class OfferResponse {
             LocalDate startDate,
             LocalDate endDate,
             Long globalMerchantId,
-            String globalMerchantName) {
+            String globalMerchantName,
+            String sourceUrl) {
 
         this.id = id;
         this.title = title;
@@ -46,6 +48,7 @@ public class OfferResponse {
         this.endDate = endDate;
         this.globalMerchantId = globalMerchantId;
         this.globalMerchantName = globalMerchantName;
+        this.sourceUrl = sourceUrl;
     }
 
     public Long getId() {
@@ -134,5 +137,13 @@ public class OfferResponse {
 
     public void setGlobalMerchantName(String globalMerchantName) {
         this.globalMerchantName = globalMerchantName;
+    }
+
+    public String getSourceUrl() {
+        return sourceUrl;
+    }
+
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
     }
 }
