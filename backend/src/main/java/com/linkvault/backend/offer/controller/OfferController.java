@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.linkvault.backend.offer.dto.OfferIngestionRequest;
 import com.linkvault.backend.offer.service.OfferIngestionService;
+import com.linkvault.backend.offer.dto.OfferIngestionResult;
 
 @RestController
 @RequestMapping("/api/offers")
@@ -90,10 +91,14 @@ public class OfferController {
         public ResponseEntity<ApiResponse<OfferResponse>> ingestOffer(
                         @Valid @RequestBody OfferIngestionRequest request) {
 
-                OfferResponse offer = offerIngestionService.ingestOffer(request);
+                OfferIngestionResult result = offerIngestionService.ingestOffer(request);
+
+                String message = result.isRefreshed()
+                                ? "Offer Refreshed Successfully"
+                                : "Offer Ingested Successfully";
 
                 return ApiResponseUtil.created(
-                                "Offer Ingested Successfully",
-                                offer);
+                                message,
+                                result.getOffer());
         }
 }

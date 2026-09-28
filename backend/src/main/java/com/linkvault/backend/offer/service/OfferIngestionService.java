@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.linkvault.backend.offer.dto.OfferIngestionRequest;
 import com.linkvault.backend.offer.dto.OfferRequest;
 import com.linkvault.backend.offer.dto.OfferResponse;
+import com.linkvault.backend.offer.dto.OfferIngestionResult;
 
 @Service
 public class OfferIngestionService {
@@ -15,7 +16,7 @@ public class OfferIngestionService {
         this.offerService = offerService;
     }
 
-    public OfferResponse ingestOffer(OfferIngestionRequest request) {
+    public OfferIngestionResult ingestOffer(OfferIngestionRequest request) {
 
         String title = request.getTitle() != null
                 ? request.getTitle().trim()

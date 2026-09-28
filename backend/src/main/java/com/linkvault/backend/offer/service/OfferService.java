@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
+import com.linkvault.backend.offer.dto.OfferIngestionResult;
 
 @Service
 public class OfferService {
@@ -222,7 +223,7 @@ public class OfferService {
         }
 
         @Transactional
-        public OfferResponse refreshOfferIfExists(OfferRequest request) {
+        public OfferIngestionResult refreshOfferIfExists(OfferRequest request) {
 
                 Optional<Offer> existingOffer = repository.findDuplicate(
                                 request.getTitle(),
@@ -235,7 +236,11 @@ public class OfferService {
                                 request.getGlobalMerchantId());
 
                 if (existingOffer.isEmpty()) {
-                        return addOffer(request);
+                        OfferResponse createdOffer = addOffer(request);
+
+                        return new OfferIngestionResult(
+                                        createdOffer,
+                                        false);
                 }
 
                 Offer offer = existingOffer.get();
@@ -245,6 +250,8 @@ public class OfferService {
 
                 Offer refreshedOffer = repository.save(offer);
 
-                return mapToResponse(refreshedOffer);
+                return new OfferIngestionResult(
+                                mapToResponse(refreshedOffer),
+                                true);
         }
 }
