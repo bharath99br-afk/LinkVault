@@ -709,4 +709,178 @@ class OfferIntegrationTest extends IntegrationTestBase {
                 assertThat(secondOfferId).isEqualTo(offerId);
         }
 
+        @Test
+        void ingestionShouldRejectBlankTitle() throws Exception {
+
+                String token = registerAndLogin(
+                                "Invalid Title User",
+                                uniqueEmail("invalid-title"));
+
+                String json = """
+                                {
+                                    "title": "   ",
+                                    "description": "Invalid title test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers/ingest")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void ingestionShouldRejectInvalidDiscountValue() throws Exception {
+
+                String token = registerAndLogin(
+                                "Invalid Discount User",
+                                uniqueEmail("invalid-discount"));
+
+                String json = """
+                                {
+                                    "title": "Invalid Discount Offer",
+                                    "description": "Invalid discount test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 0,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers/ingest")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void ingestionShouldRejectInvalidMaxDiscount() throws Exception {
+
+                String token = registerAndLogin(
+                                "Invalid Max Discount User",
+                                uniqueEmail("invalid-max-discount"));
+
+                String json = """
+                                {
+                                    "title": "Invalid Max Discount Offer",
+                                    "description": "Invalid max discount test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "maxDiscount": 0,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers/ingest")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void ingestionShouldRejectInvalidMinimumTransactionAmount() throws Exception {
+
+                String token = registerAndLogin(
+                                "Invalid Minimum User",
+                                uniqueEmail("invalid-minimum"));
+
+                String json = """
+                                {
+                                    "title": "Invalid Minimum Offer",
+                                    "description": "Invalid minimum transaction test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "minTransactionAmount": 0,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers/ingest")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void ingestionShouldRejectEndDateBeforeStartDate() throws Exception {
+
+                String token = registerAndLogin(
+                                "Invalid Date User",
+                                uniqueEmail("invalid-date"));
+
+                String json = """
+                                {
+                                    "title": "Invalid Date Offer",
+                                    "description": "Invalid date range test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().plusDays(30),
+                                LocalDate.now());
+
+                mockMvc.perform(
+                                post("/api/offers/ingest")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void ingestionShouldRejectOversizedSourceUrl() throws Exception {
+
+                String token = registerAndLogin(
+                                "Invalid Source URL User",
+                                uniqueEmail("invalid-source-url"));
+
+                String oversizedUrl = "https://example.com/" + "a".repeat(2048);
+
+                String json = """
+                                {
+                                    "title": "Oversized Source URL Offer",
+                                    "description": "Oversized source URL test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s",
+                                    "sourceUrl": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30),
+                                oversizedUrl);
+
+                mockMvc.perform(
+                                post("/api/offers/ingest")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isBadRequest());
+        }
+
 }
