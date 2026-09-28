@@ -220,4 +220,31 @@ public class OfferService {
 
                 return addOffer(request);
         }
+
+        @Transactional
+        public OfferResponse refreshOfferIfExists(OfferRequest request) {
+
+                Optional<Offer> existingOffer = repository.findDuplicate(
+                                request.getTitle(),
+                                request.getDiscountType(),
+                                request.getDiscountValue(),
+                                request.getMaxDiscount(),
+                                request.getMinTransactionAmount(),
+                                request.getStartDate(),
+                                request.getEndDate(),
+                                request.getGlobalMerchantId());
+
+                if (existingOffer.isEmpty()) {
+                        return addOffer(request);
+                }
+
+                Offer offer = existingOffer.get();
+
+                offer.setDescription(request.getDescription());
+                offer.setSourceUrl(request.getSourceUrl());
+
+                Offer refreshedOffer = repository.save(offer);
+
+                return mapToResponse(refreshedOffer);
+        }
 }

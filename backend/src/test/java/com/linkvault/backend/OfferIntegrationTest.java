@@ -631,4 +631,82 @@ class OfferIntegrationTest extends IntegrationTestBase {
                 assertThat(secondOfferId).isEqualTo(firstOfferId);
         }
 
+        @Test
+        void duplicateIngestionShouldRefreshDescriptionAndSourceUrl() throws Exception {
+
+                String token = registerAndLogin(
+                                "Refresh Ingestion User",
+                                uniqueEmail("refresh-ingestion"));
+
+                long merchantId = createGlobalMerchant(
+                                token,
+                                "Amazon");
+
+                String firstJson = """
+                                {
+                                    "title": "Amazon refresh test offer",
+                                    "description": "Original description",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "maxDiscount": 1000,
+                                    "minTransactionAmount": 500,
+                                    "startDate": "%s",
+                                    "endDate": "%s",
+                                    "globalMerchantId": %d,
+                                    "sourceUrl": "https://source-a.example.com/offer"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30),
+                                merchantId);
+
+                MvcResult firstResponse = mockMvc.perform(
+                                post("/api/offers/ingest")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(firstJson))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.data.description")
+                                                .value("Original description"))
+                                .andExpect(jsonPath("$.data.sourceUrl")
+                                                .value("https://source-a.example.com/offer"))
+                                .andReturn();
+
+                long offerId = extractId(firstResponse);
+
+                String secondJson = """
+                                {
+                                    "title": "Amazon refresh test offer",
+                                    "description": "Updated description",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "maxDiscount": 1000,
+                                    "minTransactionAmount": 500,
+                                    "startDate": "%s",
+                                    "endDate": "%s",
+                                    "globalMerchantId": %d,
+                                    "sourceUrl": "https://source-b.example.com/offer"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30),
+                                merchantId);
+
+                MvcResult secondResponse = mockMvc.perform(
+                                post("/api/offers/ingest")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(secondJson))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.data.description")
+                                                .value("Updated description"))
+                                .andExpect(jsonPath("$.data.sourceUrl")
+                                                .value("https://source-b.example.com/offer"))
+                                .andReturn();
+
+                long secondOfferId = extractId(secondResponse);
+
+                assertThat(secondOfferId).isEqualTo(offerId);
+        }
+
 }
