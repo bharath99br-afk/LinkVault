@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import com.linkvault.backend.offer.dto.OfferIngestionResult;
+import com.linkvault.backend.offer.dto.OfferLifecycleStatus;
 
 @Service
 public class OfferService {
@@ -183,7 +184,7 @@ public class OfferService {
 
         private OfferResponse mapToResponse(Offer offer) {
 
-                return new OfferResponse(
+                OfferResponse response = new OfferResponse(
                                 offer.getId(),
                                 offer.getTitle(),
                                 offer.getDescription(),
@@ -200,6 +201,29 @@ public class OfferService {
                                                 ? offer.getGlobalMerchant().getName()
                                                 : null,
                                 offer.getSourceUrl());
+
+                response.setStatus(calculateLifecycleStatus(
+                                offer.getStartDate(),
+                                offer.getEndDate()));
+
+                return response;
+        }
+
+        private OfferLifecycleStatus calculateLifecycleStatus(
+                        java.time.LocalDate startDate,
+                        java.time.LocalDate endDate) {
+
+                java.time.LocalDate today = java.time.LocalDate.now();
+
+                if (today.isBefore(startDate)) {
+                        return OfferLifecycleStatus.UPCOMING;
+                }
+
+                if (today.isAfter(endDate)) {
+                        return OfferLifecycleStatus.EXPIRED;
+                }
+
+                return OfferLifecycleStatus.ACTIVE;
         }
 
         @Transactional

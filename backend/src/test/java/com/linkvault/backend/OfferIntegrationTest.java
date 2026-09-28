@@ -883,4 +883,94 @@ class OfferIntegrationTest extends IntegrationTestBase {
                                 .andExpect(status().isBadRequest());
         }
 
+        @Test
+        void offerShouldBeUpcomingBeforeStartDate() throws Exception {
+
+                String token = registerAndLogin(
+                                "Upcoming Offer User",
+                                uniqueEmail("upcoming-offer"));
+
+                String json = """
+                                {
+                                    "title": "Upcoming Lifecycle Offer",
+                                    "description": "Upcoming offer test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().plusDays(1),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.data.status")
+                                                .value("UPCOMING"));
+        }
+
+        @Test
+        void offerShouldBeActiveDuringOfferPeriod() throws Exception {
+
+                String token = registerAndLogin(
+                                "Active Offer User",
+                                uniqueEmail("active-offer"));
+
+                String json = """
+                                {
+                                    "title": "Active Lifecycle Offer",
+                                    "description": "Active offer test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.data.status")
+                                                .value("ACTIVE"));
+        }
+
+        @Test
+        void offerShouldBeExpiredAfterEndDate() throws Exception {
+
+                String token = registerAndLogin(
+                                "Expired Offer User",
+                                uniqueEmail("expired-offer"));
+
+                String json = """
+                                {
+                                    "title": "Expired Lifecycle Offer",
+                                    "description": "Expired offer test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(30),
+                                LocalDate.now().minusDays(1));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.data.status")
+                                                .value("EXPIRED"));
+        }
+
 }

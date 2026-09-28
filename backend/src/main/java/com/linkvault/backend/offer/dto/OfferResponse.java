@@ -19,6 +19,37 @@ public class OfferResponse {
     private Long globalMerchantId;
     private String globalMerchantName;
     private String sourceUrl;
+    private OfferLifecycleStatus status;
+
+    public OfferResponse(
+        Long id,
+        String title,
+        String description,
+        DiscountType discountType,
+        BigDecimal discountValue,
+        BigDecimal maxDiscount,
+        BigDecimal minTransactionAmount,
+        LocalDate startDate,
+        LocalDate endDate,
+        Long globalMerchantId,
+        String globalMerchantName,
+        String sourceUrl) {
+
+    this(
+            id,
+            title,
+            description,
+            discountType,
+            discountValue,
+            maxDiscount,
+            minTransactionAmount,
+            startDate,
+            endDate,
+            globalMerchantId,
+            globalMerchantName,
+            sourceUrl,
+            null);
+}
 
     public OfferResponse() {
     }
@@ -35,7 +66,8 @@ public class OfferResponse {
             LocalDate endDate,
             Long globalMerchantId,
             String globalMerchantName,
-            String sourceUrl) {
+            String sourceUrl,
+            OfferLifecycleStatus status) {
 
         this.id = id;
         this.title = title;
@@ -49,7 +81,9 @@ public class OfferResponse {
         this.globalMerchantId = globalMerchantId;
         this.globalMerchantName = globalMerchantName;
         this.sourceUrl = sourceUrl;
+        this.status = status;
     }
+
 
     public Long getId() {
         return id;
@@ -145,5 +179,13 @@ public class OfferResponse {
 
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
+    }
+
+    public OfferLifecycleStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OfferLifecycleStatus status) {
+        this.status = status;
     }
 }
