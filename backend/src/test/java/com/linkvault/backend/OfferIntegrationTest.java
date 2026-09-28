@@ -400,4 +400,47 @@ class OfferIntegrationTest extends IntegrationTestBase {
                 assertThat(offer.path("sourceUrl").asText())
                                 .isEqualTo("https://amazon.example.com/offer");
         }
+
+        @Test
+        void offerShouldNormalizeIngestedTextFields() throws Exception {
+
+                String token = registerAndLogin(
+                                "Ingestion User",
+                                uniqueEmail("ingestion"));
+
+                long merchantId = createGlobalMerchant(
+                                token,
+                                "Amazon");
+
+                String json = """
+                                {
+                                    "title": "   Amazon discount offer   ",
+                                    "description": "   Integration ingestion test offer   ",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "maxDiscount": 1000,
+                                    "minTransactionAmount": 500,
+                                    "startDate": "%s",
+                                    "endDate": "%s",
+                                    "globalMerchantId": %d,
+                                    "sourceUrl": "   https://amazon.example.com/offer   "
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30),
+                                merchantId);
+
+                mockMvc.perform(post("/api/offers/ingest")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.data.title")
+                                                .value("Amazon discount offer"))
+                                .andExpect(jsonPath("$.data.description")
+                                                .value("Integration ingestion test offer"))
+                                .andExpect(jsonPath("$.data.sourceUrl")
+                                                .value("https://amazon.example.com/offer"));
+        }
+
 }

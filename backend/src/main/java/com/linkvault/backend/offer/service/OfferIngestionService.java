@@ -17,9 +17,21 @@ public class OfferIngestionService {
 
     public OfferResponse ingestOffer(OfferIngestionRequest request) {
 
+        String title = request.getTitle() != null
+                ? request.getTitle().trim()
+                : null;
+
+        String description = request.getDescription() != null
+                ? request.getDescription().trim()
+                : null;
+
+        String sourceUrl = request.getSourceUrl() != null
+                ? request.getSourceUrl().trim()
+                : null;
+
         OfferRequest canonicalRequest = new OfferRequest(
-                request.getTitle(),
-                request.getDescription(),
+                title,
+                description,
                 request.getDiscountType(),
                 request.getDiscountValue(),
                 request.getMaxDiscount(),
@@ -27,7 +39,7 @@ public class OfferIngestionService {
                 request.getStartDate(),
                 request.getEndDate(),
                 request.getGlobalMerchantId(),
-                request.getSourceUrl());
+                sourceUrl);
 
         return offerService.addOffer(canonicalRequest);
     }
