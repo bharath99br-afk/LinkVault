@@ -41,6 +41,6 @@ public class OfferIngestionService {
                 request.getGlobalMerchantId(),
                 sourceUrl);
 
-        return offerService.addOffer(canonicalRequest);
+        return offerService.addOfferIfNotDuplicate(canonicalRequest);
     }
 }

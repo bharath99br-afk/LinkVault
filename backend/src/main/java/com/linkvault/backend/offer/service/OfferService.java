@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 @Service
 public class OfferService {
@@ -198,5 +199,25 @@ public class OfferService {
                                                 ? offer.getGlobalMerchant().getName()
                                                 : null,
                                 offer.getSourceUrl());
+        }
+
+        @Transactional
+        public OfferResponse addOfferIfNotDuplicate(OfferRequest request) {
+
+                Optional<Offer> existingOffer = repository.findDuplicate(
+                                request.getTitle(),
+                                request.getDiscountType(),
+                                request.getDiscountValue(),
+                                request.getMaxDiscount(),
+                                request.getMinTransactionAmount(),
+                                request.getStartDate(),
+                                request.getEndDate(),
+                                request.getGlobalMerchantId());
+
+                if (existingOffer.isPresent()) {
+                        return mapToResponse(existingOffer.get());
+                }
+
+                return addOffer(request);
         }
 }

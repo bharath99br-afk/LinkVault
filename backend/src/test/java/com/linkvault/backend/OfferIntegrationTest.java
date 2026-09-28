@@ -443,4 +443,192 @@ class OfferIntegrationTest extends IntegrationTestBase {
                                                 .value("https://amazon.example.com/offer"));
         }
 
+        @Test
+        void duplicateIngestionShouldReturnExistingOffer() throws Exception {
+
+                String token = registerAndLogin(
+                                "Duplicate Ingestion User",
+                                uniqueEmail("duplicate-ingestion"));
+
+                long merchantId = createGlobalMerchant(
+                                token,
+                                "Amazon");
+
+                String json = """
+                                {
+                                    "title": "Amazon duplicate test offer",
+                                    "description": "Duplicate ingestion test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "maxDiscount": 1000,
+                                    "minTransactionAmount": 500,
+                                    "startDate": "%s",
+                                    "endDate": "%s",
+                                    "globalMerchantId": %d,
+                                    "sourceUrl": "https://amazon.example.com/offer"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30),
+                                merchantId);
+
+                MvcResult firstResponse = mockMvc.perform(post("/api/offers/ingest")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.data.title")
+                                                .value("Amazon duplicate test offer"))
+                                .andReturn();
+
+                long firstOfferId = extractId(firstResponse);
+
+                MvcResult secondResponse = mockMvc.perform(post("/api/offers/ingest")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.data.title")
+                                                .value("Amazon duplicate test offer"))
+                                .andReturn();
+
+                long secondOfferId = extractId(secondResponse);
+
+                assertThat(secondOfferId).isEqualTo(firstOfferId);
+        }
+
+        @Test
+        void differentMinimumTransactionAmountShouldCreateNewOffer() throws Exception {
+
+                String token = registerAndLogin(
+                                "Different Offer User",
+                                uniqueEmail("different-offer"));
+
+                long merchantId = createGlobalMerchant(
+                                token,
+                                "Amazon");
+
+                String firstJson = """
+                                {
+                                    "title": "Amazon threshold offer",
+                                    "description": "First threshold",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "maxDiscount": 1000,
+                                    "minTransactionAmount": 500,
+                                    "startDate": "%s",
+                                    "endDate": "%s",
+                                    "globalMerchantId": %d,
+                                    "sourceUrl": "https://amazon.example.com/offer"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30),
+                                merchantId);
+
+                String secondJson = """
+                                {
+                                    "title": "Amazon threshold offer",
+                                    "description": "Second threshold",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "maxDiscount": 1000,
+                                    "minTransactionAmount": 1000,
+                                    "startDate": "%s",
+                                    "endDate": "%s",
+                                    "globalMerchantId": %d,
+                                    "sourceUrl": "https://amazon.example.com/offer"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30),
+                                merchantId);
+
+                MvcResult firstResponse = mockMvc.perform(post("/api/offers/ingest")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(firstJson))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                MvcResult secondResponse = mockMvc.perform(post("/api/offers/ingest")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(secondJson))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                long firstOfferId = extractId(firstResponse);
+                long secondOfferId = extractId(secondResponse);
+
+                assertThat(secondOfferId).isNotEqualTo(firstOfferId);
+        }
+
+        @Test
+        void differentSourceUrlShouldStillReturnExistingOffer() throws Exception {
+
+                String token = registerAndLogin(
+                                "Different Source User",
+                                uniqueEmail("different-source"));
+
+                long merchantId = createGlobalMerchant(
+                                token,
+                                "Amazon");
+
+                String firstJson = """
+                                {
+                                    "title": "Amazon source test offer",
+                                    "description": "Same canonical offer",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "maxDiscount": 1500,
+                                    "minTransactionAmount": 1000,
+                                    "startDate": "%s",
+                                    "endDate": "%s",
+                                    "globalMerchantId": %d,
+                                    "sourceUrl": "https://source-a.example.com/offer"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30),
+                                merchantId);
+
+                String secondJson = """
+                                {
+                                    "title": "Amazon source test offer",
+                                    "description": "Same canonical offer",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "maxDiscount": 1500,
+                                    "minTransactionAmount": 1000,
+                                    "startDate": "%s",
+                                    "endDate": "%s",
+                                    "globalMerchantId": %d,
+                                    "sourceUrl": "https://source-b.example.com/offer"
+                                }
+                                """.formatted(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(30),
+                                merchantId);
+
+                MvcResult firstResponse = mockMvc.perform(post("/api/offers/ingest")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(firstJson))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                MvcResult secondResponse = mockMvc.perform(post("/api/offers/ingest")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(secondJson))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                long firstOfferId = extractId(firstResponse);
+                long secondOfferId = extractId(secondResponse);
+
+                assertThat(secondOfferId).isEqualTo(firstOfferId);
+        }
+
 }
