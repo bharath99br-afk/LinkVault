@@ -19,6 +19,9 @@ import java.util.Optional;
 import com.linkvault.backend.offer.dto.OfferIngestionResult;
 import com.linkvault.backend.offer.dto.OfferLifecycleStatus;
 import java.time.LocalDate;
+import com.linkvault.backend.offer.model.DiscoverySignal;
+import java.util.List;
+import java.util.ArrayList;
 
 @Service
 public class OfferService {
@@ -228,32 +231,38 @@ public class OfferService {
                                 page.isLast());
         }
 
-        private OfferResponse mapToResponse(Offer offer) {
+       private OfferResponse mapToResponse(Offer offer) {
 
-                OfferResponse response = new OfferResponse(
-                                offer.getId(),
-                                offer.getTitle(),
-                                offer.getDescription(),
-                                offer.getDiscountType(),
-                                offer.getDiscountValue(),
-                                offer.getMaxDiscount(),
-                                offer.getMinTransactionAmount(),
-                                offer.getStartDate(),
-                                offer.getEndDate(),
-                                offer.getGlobalMerchant() != null
-                                                ? offer.getGlobalMerchant().getId()
-                                                : null,
-                                offer.getGlobalMerchant() != null
-                                                ? offer.getGlobalMerchant().getName()
-                                                : null,
-                                offer.getSourceUrl());
+    OfferResponse response = new OfferResponse(
+            offer.getId(),
+            offer.getTitle(),
+            offer.getDescription(),
+            offer.getDiscountType(),
+            offer.getDiscountValue(),
+            offer.getMaxDiscount(),
+            offer.getMinTransactionAmount(),
+            offer.getStartDate(),
+            offer.getEndDate(),
+            offer.getGlobalMerchant() != null
+                    ? offer.getGlobalMerchant().getId()
+                    : null,
+            offer.getGlobalMerchant() != null
+                    ? offer.getGlobalMerchant().getName()
+                    : null,
+            offer.getSourceUrl());
 
-                response.setStatus(calculateLifecycleStatus(
-                                offer.getStartDate(),
-                                offer.getEndDate()));
+    response.setStatus(
+            calculateLifecycleStatus(
+                    offer.getStartDate(),
+                    offer.getEndDate()));
 
-                return response;
-        }
+    response.setDiscoverySignals(
+            calculateDiscoverySignals(
+                    offer.getStartDate(),
+                    offer.getEndDate()));
+
+    return response;
+}
 
         private OfferLifecycleStatus calculateLifecycleStatus(
                         java.time.LocalDate startDate,
@@ -271,6 +280,29 @@ public class OfferService {
 
                 return OfferLifecycleStatus.ACTIVE;
         }
+
+        private List<DiscoverySignal> calculateDiscoverySignals(
+        LocalDate startDate,
+        LocalDate endDate) {
+
+    LocalDate today = LocalDate.now();
+
+    List<DiscoverySignal> signals = new ArrayList<>();
+
+    if (!startDate.isAfter(today)
+            && !startDate.isBefore(today.minusDays(7))) {
+
+        signals.add(DiscoverySignal.RECENTLY_STARTED);
+    }
+
+    if (!endDate.isBefore(today)
+            && !endDate.isAfter(today.plusDays(7))) {
+
+        signals.add(DiscoverySignal.EXPIRING_SOON);
+    }
+
+    return signals;
+}
 
         @Transactional
         public OfferResponse addOfferIfNotDuplicate(OfferRequest request) {

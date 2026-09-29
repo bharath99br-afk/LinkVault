@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import com.linkvault.backend.offer.model.DiscountType;
+import com.linkvault.backend.offer.model.DiscoverySignal;
+import java.util.List;
 
 public class OfferResponse {
 
@@ -20,6 +22,7 @@ public class OfferResponse {
     private String globalMerchantName;
     private String sourceUrl;
     private OfferLifecycleStatus status;
+    private List<DiscoverySignal> discoverySignals;
 
     public OfferResponse(
         Long id,
@@ -187,5 +190,13 @@ public class OfferResponse {
 
     public void setStatus(OfferLifecycleStatus status) {
         this.status = status;
+    }
+
+    public List<DiscoverySignal> getDiscoverySignals() {
+        return discoverySignals;
+    }
+
+    public void setDiscoverySignals(List<DiscoverySignal> discoverySignals) {
+        this.discoverySignals = discoverySignals;
     }
 }

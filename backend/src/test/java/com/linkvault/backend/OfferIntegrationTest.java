@@ -1321,4 +1321,182 @@ void offerDiscoveryShouldOrderExpiredOffersByEndDateDescending()
                                         .value("Older Expired Offer"));
 }
 
+@Test
+void offerShouldBeRecentlyStartedAtSevenDayBoundary()
+        throws Exception {
+
+    String token = registerAndLogin(
+            "Recently Started Boundary User",
+            uniqueEmail("recently-started-boundary"));
+
+    String offerJson = """
+            {
+                "title": "Recently Started Boundary Offer",
+                "description": "Seven day boundary test",
+                "discountType": "PERCENTAGE",
+                "discountValue": 10,
+                "startDate": "%s",
+                "endDate": "%s"
+            }
+            """.formatted(
+            java.time.LocalDate.now().minusDays(7),
+            java.time.LocalDate.now().plusDays(30));
+
+    var result = mockMvc.perform(
+            post("/api/offers")
+                    .header("Authorization", auth(token))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(offerJson))
+            .andExpect(status().isCreated())
+            .andExpect(
+                    jsonPath("$.data.discoverySignals[0]")
+                            .value("RECENTLY_STARTED"))
+            .andReturn();
+
+    extractId(result);
+}
+
+@Test
+void offerShouldNotBeRecentlyStartedAfterSevenDays()
+        throws Exception {
+
+    String token = registerAndLogin(
+            "Old Offer User",
+            uniqueEmail("old-offer"));
+
+    String offerJson = """
+            {
+                "title": "Old Offer",
+                "description": "Older than seven days",
+                "discountType": "PERCENTAGE",
+                "discountValue": 10,
+                "startDate": "%s",
+                "endDate": "%s"
+            }
+            """.formatted(
+            java.time.LocalDate.now().minusDays(8),
+            java.time.LocalDate.now().plusDays(30));
+
+    var result = mockMvc.perform(
+            post("/api/offers")
+                    .header("Authorization", auth(token))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(offerJson))
+            .andExpect(status().isCreated())
+            .andExpect(
+                    jsonPath("$.data.discoverySignals")
+                            .isEmpty())
+            .andReturn();
+
+    extractId(result);
+}
+
+@Test
+void offerShouldBeExpiringSoonAtSevenDayBoundary()
+        throws Exception {
+
+    String token = registerAndLogin(
+            "Expiring Boundary User",
+            uniqueEmail("expiring-boundary"));
+
+    String offerJson = """
+            {
+                "title": "Expiring Boundary Offer",
+                "description": "Seven day expiry boundary",
+                "discountType": "PERCENTAGE",
+                "discountValue": 10,
+                "startDate": "%s",
+                "endDate": "%s"
+            }
+            """.formatted(
+            java.time.LocalDate.now().minusDays(8),
+            java.time.LocalDate.now().plusDays(7));
+
+    var result = mockMvc.perform(
+            post("/api/offers")
+                    .header("Authorization", auth(token))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(offerJson))
+            .andExpect(status().isCreated())
+            .andExpect(
+                    jsonPath("$.data.discoverySignals[0]")
+                            .value("EXPIRING_SOON"))
+            .andReturn();
+
+    extractId(result);
+}
+
+@Test
+void offerShouldNotBeExpiringSoonAfterSevenDays()
+        throws Exception {
+
+    String token = registerAndLogin(
+            "Not Expiring User",
+            uniqueEmail("not-expiring"));
+
+    String offerJson = """
+            {
+                "title": "Not Expiring Soon Offer",
+                "description": "Expiry beyond seven days",
+                "discountType": "PERCENTAGE",
+                "discountValue": 10,
+                "startDate": "%s",
+                "endDate": "%s"
+            }
+            """.formatted(
+            java.time.LocalDate.now().minusDays(8),
+            java.time.LocalDate.now().plusDays(8));
+
+    var result = mockMvc.perform(
+            post("/api/offers")
+                    .header("Authorization", auth(token))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(offerJson))
+            .andExpect(status().isCreated())
+            .andExpect(
+                    jsonPath("$.data.discoverySignals")
+                            .isEmpty())
+            .andReturn();
+
+    extractId(result);
+}
+
+@Test
+void offerShouldHaveBothDiscoverySignals()
+        throws Exception {
+
+    String token = registerAndLogin(
+            "Both Signals User",
+            uniqueEmail("both-signals"));
+
+    String offerJson = """
+            {
+                "title": "Both Discovery Signals Offer",
+                "description": "Recently started and expiring soon",
+                "discountType": "PERCENTAGE",
+                "discountValue": 15,
+                "startDate": "%s",
+                "endDate": "%s"
+            }
+            """.formatted(
+            java.time.LocalDate.now().minusDays(2),
+            java.time.LocalDate.now().plusDays(3));
+
+    var result = mockMvc.perform(
+            post("/api/offers")
+                    .header("Authorization", auth(token))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(offerJson))
+            .andExpect(status().isCreated())
+            .andExpect(
+                    jsonPath("$.data.discoverySignals[0]")
+                            .value("RECENTLY_STARTED"))
+            .andExpect(
+                    jsonPath("$.data.discoverySignals[1]")
+                            .value("EXPIRING_SOON"))
+            .andReturn();
+
+    extractId(result);
+}
+
 }
