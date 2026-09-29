@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import com.linkvault.backend.offer.dto.OfferIngestionResult;
 import com.linkvault.backend.offer.dto.OfferLifecycleStatus;
+import java.time.LocalDate;
 
 @Service
 public class OfferService {
@@ -39,23 +40,68 @@ public class OfferService {
         @Transactional(readOnly = true)
         public PageResponse<OfferResponse> getOffers(
                         String title,
+                        OfferLifecycleStatus status,
                         Pageable pageable) {
 
                 Page<Offer> page;
 
-                if (title == null || title.isBlank()) {
+                LocalDate today = LocalDate.now();
 
-                        page = repository.findAllByOrderByStartDateDesc(
-                                        pageable);
+                if (status == null) {
+
+                        if (title == null || title.isBlank()) {
+                                page = repository.findAllByOrderByStartDateDesc(pageable);
+                        } else {
+                                page = repository.findByTitleContainingIgnoreCase(
+                                                title,
+                                                pageable);
+                        }
 
                 } else {
 
-                        page = repository.findByTitleContainingIgnoreCase(
-                                        title,
-                                        pageable);
+                        page = findOffersByStatus(title, status, today, pageable);
                 }
 
                 return mapToPageResponse(page);
+        }
+
+        private Page<Offer> findOffersByStatus(
+                        String title,
+                        OfferLifecycleStatus status,
+                        LocalDate today,
+                        Pageable pageable) {
+
+                boolean hasTitle = title != null && !title.isBlank();
+
+                if (!hasTitle) {
+                        return switch (status) {
+                                case ACTIVE ->
+                                        repository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                                                        today, today, pageable);
+
+                                case UPCOMING ->
+                                        repository.findByStartDateAfter(
+                                                        today, pageable);
+
+                                case EXPIRED ->
+                                        repository.findByEndDateBefore(
+                                                        today, pageable);
+                        };
+                }
+
+                return switch (status) {
+                        case ACTIVE ->
+                                repository.findByTitleContainingIgnoreCaseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                                                title, today, today, pageable);
+
+                        case UPCOMING ->
+                                repository.findByTitleContainingIgnoreCaseAndStartDateAfter(
+                                                title, today, pageable);
+
+                        case EXPIRED ->
+                                repository.findByTitleContainingIgnoreCaseAndEndDateBefore(
+                                                title, today, pageable);
+                };
         }
 
         @Transactional(readOnly = true)

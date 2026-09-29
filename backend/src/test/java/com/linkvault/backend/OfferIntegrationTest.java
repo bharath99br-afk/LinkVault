@@ -973,4 +973,175 @@ class OfferIntegrationTest extends IntegrationTestBase {
                                                 .value("EXPIRED"));
         }
 
+        @Test
+        void offerDiscoveryShouldFilterActiveOffers() throws Exception {
+
+                String token = registerAndLogin(
+                                "Active Discovery User",
+                                uniqueEmail("active-discovery"));
+
+                String activeJson = """
+                                {
+                                    "title": "Active Discovery Offer",
+                                    "description": "Active discovery test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(1),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(activeJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("status", "ACTIVE"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.content").isArray())
+                                .andExpect(jsonPath("$.data.content[?(@.title == 'Active Discovery Offer')]")
+                                                .exists());
+        }
+
+        @Test
+        void offerDiscoveryShouldFilterUpcomingOffers() throws Exception {
+
+                String token = registerAndLogin(
+                                "Upcoming Discovery User",
+                                uniqueEmail("upcoming-discovery"));
+
+                String upcomingJson = """
+                                {
+                                    "title": "Upcoming Discovery Offer",
+                                    "description": "Upcoming discovery test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().plusDays(1),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(upcomingJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("status", "UPCOMING"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.content").isArray())
+                                .andExpect(jsonPath("$.data.content[?(@.title == 'Upcoming Discovery Offer')]")
+                                                .exists());
+        }
+
+        @Test
+        void offerDiscoveryShouldFilterExpiredOffers() throws Exception {
+
+                String token = registerAndLogin(
+                                "Expired Discovery User",
+                                uniqueEmail("expired-discovery"));
+
+                String expiredJson = """
+                                {
+                                    "title": "Expired Discovery Offer",
+                                    "description": "Expired discovery test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(30),
+                                LocalDate.now().minusDays(1));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(expiredJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("status", "EXPIRED"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.content").isArray())
+                                .andExpect(jsonPath("$.data.content[?(@.title == 'Expired Discovery Offer')]")
+                                                .exists());
+        }
+
+        @Test
+        void offerDiscoveryShouldFilterByTitleAndStatus() throws Exception {
+
+                String token = registerAndLogin(
+                                "Combined Discovery User",
+                                uniqueEmail("combined-discovery"));
+
+                String activeJson = """
+                                {
+                                    "title": "Amazon Active Discovery Offer",
+                                    "description": "Active Amazon discovery test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(1),
+                                LocalDate.now().plusDays(30));
+
+                String upcomingJson = """
+                                {
+                                    "title": "Amazon Upcoming Discovery Offer",
+                                    "description": "Upcoming Amazon discovery test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().plusDays(1),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(activeJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(upcomingJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("title", "Amazon")
+                                                .param("status", "ACTIVE"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.content").isArray())
+                                .andExpect(jsonPath("$.data.content[?(@.title == 'Amazon Active Discovery Offer')]")
+                                                .exists())
+                                .andExpect(jsonPath("$.data.content[?(@.title == 'Amazon Upcoming Discovery Offer')]")
+                                                .doesNotExist());
+        }
+
 }

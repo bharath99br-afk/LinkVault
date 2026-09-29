@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.linkvault.backend.offer.dto.OfferIngestionRequest;
 import com.linkvault.backend.offer.service.OfferIngestionService;
 import com.linkvault.backend.offer.dto.OfferIngestionResult;
+import com.linkvault.backend.offer.dto.OfferLifecycleStatus;
 
 @RestController
 @RequestMapping("/api/offers")
@@ -33,13 +34,12 @@ public class OfferController {
         @GetMapping
         public ResponseEntity<ApiResponse<PageResponse<OfferResponse>>> getOffers(
                         @RequestParam(required = false) String title,
+                        @RequestParam(required = false) OfferLifecycleStatus status,
                         @PageableDefault(page = 0, size = 10) Pageable pageable) {
 
-                PageResponse<OfferResponse> offers = offerService.getOffers(title, pageable);
+                PageResponse<OfferResponse> offers = offerService.getOffers(title, status, pageable);
 
-                return ApiResponseUtil.success(
-                                "Offers Found",
-                                offers);
+                return ApiResponseUtil.success("Offers Found", offers);
         }
 
         @GetMapping("/{id}")

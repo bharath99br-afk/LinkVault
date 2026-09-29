@@ -31,6 +31,36 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
                         LocalDate today1,
                         LocalDate today2);
 
+       Page<Offer> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+        LocalDate startDate,
+        LocalDate endDate,
+        Pageable pageable);
+
+        Page<Offer> findByStartDateAfter(
+        LocalDate date,
+        Pageable pageable);
+
+        Page<Offer> findByEndDateBefore(
+        LocalDate date,
+        Pageable pageable);
+
+        Page<Offer> findByTitleContainingIgnoreCaseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+        String title,
+        LocalDate startDate,
+        LocalDate endDate,
+        Pageable pageable);
+
+Page<Offer> findByTitleContainingIgnoreCaseAndStartDateAfter(
+        String title,
+        LocalDate date,
+        Pageable pageable);
+
+Page<Offer> findByTitleContainingIgnoreCaseAndEndDateBefore(
+        String title,
+        LocalDate date,
+        Pageable pageable);
+        
+
         @Query("""
                         SELECT o
                         FROM Offer o
@@ -62,4 +92,5 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
                         @Param("startDate") LocalDate startDate,
                         @Param("endDate") LocalDate endDate,
                         @Param("globalMerchantId") Long globalMerchantId);
+   
 }
