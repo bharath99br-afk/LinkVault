@@ -76,30 +76,30 @@ public class OfferService {
                 if (!hasTitle) {
                         return switch (status) {
                                 case ACTIVE ->
-                                        repository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                                        repository.findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByStartDateDesc(
                                                         today, today, pageable);
 
                                 case UPCOMING ->
-                                        repository.findByStartDateAfter(
+                                        repository.findByStartDateAfterOrderByStartDateAsc(
                                                         today, pageable);
 
                                 case EXPIRED ->
-                                        repository.findByEndDateBefore(
+                                        repository.findByEndDateBeforeOrderByEndDateDesc(
                                                         today, pageable);
                         };
                 }
 
                 return switch (status) {
                         case ACTIVE ->
-                                repository.findByTitleContainingIgnoreCaseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                                repository.findByTitleContainingIgnoreCaseAndStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByStartDateDesc(
                                                 title, today, today, pageable);
 
                         case UPCOMING ->
-                                repository.findByTitleContainingIgnoreCaseAndStartDateAfter(
+                                repository.findByTitleContainingIgnoreCaseAndStartDateAfterOrderByStartDateAsc(
                                                 title, today, pageable);
 
                         case EXPIRED ->
-                                repository.findByTitleContainingIgnoreCaseAndEndDateBefore(
+                                repository.findByTitleContainingIgnoreCaseAndEndDateBeforeOrderByEndDateDesc(
                                                 title, today, pageable);
                 };
         }
