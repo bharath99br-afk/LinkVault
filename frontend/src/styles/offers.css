@@ -1259,6 +1259,35 @@
     letter-spacing: 0.08em;
 }
 
+.offer-discovery-signals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.offer-discovery-signal {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.offer-discovery-signal.recently-started {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.offer-discovery-signal.expiring-soon {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
 .offer-merchant-name {
     margin: 5px 0 0;
     color: #6b7280;

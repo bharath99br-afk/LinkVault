@@ -220,6 +220,11 @@ function OfferList({
                         offerApplicability
                     );
 
+                const discoverySignals =
+                    Array.isArray(offer.discoverySignals)
+                        ? offer.discoverySignals
+                        : [];
+
                 return (
                     <article
                         key={offer.id}
@@ -236,6 +241,26 @@ function OfferList({
                                 <div className="offer-discount">
                                     {formatDiscount(offer)}
                                 </div>
+
+                                {discoverySignals.length > 0 && (
+                                    <div className="offer-discovery-signals">
+                                        {discoverySignals.includes(
+                                            "RECENTLY_STARTED"
+                                        ) && (
+                                                <span className="offer-discovery-signal recently-started">
+                                                    Recently Started
+                                                </span>
+                                            )}
+
+                                        {discoverySignals.includes(
+                                            "EXPIRING_SOON"
+                                        ) && (
+                                                <span className="offer-discovery-signal expiring-soon">
+                                                    Expiring Soon
+                                                </span>
+                                            )}
+                                    </div>
+                                )}
                             </div>
 
                             <span
