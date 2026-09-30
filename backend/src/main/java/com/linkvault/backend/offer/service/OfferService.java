@@ -44,13 +44,21 @@ public class OfferService {
         public PageResponse<OfferResponse> getOffers(
                         String title,
                         OfferLifecycleStatus status,
+                        DiscoverySignal discoverySignal,
                         Pageable pageable) {
 
                 Page<Offer> page;
 
                 LocalDate today = LocalDate.now();
 
-                if (status == null) {
+                if (discoverySignal != null) {
+                        page = findOffersByDiscoverySignal(
+                                        title,
+                                        status,
+                                        discoverySignal,
+                                        today,
+                                        pageable);
+                } else if (status == null) {
 
                         if (title == null || title.isBlank()) {
                                 page = repository.findAllByOrderByStartDateDesc(pageable);
@@ -62,10 +70,82 @@ public class OfferService {
 
                 } else {
 
-                        page = findOffersByStatus(title, status, today, pageable);
+                        page = findOffersByStatus(
+                                        title,
+                                        status,
+                                        today,
+                                        pageable);
                 }
 
                 return mapToPageResponse(page);
+        }
+
+        private Page<Offer> findOffersByDiscoverySignal(
+                        String title,
+                        OfferLifecycleStatus status,
+                        DiscoverySignal discoverySignal,
+                        LocalDate today,
+                        Pageable pageable) {
+
+                return switch (discoverySignal) {
+                        case RECENTLY_STARTED -> {
+                                if (status == null) {
+                                        yield repository.findRecentlyStarted(
+                                                        title,
+                                                        today,
+                                                        today.minusDays(7),
+                                                        pageable);
+                                }
+
+                                yield switch (status) {
+                                        case ACTIVE ->
+                                                repository.findRecentlyStartedActive(
+                                                                title,
+                                                                today,
+                                                                today.minusDays(7),
+                                                                pageable);
+
+                                        case UPCOMING ->
+                                                Page.empty(pageable);
+
+                                        case EXPIRED ->
+                                                repository.findRecentlyStartedExpired(
+                                                                title,
+                                                                today,
+                                                                today.minusDays(7),
+                                                                pageable);
+                                };
+                        }
+
+                        case EXPIRING_SOON -> {
+                                if (status == null) {
+                                        yield repository.findExpiringSoon(
+                                                        title,
+                                                        today,
+                                                        today.plusDays(7),
+                                                        pageable);
+                                }
+
+                                yield switch (status) {
+                                        case ACTIVE ->
+                                                repository.findExpiringSoonActive(
+                                                                title,
+                                                                today,
+                                                                today.plusDays(7),
+                                                                pageable);
+
+                                        case UPCOMING ->
+                                                repository.findExpiringSoonUpcoming(
+                                                                title,
+                                                                today,
+                                                                today.plusDays(7),
+                                                                pageable);
+
+                                        case EXPIRED ->
+                                                Page.empty(pageable);
+                                };
+                        }
+                };
         }
 
         private Page<Offer> findOffersByStatus(
@@ -231,38 +311,38 @@ public class OfferService {
                                 page.isLast());
         }
 
-       private OfferResponse mapToResponse(Offer offer) {
+        private OfferResponse mapToResponse(Offer offer) {
 
-    OfferResponse response = new OfferResponse(
-            offer.getId(),
-            offer.getTitle(),
-            offer.getDescription(),
-            offer.getDiscountType(),
-            offer.getDiscountValue(),
-            offer.getMaxDiscount(),
-            offer.getMinTransactionAmount(),
-            offer.getStartDate(),
-            offer.getEndDate(),
-            offer.getGlobalMerchant() != null
-                    ? offer.getGlobalMerchant().getId()
-                    : null,
-            offer.getGlobalMerchant() != null
-                    ? offer.getGlobalMerchant().getName()
-                    : null,
-            offer.getSourceUrl());
+                OfferResponse response = new OfferResponse(
+                                offer.getId(),
+                                offer.getTitle(),
+                                offer.getDescription(),
+                                offer.getDiscountType(),
+                                offer.getDiscountValue(),
+                                offer.getMaxDiscount(),
+                                offer.getMinTransactionAmount(),
+                                offer.getStartDate(),
+                                offer.getEndDate(),
+                                offer.getGlobalMerchant() != null
+                                                ? offer.getGlobalMerchant().getId()
+                                                : null,
+                                offer.getGlobalMerchant() != null
+                                                ? offer.getGlobalMerchant().getName()
+                                                : null,
+                                offer.getSourceUrl());
 
-    response.setStatus(
-            calculateLifecycleStatus(
-                    offer.getStartDate(),
-                    offer.getEndDate()));
+                response.setStatus(
+                                calculateLifecycleStatus(
+                                                offer.getStartDate(),
+                                                offer.getEndDate()));
 
-    response.setDiscoverySignals(
-            calculateDiscoverySignals(
-                    offer.getStartDate(),
-                    offer.getEndDate()));
+                response.setDiscoverySignals(
+                                calculateDiscoverySignals(
+                                                offer.getStartDate(),
+                                                offer.getEndDate()));
 
-    return response;
-}
+                return response;
+        }
 
         private OfferLifecycleStatus calculateLifecycleStatus(
                         java.time.LocalDate startDate,
@@ -282,27 +362,27 @@ public class OfferService {
         }
 
         private List<DiscoverySignal> calculateDiscoverySignals(
-        LocalDate startDate,
-        LocalDate endDate) {
+                        LocalDate startDate,
+                        LocalDate endDate) {
 
-    LocalDate today = LocalDate.now();
+                LocalDate today = LocalDate.now();
 
-    List<DiscoverySignal> signals = new ArrayList<>();
+                List<DiscoverySignal> signals = new ArrayList<>();
 
-    if (!startDate.isAfter(today)
-            && !startDate.isBefore(today.minusDays(7))) {
+                if (!startDate.isAfter(today)
+                                && !startDate.isBefore(today.minusDays(7))) {
 
-        signals.add(DiscoverySignal.RECENTLY_STARTED);
-    }
+                        signals.add(DiscoverySignal.RECENTLY_STARTED);
+                }
 
-    if (!endDate.isBefore(today)
-            && !endDate.isAfter(today.plusDays(7))) {
+                if (!endDate.isBefore(today)
+                                && !endDate.isAfter(today.plusDays(7))) {
 
-        signals.add(DiscoverySignal.EXPIRING_SOON);
-    }
+                        signals.add(DiscoverySignal.EXPIRING_SOON);
+                }
 
-    return signals;
-}
+                return signals;
+        }
 
         @Transactional
         public OfferResponse addOfferIfNotDuplicate(OfferRequest request) {

@@ -16,80 +16,198 @@ import java.util.Optional;
 
 public interface OfferRepository extends JpaRepository<Offer, Long> {
 
-        Page<Offer> findAllByOrderByStartDateDesc(
-                        Pageable pageable);
+    Page<Offer> findAllByOrderByStartDateDesc(
+            Pageable pageable);
 
-        Page<Offer> findByTitleContainingIgnoreCase(
-                        String title,
-                        Pageable pageable);
+    Page<Offer> findByTitleContainingIgnoreCase(
+            String title,
+            Pageable pageable);
 
-        List<Offer> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                        LocalDate today1,
-                        LocalDate today2);
+    List<Offer> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            LocalDate today1,
+            LocalDate today2);
 
-        long countByStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                        LocalDate today1,
-                        LocalDate today2);
+    long countByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            LocalDate today1,
+            LocalDate today2);
 
-        Page<Offer> findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByStartDateDesc(
-                        LocalDate startDate,
-                        LocalDate endDate,
-                        Pageable pageable);
+    Page<Offer> findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByStartDateDesc(
+            LocalDate startDate,
+            LocalDate endDate,
+            Pageable pageable);
 
-        Page<Offer> findByStartDateAfterOrderByStartDateAsc(
-                        LocalDate date,
-                        Pageable pageable);
+    Page<Offer> findByStartDateAfterOrderByStartDateAsc(
+            LocalDate date,
+            Pageable pageable);
 
-        Page<Offer> findByEndDateBeforeOrderByEndDateDesc(
-                        LocalDate date,
-                        Pageable pageable);
+    Page<Offer> findByEndDateBeforeOrderByEndDateDesc(
+            LocalDate date,
+            Pageable pageable);
 
-        Page<Offer> findByTitleContainingIgnoreCaseAndStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByStartDateDesc(
-                        String title,
-                        LocalDate startDate,
-                        LocalDate endDate,
-                        Pageable pageable);
+    Page<Offer> findByTitleContainingIgnoreCaseAndStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByStartDateDesc(
+            String title,
+            LocalDate startDate,
+            LocalDate endDate,
+            Pageable pageable);
 
-        Page<Offer> findByTitleContainingIgnoreCaseAndStartDateAfterOrderByStartDateAsc(
-                        String title,
-                        LocalDate date,
-                        Pageable pageable);
+    Page<Offer> findByTitleContainingIgnoreCaseAndStartDateAfterOrderByStartDateAsc(
+            String title,
+            LocalDate date,
+            Pageable pageable);
 
-        Page<Offer> findByTitleContainingIgnoreCaseAndEndDateBeforeOrderByEndDateDesc(
-                        String title,
-                        LocalDate date,
-                        Pageable pageable);
+    Page<Offer> findByTitleContainingIgnoreCaseAndEndDateBeforeOrderByEndDateDesc(
+            String title,
+            LocalDate date,
+            Pageable pageable);
 
-        @Query("""
-                        SELECT o
-                        FROM Offer o
-                        WHERE
-                            o.title = :title
-                            AND o.discountType = :discountType
-                            AND o.discountValue = :discountValue
-                            AND (
-                                (:maxDiscount IS NULL AND o.maxDiscount IS NULL)
-                                OR o.maxDiscount = :maxDiscount
-                            )
-                            AND (
-                                (:minTransactionAmount IS NULL AND o.minTransactionAmount IS NULL)
-                                OR o.minTransactionAmount = :minTransactionAmount
-                            )
-                            AND o.startDate = :startDate
-                            AND o.endDate = :endDate
-                            AND (
-                                (:globalMerchantId IS NULL AND o.globalMerchant IS NULL)
-                                OR o.globalMerchant.id = :globalMerchantId
-                            )
-                        """)
-        Optional<Offer> findDuplicate(
-                        @Param("title") String title,
-                        @Param("discountType") DiscountType discountType,
-                        @Param("discountValue") BigDecimal discountValue,
-                        @Param("maxDiscount") BigDecimal maxDiscount,
-                        @Param("minTransactionAmount") BigDecimal minTransactionAmount,
-                        @Param("startDate") LocalDate startDate,
-                        @Param("endDate") LocalDate endDate,
-                        @Param("globalMerchantId") Long globalMerchantId);
+    @Query("""
+            SELECT o
+            FROM Offer o
+            WHERE
+                (
+                    :title IS NULL
+                    OR :title = ''
+                    OR LOWER(o.title) LIKE LOWER(CONCAT('%', :title, '%'))
+                )
+                AND o.startDate <= :today
+                AND o.startDate >= :recentStartDate
+            ORDER BY o.startDate DESC
+            """)
+    Page<Offer> findRecentlyStarted(
+            @Param("title") String title,
+            @Param("today") LocalDate today,
+            @Param("recentStartDate") LocalDate recentStartDate,
+            Pageable pageable);
+
+    @Query("""
+            SELECT o
+            FROM Offer o
+            WHERE
+                (
+                    :title IS NULL
+                    OR :title = ''
+                    OR LOWER(o.title) LIKE LOWER(CONCAT('%', :title, '%'))
+                )
+                AND o.startDate <= :today
+                AND o.startDate >= :recentStartDate
+                AND o.endDate >= :today
+            ORDER BY o.startDate DESC
+            """)
+    Page<Offer> findRecentlyStartedActive(
+            @Param("title") String title,
+            @Param("today") LocalDate today,
+            @Param("recentStartDate") LocalDate recentStartDate,
+            Pageable pageable);
+
+    @Query("""
+            SELECT o
+            FROM Offer o
+            WHERE
+                (
+                    :title IS NULL
+                    OR :title = ''
+                    OR LOWER(o.title) LIKE LOWER(CONCAT('%', :title, '%'))
+                )
+                AND o.startDate <= :today
+                AND o.startDate >= :recentStartDate
+                AND o.endDate < :today
+            ORDER BY o.startDate DESC
+            """)
+    Page<Offer> findRecentlyStartedExpired(
+            @Param("title") String title,
+            @Param("today") LocalDate today,
+            @Param("recentStartDate") LocalDate recentStartDate,
+            Pageable pageable);
+
+    @Query("""
+            SELECT o
+            FROM Offer o
+            WHERE
+                (
+                    :title IS NULL
+                    OR :title = ''
+                    OR LOWER(o.title) LIKE LOWER(CONCAT('%', :title, '%'))
+                )
+                AND o.endDate >= :today
+                AND o.endDate <= :expiringEndDate
+            ORDER BY o.endDate ASC
+            """)
+    Page<Offer> findExpiringSoon(
+            @Param("title") String title,
+            @Param("today") LocalDate today,
+            @Param("expiringEndDate") LocalDate expiringEndDate,
+            Pageable pageable);
+
+    @Query("""
+            SELECT o
+            FROM Offer o
+            WHERE
+                (
+                    :title IS NULL
+                    OR :title = ''
+                    OR LOWER(o.title) LIKE LOWER(CONCAT('%', :title, '%'))
+                )
+                AND o.endDate >= :today
+                AND o.endDate <= :expiringEndDate
+                AND o.startDate <= :today
+            ORDER BY o.endDate ASC
+            """)
+    Page<Offer> findExpiringSoonActive(
+            @Param("title") String title,
+            @Param("today") LocalDate today,
+            @Param("expiringEndDate") LocalDate expiringEndDate,
+            Pageable pageable);
+
+    @Query("""
+            SELECT o
+            FROM Offer o
+            WHERE
+                (
+                    :title IS NULL
+                    OR :title = ''
+                    OR LOWER(o.title) LIKE LOWER(CONCAT('%', :title, '%'))
+                )
+                AND o.endDate >= :today
+                AND o.endDate <= :expiringEndDate
+                AND o.startDate > :today
+            ORDER BY o.endDate ASC
+            """)
+    Page<Offer> findExpiringSoonUpcoming(
+            @Param("title") String title,
+            @Param("today") LocalDate today,
+            @Param("expiringEndDate") LocalDate expiringEndDate,
+            Pageable pageable);
+
+    @Query("""
+            SELECT o
+            FROM Offer o
+            WHERE
+                o.title = :title
+                AND o.discountType = :discountType
+                AND o.discountValue = :discountValue
+                AND (
+                    (:maxDiscount IS NULL AND o.maxDiscount IS NULL)
+                    OR o.maxDiscount = :maxDiscount
+                )
+                AND (
+                    (:minTransactionAmount IS NULL AND o.minTransactionAmount IS NULL)
+                    OR o.minTransactionAmount = :minTransactionAmount
+                )
+                AND o.startDate = :startDate
+                AND o.endDate = :endDate
+                AND (
+                    (:globalMerchantId IS NULL AND o.globalMerchant IS NULL)
+                    OR o.globalMerchant.id = :globalMerchantId
+                )
+            """)
+    Optional<Offer> findDuplicate(
+            @Param("title") String title,
+            @Param("discountType") DiscountType discountType,
+            @Param("discountValue") BigDecimal discountValue,
+            @Param("maxDiscount") BigDecimal maxDiscount,
+            @Param("minTransactionAmount") BigDecimal minTransactionAmount,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("globalMerchantId") Long globalMerchantId);
 
 }

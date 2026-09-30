@@ -1145,358 +1145,664 @@ class OfferIntegrationTest extends IntegrationTestBase {
         }
 
         @Test
-void offerDiscoveryShouldOrderActiveOffersByStartDateDescending()
-                throws Exception {
+        void offerDiscoveryShouldOrderActiveOffersByStartDateDescending()
+                        throws Exception {
 
-        String token = registerAndLogin(
-                        "Active Ordering User",
-                        uniqueEmail("active-ordering"));
+                String token = registerAndLogin(
+                                "Active Ordering User",
+                                uniqueEmail("active-ordering"));
 
-        String olderActiveJson = """
-                        {
-                            "title": "Older Active Offer",
-                            "description": "Older active offer",
-                            "discountType": "PERCENTAGE",
-                            "discountValue": 10,
-                            "startDate": "%s",
-                            "endDate": "%s"
-                        }
-                        """.formatted(
-                        LocalDate.now().minusDays(10),
-                        LocalDate.now().plusDays(10));
+                String olderActiveJson = """
+                                {
+                                    "title": "Older Active Offer",
+                                    "description": "Older active offer",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(10),
+                                LocalDate.now().plusDays(10));
 
-        String newerActiveJson = """
-                        {
-                            "title": "Newer Active Offer",
-                            "description": "Newer active offer",
-                            "discountType": "PERCENTAGE",
-                            "discountValue": 15,
-                            "startDate": "%s",
-                            "endDate": "%s"
-                        }
-                        """.formatted(
-                        LocalDate.now().minusDays(2),
-                        LocalDate.now().plusDays(10));
+                String newerActiveJson = """
+                                {
+                                    "title": "Newer Active Offer",
+                                    "description": "Newer active offer",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(2),
+                                LocalDate.now().plusDays(10));
 
-        mockMvc.perform(
-                        post("/api/offers")
-                                        .header("Authorization", auth(token))
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(olderActiveJson))
-                        .andExpect(status().isCreated());
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(olderActiveJson))
+                                .andExpect(status().isCreated());
 
-        mockMvc.perform(
-                        post("/api/offers")
-                                        .header("Authorization", auth(token))
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(newerActiveJson))
-                        .andExpect(status().isCreated());
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(newerActiveJson))
+                                .andExpect(status().isCreated());
 
-        mockMvc.perform(
-                        get("/api/offers")
-                                        .header("Authorization", auth(token))
-                                        .param("status", "ACTIVE"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.data.content[0].title")
-                                        .value("Newer Active Offer"))
-                        .andExpect(jsonPath("$.data.content[1].title")
-                                        .value("Older Active Offer"));
-}
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("status", "ACTIVE"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.content[0].title")
+                                                .value("Newer Active Offer"))
+                                .andExpect(jsonPath("$.data.content[1].title")
+                                                .value("Older Active Offer"));
+        }
 
-@Test
-void offerDiscoveryShouldOrderUpcomingOffersByStartDateAscending()
-                throws Exception {
+        @Test
+        void offerDiscoveryShouldOrderUpcomingOffersByStartDateAscending()
+                        throws Exception {
 
-        String token = registerAndLogin(
-                        "Upcoming Ordering User",
-                        uniqueEmail("upcoming-ordering"));
+                String token = registerAndLogin(
+                                "Upcoming Ordering User",
+                                uniqueEmail("upcoming-ordering"));
 
-        String laterUpcomingJson = """
-                        {
-                            "title": "Later Upcoming Offer",
-                            "description": "Later upcoming offer",
-                            "discountType": "PERCENTAGE",
-                            "discountValue": 10,
-                            "startDate": "%s",
-                            "endDate": "%s"
-                        }
-                        """.formatted(
-                        LocalDate.now().plusDays(10),
-                        LocalDate.now().plusDays(20));
+                String laterUpcomingJson = """
+                                {
+                                    "title": "Later Upcoming Offer",
+                                    "description": "Later upcoming offer",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().plusDays(10),
+                                LocalDate.now().plusDays(20));
 
-        String earlierUpcomingJson = """
-                        {
-                            "title": "Earlier Upcoming Offer",
-                            "description": "Earlier upcoming offer",
-                            "discountType": "PERCENTAGE",
-                            "discountValue": 15,
-                            "startDate": "%s",
-                            "endDate": "%s"
-                        }
-                        """.formatted(
-                        LocalDate.now().plusDays(2),
-                        LocalDate.now().plusDays(12));
+                String earlierUpcomingJson = """
+                                {
+                                    "title": "Earlier Upcoming Offer",
+                                    "description": "Earlier upcoming offer",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().plusDays(2),
+                                LocalDate.now().plusDays(12));
 
-        mockMvc.perform(
-                        post("/api/offers")
-                                        .header("Authorization", auth(token))
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(laterUpcomingJson))
-                        .andExpect(status().isCreated());
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(laterUpcomingJson))
+                                .andExpect(status().isCreated());
 
-        mockMvc.perform(
-                        post("/api/offers")
-                                        .header("Authorization", auth(token))
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(earlierUpcomingJson))
-                        .andExpect(status().isCreated());
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(earlierUpcomingJson))
+                                .andExpect(status().isCreated());
 
-        mockMvc.perform(
-                        get("/api/offers")
-                                        .header("Authorization", auth(token))
-                                        .param("status", "UPCOMING"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.data.content[0].title")
-                                        .value("Earlier Upcoming Offer"))
-                        .andExpect(jsonPath("$.data.content[1].title")
-                                        .value("Later Upcoming Offer"));
-}
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("status", "UPCOMING"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.content[0].title")
+                                                .value("Earlier Upcoming Offer"))
+                                .andExpect(jsonPath("$.data.content[1].title")
+                                                .value("Later Upcoming Offer"));
+        }
 
-@Test
-void offerDiscoveryShouldOrderExpiredOffersByEndDateDescending()
-                throws Exception {
+        @Test
+        void offerDiscoveryShouldOrderExpiredOffersByEndDateDescending()
+                        throws Exception {
 
-        String token = registerAndLogin(
-                        "Expired Ordering User",
-                        uniqueEmail("expired-ordering"));
+                String token = registerAndLogin(
+                                "Expired Ordering User",
+                                uniqueEmail("expired-ordering"));
 
-        String olderExpiredJson = """
-                        {
-                            "title": "Older Expired Offer",
-                            "description": "Older expired offer",
-                            "discountType": "PERCENTAGE",
-                            "discountValue": 10,
-                            "startDate": "%s",
-                            "endDate": "%s"
-                        }
-                        """.formatted(
-                        LocalDate.now().minusDays(20),
-                        LocalDate.now().minusDays(10));
+                String olderExpiredJson = """
+                                {
+                                    "title": "Older Expired Offer",
+                                    "description": "Older expired offer",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(20),
+                                LocalDate.now().minusDays(10));
 
-        String newerExpiredJson = """
-                        {
-                            "title": "Newer Expired Offer",
-                            "description": "Newer expired offer",
-                            "discountType": "PERCENTAGE",
-                            "discountValue": 15,
-                            "startDate": "%s",
-                            "endDate": "%s"
-                        }
-                        """.formatted(
-                        LocalDate.now().minusDays(12),
-                        LocalDate.now().minusDays(2));
+                String newerExpiredJson = """
+                                {
+                                    "title": "Newer Expired Offer",
+                                    "description": "Newer expired offer",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(12),
+                                LocalDate.now().minusDays(2));
 
-        mockMvc.perform(
-                        post("/api/offers")
-                                        .header("Authorization", auth(token))
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(olderExpiredJson))
-                        .andExpect(status().isCreated());
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(olderExpiredJson))
+                                .andExpect(status().isCreated());
 
-        mockMvc.perform(
-                        post("/api/offers")
-                                        .header("Authorization", auth(token))
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(newerExpiredJson))
-                        .andExpect(status().isCreated());
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(newerExpiredJson))
+                                .andExpect(status().isCreated());
 
-        mockMvc.perform(
-                        get("/api/offers")
-                                        .header("Authorization", auth(token))
-                                        .param("status", "EXPIRED"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.data.content[0].title")
-                                        .value("Newer Expired Offer"))
-                        .andExpect(jsonPath("$.data.content[1].title")
-                                        .value("Older Expired Offer"));
-}
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("status", "EXPIRED"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.content[0].title")
+                                                .value("Newer Expired Offer"))
+                                .andExpect(jsonPath("$.data.content[1].title")
+                                                .value("Older Expired Offer"));
+        }
 
-@Test
-void offerShouldBeRecentlyStartedAtSevenDayBoundary()
-        throws Exception {
+        @Test
+        void offerShouldBeRecentlyStartedAtSevenDayBoundary()
+                        throws Exception {
 
-    String token = registerAndLogin(
-            "Recently Started Boundary User",
-            uniqueEmail("recently-started-boundary"));
+                String token = registerAndLogin(
+                                "Recently Started Boundary User",
+                                uniqueEmail("recently-started-boundary"));
 
-    String offerJson = """
-            {
-                "title": "Recently Started Boundary Offer",
-                "description": "Seven day boundary test",
-                "discountType": "PERCENTAGE",
-                "discountValue": 10,
-                "startDate": "%s",
-                "endDate": "%s"
-            }
-            """.formatted(
-            java.time.LocalDate.now().minusDays(7),
-            java.time.LocalDate.now().plusDays(30));
+                String offerJson = """
+                                {
+                                    "title": "Recently Started Boundary Offer",
+                                    "description": "Seven day boundary test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                java.time.LocalDate.now().minusDays(7),
+                                java.time.LocalDate.now().plusDays(30));
 
-    var result = mockMvc.perform(
-            post("/api/offers")
-                    .header("Authorization", auth(token))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(offerJson))
-            .andExpect(status().isCreated())
-            .andExpect(
-                    jsonPath("$.data.discoverySignals[0]")
-                            .value("RECENTLY_STARTED"))
-            .andReturn();
+                var result = mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(offerJson))
+                                .andExpect(status().isCreated())
+                                .andExpect(
+                                                jsonPath("$.data.discoverySignals[0]")
+                                                                .value("RECENTLY_STARTED"))
+                                .andReturn();
 
-    extractId(result);
-}
+                extractId(result);
+        }
 
-@Test
-void offerShouldNotBeRecentlyStartedAfterSevenDays()
-        throws Exception {
+        @Test
+        void offerShouldNotBeRecentlyStartedAfterSevenDays()
+                        throws Exception {
 
-    String token = registerAndLogin(
-            "Old Offer User",
-            uniqueEmail("old-offer"));
+                String token = registerAndLogin(
+                                "Old Offer User",
+                                uniqueEmail("old-offer"));
 
-    String offerJson = """
-            {
-                "title": "Old Offer",
-                "description": "Older than seven days",
-                "discountType": "PERCENTAGE",
-                "discountValue": 10,
-                "startDate": "%s",
-                "endDate": "%s"
-            }
-            """.formatted(
-            java.time.LocalDate.now().minusDays(8),
-            java.time.LocalDate.now().plusDays(30));
+                String offerJson = """
+                                {
+                                    "title": "Old Offer",
+                                    "description": "Older than seven days",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                java.time.LocalDate.now().minusDays(8),
+                                java.time.LocalDate.now().plusDays(30));
 
-    var result = mockMvc.perform(
-            post("/api/offers")
-                    .header("Authorization", auth(token))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(offerJson))
-            .andExpect(status().isCreated())
-            .andExpect(
-                    jsonPath("$.data.discoverySignals")
-                            .isEmpty())
-            .andReturn();
+                var result = mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(offerJson))
+                                .andExpect(status().isCreated())
+                                .andExpect(
+                                                jsonPath("$.data.discoverySignals")
+                                                                .isEmpty())
+                                .andReturn();
 
-    extractId(result);
-}
+                extractId(result);
+        }
 
-@Test
-void offerShouldBeExpiringSoonAtSevenDayBoundary()
-        throws Exception {
+        @Test
+        void offerShouldBeExpiringSoonAtSevenDayBoundary()
+                        throws Exception {
 
-    String token = registerAndLogin(
-            "Expiring Boundary User",
-            uniqueEmail("expiring-boundary"));
+                String token = registerAndLogin(
+                                "Expiring Boundary User",
+                                uniqueEmail("expiring-boundary"));
 
-    String offerJson = """
-            {
-                "title": "Expiring Boundary Offer",
-                "description": "Seven day expiry boundary",
-                "discountType": "PERCENTAGE",
-                "discountValue": 10,
-                "startDate": "%s",
-                "endDate": "%s"
-            }
-            """.formatted(
-            java.time.LocalDate.now().minusDays(8),
-            java.time.LocalDate.now().plusDays(7));
+                String offerJson = """
+                                {
+                                    "title": "Expiring Boundary Offer",
+                                    "description": "Seven day expiry boundary",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                java.time.LocalDate.now().minusDays(8),
+                                java.time.LocalDate.now().plusDays(7));
 
-    var result = mockMvc.perform(
-            post("/api/offers")
-                    .header("Authorization", auth(token))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(offerJson))
-            .andExpect(status().isCreated())
-            .andExpect(
-                    jsonPath("$.data.discoverySignals[0]")
-                            .value("EXPIRING_SOON"))
-            .andReturn();
+                var result = mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(offerJson))
+                                .andExpect(status().isCreated())
+                                .andExpect(
+                                                jsonPath("$.data.discoverySignals[0]")
+                                                                .value("EXPIRING_SOON"))
+                                .andReturn();
 
-    extractId(result);
-}
+                extractId(result);
+        }
 
-@Test
-void offerShouldNotBeExpiringSoonAfterSevenDays()
-        throws Exception {
+        @Test
+        void offerShouldNotBeExpiringSoonAfterSevenDays()
+                        throws Exception {
 
-    String token = registerAndLogin(
-            "Not Expiring User",
-            uniqueEmail("not-expiring"));
+                String token = registerAndLogin(
+                                "Not Expiring User",
+                                uniqueEmail("not-expiring"));
 
-    String offerJson = """
-            {
-                "title": "Not Expiring Soon Offer",
-                "description": "Expiry beyond seven days",
-                "discountType": "PERCENTAGE",
-                "discountValue": 10,
-                "startDate": "%s",
-                "endDate": "%s"
-            }
-            """.formatted(
-            java.time.LocalDate.now().minusDays(8),
-            java.time.LocalDate.now().plusDays(8));
+                String offerJson = """
+                                {
+                                    "title": "Not Expiring Soon Offer",
+                                    "description": "Expiry beyond seven days",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                java.time.LocalDate.now().minusDays(8),
+                                java.time.LocalDate.now().plusDays(8));
 
-    var result = mockMvc.perform(
-            post("/api/offers")
-                    .header("Authorization", auth(token))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(offerJson))
-            .andExpect(status().isCreated())
-            .andExpect(
-                    jsonPath("$.data.discoverySignals")
-                            .isEmpty())
-            .andReturn();
+                var result = mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(offerJson))
+                                .andExpect(status().isCreated())
+                                .andExpect(
+                                                jsonPath("$.data.discoverySignals")
+                                                                .isEmpty())
+                                .andReturn();
 
-    extractId(result);
-}
+                extractId(result);
+        }
 
-@Test
-void offerShouldHaveBothDiscoverySignals()
-        throws Exception {
+        @Test
+        void offerShouldHaveBothDiscoverySignals()
+                        throws Exception {
 
-    String token = registerAndLogin(
-            "Both Signals User",
-            uniqueEmail("both-signals"));
+                String token = registerAndLogin(
+                                "Both Signals User",
+                                uniqueEmail("both-signals"));
 
-    String offerJson = """
-            {
-                "title": "Both Discovery Signals Offer",
-                "description": "Recently started and expiring soon",
-                "discountType": "PERCENTAGE",
-                "discountValue": 15,
-                "startDate": "%s",
-                "endDate": "%s"
-            }
-            """.formatted(
-            java.time.LocalDate.now().minusDays(2),
-            java.time.LocalDate.now().plusDays(3));
+                String offerJson = """
+                                {
+                                    "title": "Both Discovery Signals Offer",
+                                    "description": "Recently started and expiring soon",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                java.time.LocalDate.now().minusDays(2),
+                                java.time.LocalDate.now().plusDays(3));
 
-    var result = mockMvc.perform(
-            post("/api/offers")
-                    .header("Authorization", auth(token))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(offerJson))
-            .andExpect(status().isCreated())
-            .andExpect(
-                    jsonPath("$.data.discoverySignals[0]")
-                            .value("RECENTLY_STARTED"))
-            .andExpect(
-                    jsonPath("$.data.discoverySignals[1]")
-                            .value("EXPIRING_SOON"))
-            .andReturn();
+                var result = mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(offerJson))
+                                .andExpect(status().isCreated())
+                                .andExpect(
+                                                jsonPath("$.data.discoverySignals[0]")
+                                                                .value("RECENTLY_STARTED"))
+                                .andExpect(
+                                                jsonPath("$.data.discoverySignals[1]")
+                                                                .value("EXPIRING_SOON"))
+                                .andReturn();
 
-    extractId(result);
-}
+                extractId(result);
+        }
+
+        @Test
+        void offerDiscoveryShouldFilterRecentlyStartedOffers() throws Exception {
+
+                String token = registerAndLogin(
+                                "Recently Started Discovery User",
+                                uniqueEmail("recently-started-discovery"));
+
+                String recentJson = """
+                                {
+                                    "title": "Recently Started Discovery Offer",
+                                    "description": "Recently started discovery filter test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(2),
+                                LocalDate.now().plusDays(30));
+
+                String oldJson = """
+                                {
+                                    "title": "Old Discovery Offer",
+                                    "description": "Older than seven days",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(8),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(recentJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(oldJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("discoverySignal", "RECENTLY_STARTED"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.content").isArray())
+                                .andExpect(jsonPath(
+                                                "$.data.content[?(@.title == 'Recently Started Discovery Offer')]")
+                                                .exists())
+                                .andExpect(jsonPath(
+                                                "$.data.content[?(@.title == 'Old Discovery Offer')]")
+                                                .doesNotExist());
+        }
+
+        @Test
+        void offerDiscoveryShouldFilterExpiringSoonOffers() throws Exception {
+
+                String token = registerAndLogin(
+                                "Expiring Soon Discovery User",
+                                uniqueEmail("expiring-soon-discovery"));
+
+                String expiringJson = """
+                                {
+                                    "title": "Expiring Soon Discovery Offer",
+                                    "description": "Expiring soon discovery filter test",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(8),
+                                LocalDate.now().plusDays(3));
+
+                String laterJson = """
+                                {
+                                    "title": "Later Expiry Discovery Offer",
+                                    "description": "Expiry beyond seven days",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(8),
+                                LocalDate.now().plusDays(8));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(expiringJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(laterJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("discoverySignal", "EXPIRING_SOON"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.content").isArray())
+                                .andExpect(jsonPath(
+                                                "$.data.content[?(@.title == 'Expiring Soon Discovery Offer')]")
+                                                .exists())
+                                .andExpect(jsonPath(
+                                                "$.data.content[?(@.title == 'Later Expiry Discovery Offer')]")
+                                                .doesNotExist());
+        }
+
+        @Test
+        void offerDiscoveryShouldFilterByTitleAndDiscoverySignal() throws Exception {
+
+                String token = registerAndLogin(
+                                "Title Signal Discovery User",
+                                uniqueEmail("title-signal-discovery"));
+
+                String matchingJson = """
+                                {
+                                    "title": "Amazon Recently Started Offer",
+                                    "description": "Matching title and signal",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(2),
+                                LocalDate.now().plusDays(30));
+
+                String wrongTitleJson = """
+                                {
+                                    "title": "Flipkart Recently Started Offer",
+                                    "description": "Wrong title",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(2),
+                                LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(matchingJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(wrongTitleJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("title", "Amazon")
+                                                .param("discoverySignal", "RECENTLY_STARTED"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath(
+                                                "$.data.content[?(@.title == 'Amazon Recently Started Offer')]")
+                                                .exists())
+                                .andExpect(jsonPath(
+                                                "$.data.content[?(@.title == 'Flipkart Recently Started Offer')]")
+                                                .doesNotExist());
+        }
+
+        @Test
+        void offerDiscoveryShouldFilterByStatusAndDiscoverySignal() throws Exception {
+
+                String token = registerAndLogin(
+                                "Status Signal Discovery User",
+                                uniqueEmail("status-signal-discovery"));
+
+                String activeJson = """
+                                {
+                                    "title": "Active Recently Started Offer",
+                                    "description": "Active and recently started",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(2),
+                                LocalDate.now().plusDays(30));
+
+                String expiredJson = """
+                                {
+                                    "title": "Expired Recently Started Offer",
+                                    "description": "Expired but recently started",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(2),
+                                LocalDate.now().minusDays(1));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(activeJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(expiredJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("status", "ACTIVE")
+                                                .param("discoverySignal", "RECENTLY_STARTED"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath(
+                                                "$.data.content[?(@.title == 'Active Recently Started Offer')]")
+                                                .exists())
+                                .andExpect(jsonPath(
+                                                "$.data.content[?(@.title == 'Expired Recently Started Offer')]")
+                                                .doesNotExist());
+        }
+
+        @Test
+        void offerDiscoveryShouldFilterByTitleStatusAndDiscoverySignal() throws Exception {
+
+                String token = registerAndLogin(
+                                "Combined Signal Discovery User",
+                                uniqueEmail("combined-signal-discovery"));
+
+                String matchingJson = """
+                                {
+                                    "title": "Amazon Active Recent Offer",
+                                    "description": "Matches all filters",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().minusDays(2),
+                                LocalDate.now().plusDays(5));
+
+                String wrongStatusJson = """
+                                {
+                                    "title": "Amazon Upcoming Recent Offer",
+                                    "description": "Wrong lifecycle status",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 15,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                LocalDate.now().plusDays(2),
+                                LocalDate.now().plusDays(5));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(matchingJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(wrongStatusJson))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(
+                                get("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .param("title", "Amazon")
+                                                .param("status", "ACTIVE")
+                                                .param("discoverySignal", "RECENTLY_STARTED"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath(
+                                                "$.data.content[?(@.title == 'Amazon Active Recent Offer')]")
+                                                .exists())
+                                .andExpect(jsonPath(
+                                                "$.data.content[?(@.title == 'Amazon Upcoming Recent Offer')]")
+                                                .doesNotExist());
+        }
 
 }

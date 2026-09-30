@@ -17,6 +17,7 @@ import com.linkvault.backend.offer.dto.OfferIngestionRequest;
 import com.linkvault.backend.offer.service.OfferIngestionService;
 import com.linkvault.backend.offer.dto.OfferIngestionResult;
 import com.linkvault.backend.offer.dto.OfferLifecycleStatus;
+import com.linkvault.backend.offer.model.DiscoverySignal;
 
 @RestController
 @RequestMapping("/api/offers")
@@ -35,9 +36,14 @@ public class OfferController {
         public ResponseEntity<ApiResponse<PageResponse<OfferResponse>>> getOffers(
                         @RequestParam(required = false) String title,
                         @RequestParam(required = false) OfferLifecycleStatus status,
+                        @RequestParam(required = false) DiscoverySignal discoverySignal,
                         @PageableDefault(page = 0, size = 10) Pageable pageable) {
 
-                PageResponse<OfferResponse> offers = offerService.getOffers(title, status, pageable);
+                PageResponse<OfferResponse> offers = offerService.getOffers(
+                                title,
+                                status,
+                                discoverySignal,
+                                pageable);
 
                 return ApiResponseUtil.success("Offers Found", offers);
         }
