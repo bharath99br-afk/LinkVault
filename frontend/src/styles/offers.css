@@ -129,6 +129,54 @@
     font-weight: 700;
 }
 
+
+/* ---------- Discovery Filters ---------- */
+
+.offers-discovery-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 25px 10px;
+}
+
+.offers-filter-label {
+    margin-right: 4px;
+    color: var(--lv-text-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.offers-filter-button {
+    min-height: 36px;
+    padding: 8px 13px;
+    border: 1px solid var(--lv-border);
+    border-radius: 999px;
+    background: white;
+    color: var(--lv-text);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.offers-filter-button:hover {
+    border-color: var(--lv-primary);
+    background: var(--lv-primary-soft);
+    color: var(--lv-primary);
+}
+
+.offers-filter-button.active {
+    border-color: var(--lv-primary);
+    background: var(--lv-primary);
+    color: white;
+}
+
 .offers-search-button {
     border: 0;
     background: var(--lv-primary);
@@ -513,8 +561,23 @@
         width: 100%;
     }
 
-    .offers-search-button,
+       .offers-search-button,
     .offers-clear-button {
+        flex: 1;
+    }
+
+    .offers-discovery-filters {
+        align-items: flex-start;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .offers-filter-label {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .offers-filter-button {
         flex: 1;
     }
 

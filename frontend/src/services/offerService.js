@@ -2,6 +2,7 @@ import { apiRequest } from "./api";
 
 export async function getOffers({
     title = "",
+    discoverySignal = "",
     page = 0,
     size = 10,
 } = {}) {
@@ -9,6 +10,10 @@ export async function getOffers({
 
     if (title.trim()) {
         params.append("title", title.trim());
+    }
+
+    if (discoverySignal.trim()) {
+        params.append("discoverySignal", discoverySignal.trim());
     }
 
     params.append("page", page);
