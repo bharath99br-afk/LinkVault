@@ -851,4 +851,217 @@ class BestDealIntegrationTest extends IntegrationTestBase {
                                                 jsonPath("$.data.alternatives.size()")
                                                                 .value(2));
         }
+
+        @Test
+        void missingTransactionAmountShouldReturnBadRequest()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Best Deal Validation User",
+                                uniqueEmail("best-deal-validation"));
+
+                String json = """
+                                {
+                                    "transactionAmount": null
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void zeroTransactionAmountShouldReturnBadRequest()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Best Deal Zero Amount User",
+                                uniqueEmail("best-deal-zero"));
+
+                String json = """
+                                {
+                                    "transactionAmount": 0
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void negativeTransactionAmountShouldReturnBadRequest()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Best Deal Negative Amount User",
+                                uniqueEmail("best-deal-negative"));
+
+                String json = """
+                                {
+                                    "transactionAmount": -100
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void nonexistentLinkShouldReturnNotFound()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Best Deal Missing Link User",
+                                uniqueEmail("best-deal-missing-link"));
+
+                String json = """
+                                {
+                                    "linkId": 999999,
+                                    "transactionAmount": 5000
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void userWithNoCardsShouldReturnNoEligibleDeal()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Best Deal No Card User",
+                                uniqueEmail("best-deal-no-card"));
+
+                String json = """
+                                {
+                                    "transactionAmount": 5000
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.bestDeal").doesNotExist())
+                                .andExpect(jsonPath("$.data.alternatives").isArray())
+                                .andExpect(jsonPath("$.data.alternatives.size()").value(0));
+        }
+
+        @Test
+        void singleEligibleDealShouldReturnEmptyAlternatives()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Best Deal Single User",
+                                uniqueEmail("best-deal-single"));
+
+                long bankId = createBank(
+                                token,
+                                "Single Deal Bank");
+
+                createCard(
+                                token,
+                                "Single Deal Card",
+                                bankId);
+
+                createOffer(
+                                token,
+                                "Single Eligible Deal",
+                                new BigDecimal("10"),
+                                null);
+
+                String json = """
+                                {
+                                    "transactionAmount": 10000
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.bestDeal").exists())
+                                .andExpect(jsonPath("$.data.bestDeal.offerTitle")
+                                                .value("Single Eligible Deal"))
+                                .andExpect(jsonPath("$.data.alternatives").isArray())
+                                .andExpect(jsonPath("$.data.alternatives.size()").value(0));
+        }
+
+        @Test
+        void bestDealResponseShouldContainCalculatedFields()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Best Deal Response User",
+                                uniqueEmail("best-deal-response"));
+
+                long bankId = createBank(
+                                token,
+                                "Response Bank");
+
+                createCard(
+                                token,
+                                "Response Card",
+                                bankId);
+
+                createOffer(
+                                token,
+                                "Response Contract Offer",
+                                new BigDecimal("20"),
+                                null);
+
+                String json = """
+                                {
+                                    "transactionAmount": 10000
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.bestDeal").exists())
+                                .andExpect(jsonPath("$.data.bestDeal.offerId").exists())
+                                .andExpect(jsonPath("$.data.bestDeal.offerTitle")
+                                                .value("Response Contract Offer"))
+                                .andExpect(jsonPath("$.data.bestDeal.cardId").exists())
+                                .andExpect(jsonPath("$.data.bestDeal.cardName")
+                                                .value("Response Card"))
+                                .andExpect(jsonPath("$.data.bestDeal.bankId")
+                                                .value(bankId))
+                                .andExpect(jsonPath("$.data.bestDeal.bankName")
+                                                .value("Response Bank"))
+                                .andExpect(jsonPath("$.data.bestDeal.transactionAmount")
+                                                .value(10000.00))
+                                .andExpect(jsonPath("$.data.bestDeal.discountAmount")
+                                                .value(2000.00))
+                                .andExpect(jsonPath("$.data.bestDeal.finalAmount")
+                                                .value(8000.00))
+                                .andExpect(jsonPath("$.data.bestDeal.savingsPercentage")
+                                                .value(20.00))
+                                .andExpect(jsonPath("$.data.alternatives").isArray());
+        }
 }
