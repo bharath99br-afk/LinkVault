@@ -676,4 +676,179 @@ class BestDealIntegrationTest extends IntegrationTestBase {
                                                 jsonPath("$.data.bestDeal.finalAmount")
                                                                 .value(0.00));
         }
+
+        @Test
+        void bestDealShouldSelectLowestFinalAmount()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Ranking User",
+                                uniqueEmail("ranking"));
+
+                long bankId = createBank(token, "HDFC");
+
+                createCard(
+                                token,
+                                "HDFC Card",
+                                bankId);
+
+                createOffer(
+                                token,
+                                "10 Percent Offer",
+                                new BigDecimal("10"),
+                                null);
+
+                createOffer(
+                                token,
+                                "20 Percent Offer",
+                                new BigDecimal("20"),
+                                null);
+
+                String request = """
+                                {
+                                    "transactionAmount": 10000
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(request))
+                                .andExpect(status().isOk())
+                                .andExpect(
+                                                jsonPath("$.data.bestDeal.offerTitle")
+                                                                .value("20 Percent Offer"))
+                                .andExpect(
+                                                jsonPath("$.data.bestDeal.discountAmount")
+                                                                .value(2000.00))
+                                .andExpect(
+                                                jsonPath("$.data.bestDeal.finalAmount")
+                                                                .value(8000.00))
+                                .andExpect(
+                                                jsonPath("$.data.alternatives[0].offerTitle")
+                                                                .value("10 Percent Offer"))
+                                .andExpect(
+                                                jsonPath("$.data.alternatives[0].finalAmount")
+                                                                .value(9000.00));
+        }
+
+        @Test
+        void multipleEligibleCardsShouldProduceSeparateDealOptions()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Multiple Cards User",
+                                uniqueEmail("multiple-cards"));
+
+                long hdfcBankId = createBank(token, "HDFC");
+
+                long iciciBankId = createBank(token, "ICICI");
+
+                createCard(
+                                token,
+                                "HDFC Card",
+                                hdfcBankId);
+
+                createCard(
+                                token,
+                                "ICICI Card",
+                                iciciBankId);
+
+                createOffer(
+                                token,
+                                "General 10 Percent",
+                                new BigDecimal("10"),
+                                null);
+
+                String request = """
+                                {
+                                    "transactionAmount": 10000
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(request))
+                                .andExpect(status().isOk())
+                                .andExpect(
+                                                jsonPath("$.data.bestDeal.offerTitle")
+                                                                .value("General 10 Percent"))
+                                .andExpect(
+                                                jsonPath("$.data.bestDeal.finalAmount")
+                                                                .value(9000.00))
+                                .andExpect(
+                                                jsonPath("$.data.alternatives.size()")
+                                                                .value(1))
+                                .andExpect(
+                                                jsonPath("$.data.alternatives[0].offerTitle")
+                                                                .value("General 10 Percent"));
+        }
+
+        @Test
+        void bestDealShouldRankEligibleOfferCardCombinations()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Combination Ranking User",
+                                uniqueEmail("combination-ranking"));
+
+                long hdfcBankId = createBank(token, "HDFC");
+
+                long iciciBankId = createBank(token, "ICICI");
+
+                createCard(
+                                token,
+                                "HDFC Card",
+                                hdfcBankId);
+
+                createCard(
+                                token,
+                                "ICICI Card",
+                                iciciBankId);
+
+                createOffer(
+                                token,
+                                "General 10 Percent",
+                                new BigDecimal("10"),
+                                null);
+
+                long hdfcOfferId = createOffer(
+                                token,
+                                "HDFC 20 Percent",
+                                new BigDecimal("20"),
+                                null);
+
+                addBankApplicability(
+                                token,
+                                hdfcOfferId,
+                                hdfcBankId);
+
+                String request = """
+                                {
+                                    "transactionAmount": 10000
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(request))
+                                .andExpect(status().isOk())
+                                .andExpect(
+                                                jsonPath("$.data.bestDeal.offerTitle")
+                                                                .value("HDFC 20 Percent"))
+                                .andExpect(
+                                                jsonPath("$.data.bestDeal.cardName")
+                                                                .value("HDFC Card"))
+                                .andExpect(
+                                                jsonPath("$.data.bestDeal.finalAmount")
+                                                                .value(8000.00))
+                                .andExpect(
+                                                jsonPath("$.data.alternatives.size()")
+                                                                .value(2));
+        }
 }
