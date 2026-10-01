@@ -169,6 +169,37 @@ public abstract class IntegrationTestBase {
                 return extractId(result);
         }
 
+        protected long createCard(
+                        String token,
+                        String name,
+                        long bankId,
+                        long cardProductId)
+                        throws Exception {
+
+                String json = """
+                                {
+                                    "name": "%s",
+                                    "lastFourDigits": "1234",
+                                    "cardType": "CREDIT",
+                                    "bankId": %d,
+                                    "cardProductId": %d
+                                }
+                                """.formatted(
+                                name,
+                                bankId,
+                                cardProductId);
+
+                MvcResult result = mockMvc.perform(
+                                post("/api/cards")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isCreated())
+                                .andReturn();
+
+                return extractId(result);
+        }
+
         protected long createGlobalMerchant(
                         String token,
                         String name)
@@ -326,5 +357,69 @@ public abstract class IntegrationTestBase {
                                 .andReturn();
 
                 return extractId(result);
+        }
+
+        protected long createCardProduct(
+                        long bankId,
+                        String name,
+                        String cardType,
+                        boolean active) {
+
+                return jdbcTemplate.queryForObject(
+                                """
+                                                INSERT INTO card_products (
+                                                    bank_id,
+                                                    name,
+                                                    card_type,
+                                                    active
+                                                )
+                                                VALUES (?, ?, ?, ?)
+                                                RETURNING id
+                                                """,
+                                Long.class,
+                                bankId,
+                                name,
+                                cardType,
+                                active);
+        }
+
+        protected void addBankApplicability(
+                        String token,
+                        long offerId,
+                        long bankId)
+                        throws Exception {
+
+                String json = """
+                                {
+                                    "bankId": %d
+                                }
+                                """.formatted(bankId);
+
+                mockMvc.perform(
+                                post("/api/offers/" + offerId + "/banks")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isOk());
+        }
+
+        protected void addCardApplicability(
+                        String token,
+                        long offerId,
+                        long cardProductId)
+                        throws Exception {
+
+                String json = """
+                                {
+                                    "cardProductId": %d
+                                }
+                                """.formatted(cardProductId);
+
+                mockMvc.perform(
+                                post("/api/offers/" + offerId + "/cards")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(json))
+                                .andExpect(status().isOk());
         }
 }
