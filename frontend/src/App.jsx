@@ -11,6 +11,7 @@ import Merchants from "./pages/Merchants";
 import Cards from "./pages/Cards";
 import Offers from "./pages/Offers";
 import SavedOffers from "./pages/SavedOffers";
+import BestDealPanel from "./components/deals/BestDealPanel";
 
 import "./App.css";
 import "./styles/auth.css";
@@ -21,6 +22,7 @@ import "./styles/products.css";
 import "./styles/merchants.css";
 import "./styles/cards.css";
 import "./styles/offers.css";
+import "./styles/best-deal.css";
 
 function App() {
   const { user, logout } = useAuth();
@@ -35,109 +37,58 @@ function App() {
     <div className="app">
       {user && (
         <header className="navbar">
-
           <div className="navbar-left">
             <h1>LinkVault</h1>
 
             <nav className="navbar-links">
-              <a href="/">
-                Dashboard
-              </a>
+              <a href="/">Dashboard</a>
 
-              <a href="/links">
-                Links
-              </a>
+              <a href="/links">Links</a>
 
-              <a href="/products">
-                Products
-              </a>
+              <a href="/products">Products</a>
 
-              <a href="/merchants">
-                Merchants
-              </a>
+              <a href="/merchants">Merchants</a>
 
-              <a href="/cards">
-                Cards
-              </a>
+              <a href="/cards">Cards</a>
 
-              <a href="/offers">
-                Offers
-              </a>
+              <a href="/offers">Offers</a>
 
-              <a href="/saved-offers">
-                Saved
-              </a>
+              <a href="/saved-offers">Saved</a>
+
+              <a href="/best-deal">Best Deal</a>
             </nav>
           </div>
 
           <div className="navbar-right">
-            <span>
-              {user.name}
-            </span>
+            <span>{user.name}</span>
 
-            <button onClick={handleLogout}>
-              Logout
-            </button>
+            <button onClick={handleLogout}>Logout</button>
           </div>
-
         </header>
       )}
 
       <Routes>
-        <Route
-          path="/login"
-          element={<Login />}
-        />
+        <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/register"
-          element={<Register />}
-        />
+        <Route path="/register" element={<Register />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route
-            path="/"
-            element={<Dashboard />}
-          />
-          <Route
-            path="/links"
-            element={<Links />}
-          />
-          <Route
-            path="/products"
-            element={<Products />}
-          />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/links" element={<Links />} />
+          <Route path="/products" element={<Products />} />
 
-          <Route
-            path="/merchants"
-            element={<Merchants />}
-          />
+          <Route path="/merchants" element={<Merchants />} />
 
-          <Route
-            path="/cards"
-            element={<Cards />}
-          />
+          <Route path="/cards" element={<Cards />} />
 
-          <Route
-            path="/offers"
-            element={<Offers />}
-          />
+          <Route path="/offers" element={<Offers />} />
 
-          <Route
-            path="/saved-offers"
-            element={<SavedOffers />}
-          />
+          <Route path="/saved-offers" element={<SavedOffers />} />
+
+          <Route path="/best-deal" element={<BestDealPanel />} />
         </Route>
 
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to="/"
-              replace
-            />
-          }
-        />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
