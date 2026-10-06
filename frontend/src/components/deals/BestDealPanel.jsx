@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { findBestDeal } from "../../services/dealService";
 
-function BestDealPanel() {
+function BestDealPanel({ linkId = null, productTitle = "", onClose }) {
   const [transactionAmount, setTransactionAmount] = useState("");
 
   const [result, setResult] = useState(null);
@@ -34,6 +34,7 @@ function BestDealPanel() {
 
     try {
       const response = await findBestDeal({
+        linkId,
         transactionAmount: amount,
       });
 
@@ -52,15 +53,27 @@ function BestDealPanel() {
 
   return (
     <section className="best-deal-panel">
-      <div className="best-deal-header">
-        <p className="best-deal-eyebrow">SAVE MORE</p>
+      <div className="best-deal-header-row">
+        <div className="best-deal-header">
+          <p className="best-deal-eyebrow">SAVE MORE</p>
 
-        <h2>Find your best deal</h2>
+          <h2>Find your best deal</h2>
 
-        <p>
-          Enter what you're about to spend and LinkVault will compare your
-          eligible offers and cards.
-        </p>
+          <p>
+            {productTitle
+              ? `See how you can pay less for ${productTitle}.`
+              : "Enter what you're about to spend and LinkVault will compare your eligible offers and cards."}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="best-deal-close"
+          onClick={onClose}
+          aria-label="Close best deal"
+        >
+          ×
+        </button>
       </div>
 
       <form className="best-deal-form" onSubmit={handleSubmit} noValidate>

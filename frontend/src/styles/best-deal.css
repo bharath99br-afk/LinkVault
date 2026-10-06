@@ -282,3 +282,37 @@
     }
     
 }
+
+.best-deal-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.best-deal-close {
+    flex-shrink: 0;
+
+    width: 36px;
+    height: 36px;
+
+    border: 1px solid var(--lv-border);
+    border-radius: 50%;
+
+    background: var(--lv-surface);
+    color: var(--lv-text-muted);
+
+    font-size: 24px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.best-deal-close:hover {
+    background: var(--lv-background);
+    color: var(--lv-text);
+}
+
+.best-deal-anchor {
+    scroll-margin-top: 24px;
+}
