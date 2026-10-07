@@ -26,19 +26,22 @@ public class OfferEligibilityService {
         private final OfferBankApplicabilityRepository offerBankApplicabilityRepository;
         private final OfferCardApplicabilityRepository offerCardApplicabilityRepository;
         private final CurrentUserService currentUserService;
+        private final OfferCardMatcher offerCardMatcher;
 
         public OfferEligibilityService(
                         OfferRepository offerRepository,
                         CardRepository cardRepository,
                         OfferBankApplicabilityRepository offerBankApplicabilityRepository,
                         OfferCardApplicabilityRepository offerCardApplicabilityRepository,
-                        CurrentUserService currentUserService) {
+                        CurrentUserService currentUserService,
+                        OfferCardMatcher offerCardMatcher) {
 
                 this.offerRepository = offerRepository;
                 this.cardRepository = cardRepository;
                 this.offerBankApplicabilityRepository = offerBankApplicabilityRepository;
                 this.offerCardApplicabilityRepository = offerCardApplicabilityRepository;
                 this.currentUserService = currentUserService;
+                this.offerCardMatcher = offerCardMatcher;
         }
 
         @Transactional(readOnly = true)
@@ -89,51 +92,16 @@ public class OfferEligibilityService {
                 /*
                  * 3. Check bank/card applicability.
                  */
-                boolean hasBankApplicability = !offerBankApplicabilityRepository
-                                .findByOfferId(offerId)
-                                .isEmpty();
+                var bankApplicabilities = offerBankApplicabilityRepository.findByOfferId(offerId);
 
-                boolean hasCardApplicability = !offerCardApplicabilityRepository
-                                .findByOfferId(offerId)
-                                .isEmpty();
+                var cardApplicabilities = offerCardApplicabilityRepository.findByOfferId(offerId);
 
-                /*
-                 * No bank/card restrictions means the offer
-                 * is eligible from the card perspective.
-                 */
-                if (!hasBankApplicability && !hasCardApplicability) {
+                boolean cardMatches = offerCardMatcher.matches(
+                                card,
+                                bankApplicabilities,
+                                cardApplicabilities);
 
-                        return eligible(
-                                        offerId,
-                                        card.getId(),
-                                        "Offer is eligible for this card");
-                }
-
-                /*
-                 * Check bank-level applicability.
-                 */
-                boolean bankMatches = hasBankApplicability
-                                && offerBankApplicabilityRepository
-                                                .existsByOfferIdAndBankId(
-                                                                offerId,
-                                                                card.getBank().getId());
-
-                /*
-                 * Check exact card-level applicability.
-                 */
-                boolean cardMatches = hasCardApplicability
-                                && card.getCardProduct() != null
-                                && offerCardApplicabilityRepository
-                                                .existsByOfferIdAndCardProductId(
-                                                                offerId,
-                                                                card.getCardProduct().getId());
-
-                /*
-                 * Either a matching bank OR a matching exact card
-                 * is enough to make the offer eligible.
-                 */
-                if (bankMatches || cardMatches) {
-
+                if (cardMatches) {
                         return eligible(
                                         offerId,
                                         card.getId(),
