@@ -438,6 +438,68 @@ class BestDealIntegrationTest extends IntegrationTestBase {
         }
 
         @Test
+        void minimumTransactionAmountEqualToThresholdShouldBeEligibleByBestDeal()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Minimum Boundary User",
+                                uniqueEmail("minimum-boundary"));
+
+                long bankId = createBank(token, "Axis");
+
+                createCard(
+                                token,
+                                "Axis Card",
+                                bankId);
+
+                String offerJson = """
+                                {
+                                    "title": "Minimum Spend Boundary Offer",
+                                    "description": "Offer eligible at the exact minimum spend",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 10,
+                                    "minTransactionAmount": 5000,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                java.time.LocalDate.now().minusDays(1),
+                                java.time.LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(offerJson))
+                                .andExpect(status().isCreated());
+
+                String request = """
+                                {
+                                    "transactionAmount": 5000
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(request))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.bestDeal.offerTitle")
+                                                .value("Minimum Spend Boundary Offer"))
+                                .andExpect(jsonPath("$.data.bestDeal.transactionAmount")
+                                                .value(5000.00))
+                                .andExpect(jsonPath("$.data.bestDeal.discountAmount")
+                                                .value(500.00))
+                                .andExpect(jsonPath("$.data.bestDeal.finalAmount")
+                                                .value(4500.00))
+                                .andExpect(jsonPath("$.data.bestDeal.savingsPercentage")
+                                                .value(10.00))
+                                .andExpect(jsonPath("$.data.alternatives.size()")
+                                                .value(0));
+        }
+
+        @Test
         void cardProductSpecificOfferShouldApplyToMatchingCardProduct()
                         throws Exception {
 
