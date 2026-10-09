@@ -1126,4 +1126,60 @@ class BestDealIntegrationTest extends IntegrationTestBase {
                                                 .value(20.00))
                                 .andExpect(jsonPath("$.data.alternatives").isArray());
         }
+
+        @Test
+        void percentageDiscountBelowMaximumCapShouldRemainUnchanged()
+                        throws Exception {
+
+                String token = registerAndLogin(
+                                "Below Max Cap User",
+                                uniqueEmail("below-max-cap"));
+
+                long bankId = createBank(token, "Kotak");
+
+                createCard(
+                                token,
+                                "Kotak Card",
+                                bankId);
+
+                String offerJson = """
+                                {
+                                    "title": "5 Percent Below Cap",
+                                    "description": "Calculated discount is below the maximum",
+                                    "discountType": "PERCENTAGE",
+                                    "discountValue": 5,
+                                    "maxDiscount": 1000,
+                                    "startDate": "%s",
+                                    "endDate": "%s"
+                                }
+                                """.formatted(
+                                java.time.LocalDate.now().minusDays(1),
+                                java.time.LocalDate.now().plusDays(30));
+
+                mockMvc.perform(
+                                post("/api/offers")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(offerJson))
+                                .andExpect(status().isCreated());
+
+                String request = """
+                                {
+                                    "transactionAmount": 10000
+                                }
+                                """;
+
+                mockMvc.perform(
+                                post("/api/deals/best")
+                                                .header("Authorization", auth(token))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(request))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.bestDeal.offerTitle")
+                                                .value("5 Percent Below Cap"))
+                                .andExpect(jsonPath("$.data.bestDeal.discountAmount")
+                                                .value(500.00))
+                                .andExpect(jsonPath("$.data.bestDeal.finalAmount")
+                                                .value(9500.00));
+        }
 }
