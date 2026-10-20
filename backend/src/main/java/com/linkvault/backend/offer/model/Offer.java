@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -46,6 +47,15 @@ public class Offer {
 
     @DecimalMin(value = "0.01", message = "Maximum discount must be greater than 0")
     private BigDecimal maxDiscount;
+
+    @DecimalMin(value = "0.01", message = "Cashback percentage must be greater than 0")
+    @DecimalMax(value = "100.00", message = "Cashback percentage cannot exceed 100")
+    @Column(name = "cashback_percentage", precision = 5, scale = 2)
+    private BigDecimal cashbackPercentage;
+
+    @DecimalMin(value = "0.01", message = "Maximum cashback must be greater than 0")
+    @Column(name = "max_cashback", precision = 12, scale = 2)
+    private BigDecimal maxCashback;
 
     @DecimalMin(value = "0.01", message = "Minimum transaction amount must be greater than 0")
     private BigDecimal minTransactionAmount;
@@ -179,4 +189,19 @@ public class Offer {
         this.sourceUrl = sourceUrl;
     }
 
+    public BigDecimal getCashbackPercentage() {
+        return cashbackPercentage;
+    }
+
+    public void setCashbackPercentage(BigDecimal cashbackPercentage) {
+        this.cashbackPercentage = cashbackPercentage;
+    }
+
+    public BigDecimal getMaxCashback() {
+        return maxCashback;
+    }
+
+    public void setMaxCashback(BigDecimal maxCashback) {
+        this.maxCashback = maxCashback;
+    }
 }

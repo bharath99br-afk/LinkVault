@@ -10,38 +10,41 @@ import com.linkvault.backend.offer.dto.OfferIngestionResult;
 @Service
 public class OfferIngestionService {
 
-    private final OfferService offerService;
+        private final OfferService offerService;
 
-    public OfferIngestionService(OfferService offerService) {
-        this.offerService = offerService;
-    }
+        public OfferIngestionService(OfferService offerService) {
+                this.offerService = offerService;
+        }
 
-    public OfferIngestionResult ingestOffer(OfferIngestionRequest request) {
+        public OfferIngestionResult ingestOffer(OfferIngestionRequest request) {
 
-        String title = request.getTitle() != null
-                ? request.getTitle().trim()
-                : null;
+                String title = request.getTitle() != null
+                                ? request.getTitle().trim()
+                                : null;
 
-        String description = request.getDescription() != null
-                ? request.getDescription().trim()
-                : null;
+                String description = request.getDescription() != null
+                                ? request.getDescription().trim()
+                                : null;
 
-        String sourceUrl = request.getSourceUrl() != null
-                ? request.getSourceUrl().trim()
-                : null;
+                String sourceUrl = request.getSourceUrl() != null
+                                ? request.getSourceUrl().trim()
+                                : null;
 
-        OfferRequest canonicalRequest = new OfferRequest(
-                title,
-                description,
-                request.getDiscountType(),
-                request.getDiscountValue(),
-                request.getMaxDiscount(),
-                request.getMinTransactionAmount(),
-                request.getStartDate(),
-                request.getEndDate(),
-                request.getGlobalMerchantId(),
-                sourceUrl);
+                OfferRequest canonicalRequest = new OfferRequest(
+                                title,
+                                description,
+                                request.getDiscountType(),
+                                request.getDiscountValue(),
+                                request.getMaxDiscount(),
+                                request.getMinTransactionAmount(),
+                                request.getStartDate(),
+                                request.getEndDate(),
+                                request.getGlobalMerchantId(),
+                                sourceUrl);
 
-        return offerService.refreshOfferIfExists(canonicalRequest);
-    }
+                canonicalRequest.setCashbackPercentage(request.getCashbackPercentage());
+                canonicalRequest.setMaxCashback(request.getMaxCashback());
+
+                return offerService.refreshOfferIfExists(canonicalRequest);
+        }
 }

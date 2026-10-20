@@ -1124,7 +1124,9 @@ class BestDealIntegrationTest extends IntegrationTestBase {
                                                 .value(8000.00))
                                 .andExpect(jsonPath("$.data.bestDeal.savingsPercentage")
                                                 .value(20.00))
-                                .andExpect(jsonPath("$.data.alternatives").isArray());
+                                .andExpect(jsonPath("$.data.alternatives").isArray())
+                                .andExpect(jsonPath("$.data.bestDeal.cashbackAmount").value(0.00))
+                                .andExpect(jsonPath("$.data.bestDeal.effectivePrice").value(8000.00));
         }
 
         @Test

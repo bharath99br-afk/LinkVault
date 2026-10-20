@@ -14,6 +14,8 @@ public class OfferCalculationResponse {
     private BigDecimal discountAmount;
     private BigDecimal finalAmount;
     private BigDecimal savingsPercentage;
+    private BigDecimal cashbackAmount;
+    private BigDecimal effectivePrice;
 
     public OfferCalculationResponse() {
     }
@@ -100,5 +102,21 @@ public class OfferCalculationResponse {
 
     public void setSavingsPercentage(BigDecimal savingsPercentage) {
         this.savingsPercentage = savingsPercentage;
+    }
+
+    public BigDecimal getCashbackAmount() {
+        return cashbackAmount;
+    }
+
+    public void setCashbackAmount(BigDecimal cashbackAmount) {
+        this.cashbackAmount = cashbackAmount;
+    }
+
+    public BigDecimal getEffectivePrice() {
+        return effectivePrice;
+    }
+
+    public void setEffectivePrice(BigDecimal effectivePrice) {
+        this.effectivePrice = effectivePrice;
     }
 }

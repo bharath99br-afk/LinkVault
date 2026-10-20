@@ -15,6 +15,8 @@ public class OfferResponse {
     private DiscountType discountType;
     private BigDecimal discountValue;
     private BigDecimal maxDiscount;
+    private BigDecimal cashbackPercentage;
+    private BigDecimal maxCashback;
     private BigDecimal minTransactionAmount;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -25,34 +27,34 @@ public class OfferResponse {
     private List<DiscoverySignal> discoverySignals;
 
     public OfferResponse(
-        Long id,
-        String title,
-        String description,
-        DiscountType discountType,
-        BigDecimal discountValue,
-        BigDecimal maxDiscount,
-        BigDecimal minTransactionAmount,
-        LocalDate startDate,
-        LocalDate endDate,
-        Long globalMerchantId,
-        String globalMerchantName,
-        String sourceUrl) {
+            Long id,
+            String title,
+            String description,
+            DiscountType discountType,
+            BigDecimal discountValue,
+            BigDecimal maxDiscount,
+            BigDecimal minTransactionAmount,
+            LocalDate startDate,
+            LocalDate endDate,
+            Long globalMerchantId,
+            String globalMerchantName,
+            String sourceUrl) {
 
-    this(
-            id,
-            title,
-            description,
-            discountType,
-            discountValue,
-            maxDiscount,
-            minTransactionAmount,
-            startDate,
-            endDate,
-            globalMerchantId,
-            globalMerchantName,
-            sourceUrl,
-            null);
-}
+        this(
+                id,
+                title,
+                description,
+                discountType,
+                discountValue,
+                maxDiscount,
+                minTransactionAmount,
+                startDate,
+                endDate,
+                globalMerchantId,
+                globalMerchantName,
+                sourceUrl,
+                null);
+    }
 
     public OfferResponse() {
     }
@@ -86,7 +88,6 @@ public class OfferResponse {
         this.sourceUrl = sourceUrl;
         this.status = status;
     }
-
 
     public Long getId() {
         return id;
@@ -134,6 +135,22 @@ public class OfferResponse {
 
     public void setMaxDiscount(BigDecimal maxDiscount) {
         this.maxDiscount = maxDiscount;
+    }
+
+    public BigDecimal getCashbackPercentage() {
+        return cashbackPercentage;
+    }
+
+    public void setCashbackPercentage(BigDecimal cashbackPercentage) {
+        this.cashbackPercentage = cashbackPercentage;
+    }
+
+    public BigDecimal getMaxCashback() {
+        return maxCashback;
+    }
+
+    public void setMaxCashback(BigDecimal maxCashback) {
+        this.maxCashback = maxCashback;
     }
 
     public BigDecimal getMinTransactionAmount() {

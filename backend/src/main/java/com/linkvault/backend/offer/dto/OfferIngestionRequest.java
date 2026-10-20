@@ -29,6 +29,13 @@ public class OfferIngestionRequest {
     @DecimalMin(value = "0.01", message = "Maximum discount must be greater than 0")
     private BigDecimal maxDiscount;
 
+    @DecimalMin(value = "0.01", message = "Cashback percentage must be greater than 0")
+    @jakarta.validation.constraints.DecimalMax(value = "100.00", message = "Cashback percentage cannot exceed 100")
+    private BigDecimal cashbackPercentage;
+
+    @DecimalMin(value = "0.01", message = "Maximum cashback must be greater than 0")
+    private BigDecimal maxCashback;
+
     @DecimalMin(value = "0.01", message = "Minimum transaction amount must be greater than 0")
     private BigDecimal minTransactionAmount;
 
@@ -108,6 +115,22 @@ public class OfferIngestionRequest {
 
     public void setMaxDiscount(BigDecimal maxDiscount) {
         this.maxDiscount = maxDiscount;
+    }
+
+    public BigDecimal getCashbackPercentage() {
+        return cashbackPercentage;
+    }
+
+    public void setCashbackPercentage(BigDecimal cashbackPercentage) {
+        this.cashbackPercentage = cashbackPercentage;
+    }
+
+    public BigDecimal getMaxCashback() {
+        return maxCashback;
+    }
+
+    public void setMaxCashback(BigDecimal maxCashback) {
+        this.maxCashback = maxCashback;
     }
 
     public BigDecimal getMinTransactionAmount() {

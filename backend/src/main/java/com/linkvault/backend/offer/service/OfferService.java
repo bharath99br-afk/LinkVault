@@ -210,6 +210,8 @@ public class OfferService {
                 offer.setDiscountType(request.getDiscountType());
                 offer.setDiscountValue(request.getDiscountValue());
                 offer.setMaxDiscount(request.getMaxDiscount());
+                offer.setCashbackPercentage(request.getCashbackPercentage());
+                offer.setMaxCashback(request.getMaxCashback());
                 offer.setMinTransactionAmount(
                                 request.getMinTransactionAmount());
                 offer.setStartDate(request.getStartDate());
@@ -247,6 +249,8 @@ public class OfferService {
                 offer.setDiscountType(request.getDiscountType());
                 offer.setDiscountValue(request.getDiscountValue());
                 offer.setMaxDiscount(request.getMaxDiscount());
+                offer.setCashbackPercentage(request.getCashbackPercentage());
+                offer.setMaxCashback(request.getMaxCashback());
                 offer.setMinTransactionAmount(
                                 request.getMinTransactionAmount());
                 offer.setStartDate(request.getStartDate());
@@ -331,6 +335,9 @@ public class OfferService {
                                                 : null,
                                 offer.getSourceUrl());
 
+                response.setCashbackPercentage(offer.getCashbackPercentage());
+                response.setMaxCashback(offer.getMaxCashback());
+
                 response.setStatus(
                                 calculateLifecycleStatus(
                                                 offer.getStartDate(),
@@ -392,6 +399,8 @@ public class OfferService {
                                 request.getDiscountType(),
                                 request.getDiscountValue(),
                                 request.getMaxDiscount(),
+                                request.getCashbackPercentage(),
+                                request.getMaxCashback(),
                                 request.getMinTransactionAmount(),
                                 request.getStartDate(),
                                 request.getEndDate(),
@@ -412,6 +421,8 @@ public class OfferService {
                                 request.getDiscountType(),
                                 request.getDiscountValue(),
                                 request.getMaxDiscount(),
+                                request.getCashbackPercentage(),
+                                request.getMaxCashback(),
                                 request.getMinTransactionAmount(),
                                 request.getStartDate(),
                                 request.getEndDate(),

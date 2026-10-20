@@ -18,114 +18,143 @@ import com.linkvault.backend.exception.LinkNotFoundException;
 @Service
 public class OfferCalculationService {
 
-    private final OfferRepository offerRepository;
-    private final OfferEligibilityService offerEligibilityService;
+        private final OfferRepository offerRepository;
+        private final OfferEligibilityService offerEligibilityService;
 
-    public OfferCalculationService(
-            OfferRepository offerRepository,
-            OfferEligibilityService offerEligibilityService) {
+        public OfferCalculationService(
+                        OfferRepository offerRepository,
+                        OfferEligibilityService offerEligibilityService) {
 
-        this.offerRepository = offerRepository;
-        this.offerEligibilityService = offerEligibilityService;
-    }
-
-    @Transactional(readOnly = true)
-    public OfferCalculationResponse calculate(
-            Long offerId,
-            OfferCalculationRequest request) {
-
-        Offer offer = offerRepository.findById(offerId)
-                .orElseThrow(() -> new LinkNotFoundException("Offer Not Found"));
-
-        OfferEligibilityRequest eligibilityRequest = new OfferEligibilityRequest(
-                request.getCardId(),
-                request.getTransactionAmount());
-
-        OfferEligibilityResponse eligibility = offerEligibilityService.checkEligibility(
-                offerId,
-                eligibilityRequest);
-
-        if (!eligibility.isEligible()) {
-
-            return new OfferCalculationResponse(
-                    offerId,
-                    request.getCardId(),
-                    false,
-                    eligibility.getReason(),
-                    request.getTransactionAmount(),
-                    null,
-                    null,
-                    null);
+                this.offerRepository = offerRepository;
+                this.offerEligibilityService = offerEligibilityService;
         }
 
-        BigDecimal transactionAmount = request.getTransactionAmount();
+        @Transactional(readOnly = true)
+        public OfferCalculationResponse calculate(
+                        Long offerId,
+                        OfferCalculationRequest request) {
 
-        BigDecimal discountAmount = calculateDiscount(
-                offer,
-                transactionAmount);
+                Offer offer = offerRepository.findById(offerId)
+                                .orElseThrow(() -> new LinkNotFoundException("Offer Not Found"));
 
-        BigDecimal finalAmount = transactionAmount
-                .subtract(discountAmount)
-                .setScale(2, RoundingMode.HALF_UP);
+                OfferEligibilityRequest eligibilityRequest = new OfferEligibilityRequest(
+                                request.getCardId(),
+                                request.getTransactionAmount());
 
-        BigDecimal savingsPercentage = discountAmount
-                .divide(
-                        transactionAmount,
-                        6,
-                        RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100))
-                .setScale(2, RoundingMode.HALF_UP);
+                OfferEligibilityResponse eligibility = offerEligibilityService.checkEligibility(
+                                offerId,
+                                eligibilityRequest);
 
-        return new OfferCalculationResponse(
-                offerId,
-                request.getCardId(),
-                true,
-                "Deal calculated successfully",
-                transactionAmount.setScale(2, RoundingMode.HALF_UP),
-                discountAmount,
-                finalAmount,
-                savingsPercentage);
-    }
+                if (!eligibility.isEligible()) {
 
-    private BigDecimal calculateDiscount(
-            Offer offer,
-            BigDecimal transactionAmount) {
+                        return new OfferCalculationResponse(
+                                        offerId,
+                                        request.getCardId(),
+                                        false,
+                                        eligibility.getReason(),
+                                        request.getTransactionAmount(),
+                                        null,
+                                        null,
+                                        null);
+                }
 
-        BigDecimal discountAmount;
+                BigDecimal transactionAmount = request.getTransactionAmount();
 
-        if (offer.getDiscountType() == DiscountType.PERCENTAGE) {
+                BigDecimal discountAmount = calculateDiscount(
+                                offer,
+                                transactionAmount);
 
-            discountAmount = transactionAmount
-                    .multiply(offer.getDiscountValue())
-                    .divide(
-                            BigDecimal.valueOf(100),
-                            2,
-                            RoundingMode.HALF_UP);
+                BigDecimal finalAmount = transactionAmount
+                                .subtract(discountAmount)
+                                .setScale(2, RoundingMode.HALF_UP);
 
-        } else if (offer.getDiscountType() == DiscountType.FLAT) {
+                BigDecimal cashbackAmount = BigDecimal.ZERO.setScale(2);
 
-            discountAmount = offer.getDiscountValue()
-                    .setScale(2, RoundingMode.HALF_UP);
+                if (offer.getCashbackPercentage() != null) {
+                        cashbackAmount = finalAmount
+                                        .multiply(offer.getCashbackPercentage())
+                                        .divide(
+                                                        BigDecimal.valueOf(100),
+                                                        2,
+                                                        RoundingMode.HALF_UP);
 
-        } else {
+                        if (offer.getMaxCashback() != null
+                                        && cashbackAmount.compareTo(offer.getMaxCashback()) > 0) {
+                                cashbackAmount = offer.getMaxCashback()
+                                                .setScale(2, RoundingMode.HALF_UP);
+                        }
+                }
 
-            throw new IllegalArgumentException(
-                    "Unsupported discount type");
+                BigDecimal effectivePrice = finalAmount
+                                .subtract(cashbackAmount)
+                                .setScale(2, RoundingMode.HALF_UP);
+
+                BigDecimal totalSavings = discountAmount.add(cashbackAmount);
+
+                BigDecimal savingsPercentage = totalSavings
+                                .divide(
+                                                transactionAmount,
+                                                6,
+                                                RoundingMode.HALF_UP)
+                                .multiply(BigDecimal.valueOf(100))
+                                .setScale(2, RoundingMode.HALF_UP);
+
+                OfferCalculationResponse response = new OfferCalculationResponse(
+                                offerId,
+                                request.getCardId(),
+                                true,
+                                "Deal calculated successfully",
+                                transactionAmount.setScale(2, RoundingMode.HALF_UP),
+                                discountAmount,
+                                finalAmount,
+                                savingsPercentage);
+
+                response.setCashbackAmount(cashbackAmount);
+                response.setEffectivePrice(effectivePrice);
+
+                return response;
+
         }
 
-        if (offer.getMaxDiscount() != null
-                && discountAmount.compareTo(
-                        offer.getMaxDiscount()) > 0) {
+        private BigDecimal calculateDiscount(
+                        Offer offer,
+                        BigDecimal transactionAmount) {
 
-            discountAmount = offer.getMaxDiscount();
+                BigDecimal discountAmount;
+
+                if (offer.getDiscountType() == DiscountType.PERCENTAGE) {
+
+                        discountAmount = transactionAmount
+                                        .multiply(offer.getDiscountValue())
+                                        .divide(
+                                                        BigDecimal.valueOf(100),
+                                                        2,
+                                                        RoundingMode.HALF_UP);
+
+                } else if (offer.getDiscountType() == DiscountType.FLAT) {
+
+                        discountAmount = offer.getDiscountValue()
+                                        .setScale(2, RoundingMode.HALF_UP);
+
+                } else {
+
+                        throw new IllegalArgumentException(
+                                        "Unsupported discount type");
+                }
+
+                if (offer.getMaxDiscount() != null
+                                && discountAmount.compareTo(
+                                                offer.getMaxDiscount()) > 0) {
+
+                        discountAmount = offer.getMaxDiscount();
+                }
+
+                if (discountAmount.compareTo(transactionAmount) > 0) {
+
+                        discountAmount = transactionAmount;
+                }
+
+                return discountAmount
+                                .setScale(2, RoundingMode.HALF_UP);
         }
-
-        if (discountAmount.compareTo(transactionAmount) > 0) {
-
-            discountAmount = transactionAmount;
-        }
-
-        return discountAmount
-                .setScale(2, RoundingMode.HALF_UP);
-    }
 }
