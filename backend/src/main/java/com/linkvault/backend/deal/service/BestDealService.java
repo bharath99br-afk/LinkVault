@@ -149,8 +149,8 @@ public class BestDealService {
                  * Lower final amount = better deal.
                  */
                 eligibleDeals.sort(
-                                Comparator.comparing(
-                                                DealOptionResponse::getFinalAmount));
+                                Comparator.comparing(DealOptionResponse::getEffectivePrice)
+                                                .thenComparing(DealOptionResponse::getFinalAmount));
 
                 if (eligibleDeals.isEmpty()) {
                         return new BestDealResponse(

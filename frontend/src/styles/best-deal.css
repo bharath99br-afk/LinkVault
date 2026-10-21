@@ -158,16 +158,13 @@
 
 .best-deal-amounts {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
     margin-top: 22px;
 }
 
 .best-deal-amounts div {
-    padding: 14px;
-    border: 1px solid var(--lv-border);
-    border-radius: 9px;
-    background: white;
+    min-width: 0;
 }
 
 .best-deal-amounts span {
@@ -178,8 +175,10 @@
 }
 
 .best-deal-amounts strong {
-    color: var(--lv-text);
-    font-size: 18px;
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: 17px;
+    line-height: 1.5;
 }
 
 .best-deal-alternatives {
@@ -237,20 +236,40 @@
 }
 
 .best-deal-alternative-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
     flex-shrink: 0;
+    min-width: 190px;
     text-align: right;
 }
 
 .best-deal-alternative-price span {
     display: block;
-    margin-bottom: 3px;
+    margin: 0;
     color: var(--lv-text-muted);
     font-size: 12px;
+    line-height: 1.5;
 }
 
 .best-deal-alternative-price strong {
+    display: block;
     color: var(--lv-text);
-    font-size: 17px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+    .best-deal-amounts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .best-deal-alternative-price {
+        min-width: 0;
+        align-items: flex-start;
+        text-align: left;
+    }
 }
 
 @media (max-width: 640px) {
@@ -281,6 +300,17 @@
         text-align: left;
     }
     
+}
+
+@media (max-width: 480px) {
+    .best-deal-panel {
+        margin: 16px;
+        padding: 16px;
+    }
+
+    .best-deal-amounts {
+        grid-template-columns: 1fr;
+    }
 }
 
 .best-deal-header-row {
