@@ -17,9 +17,13 @@ minimum spend, card applicability, discount/cashback caps, merchant filtering,
 and duplicate ingestion. Best Deal also covers saved Product URL merchant
 matching and cross-user Product isolation. Ranking has a deterministic fallback
 for financial ties, and no-result responses distinguish missing cards, no
-active offers, and offers that do not qualify. The experience still needs
-product and visual review before external data providers are selected; AI
-remains deferred until the structured commerce data is reliable.
+active offers, and offers that do not qualify. Desktop visual review is complete
+for the Product list, saved-Product optimizer, standalone Best Deal form, and
+recommendation alternatives. The form actions align with their inputs, and the
+calculation and tie explanation are readable without visible clipping or
+overlap. Mobile visual review and product-promise sign-off remain before
+external data providers are selected; AI remains deferred until the structured
+commerce data is reliable.
 
 The form alignment issue is fixed in the shared Best Deal panel: the action
 button now aligns with the merchant and amount controls instead of their helper
@@ -33,7 +37,7 @@ back to its product page as the next step.
 | ID | Decision | Priority | Status / next step |
 | --- | --- | --- | --- |
 | PROD-01 | Confirm the Best Deal promise, purchase inputs, recommendation rule, and what the result does not claim | High | Needs product review. The panel now says it compares eligible payment offers for the entered purchase amount and does not compare product prices across stores. Confirm this promise and the effective-price ranking before MVP sign-off. |
-| UX-01 | Review the responsive Best Deal form after the shared alignment fix | Medium | Implemented in CSS; visual review remains. |
+| UX-01 | Review the responsive Best Deal form after the shared alignment fix | Medium | Desktop visual review complete: saved-Product and standalone forms align with their controls. Mobile screenshot review remains; responsive CSS stacks the form at 540px and below. |
 
 ## Authentication and account
 
@@ -84,13 +88,13 @@ back to its product page as the next step.
 | DEAL-02 | Deal history | Medium | Backlog |
 | DEAL-03 | Save a recommended deal | High | Backlog; saved offers are separate from saved purchase recommendations. |
 | DEAL-04 | Deal-expiry countdown | High | Backlog |
-| DEAL-05 | Explain why an option is best | High | Implemented in the Best Deal result: explains the ranking rule and price calculation, compares the effective price with the next option, and discloses a financial tie. Visual review remains. |
-| DEAL-06 | Compare alternative payment options | High | Implemented in the current UI; QA remains. |
+| DEAL-05 | Explain why an option is best | High | Implemented in the Best Deal result: explains the ranking rule and price calculation, compares the effective price with the next option, and discloses a financial tie. Desktop screenshot review complete; mobile review remains. |
+| DEAL-06 | Compare alternative payment options | High | Implemented in the current UI; desktop alternatives visually reviewed, mobile review remains. |
 | DEAL-07 | Minimum-spend optimization | High | Backlog |
 | DEAL-08 | Stackable-offer detection | High | Backlog |
 | DEAL-09 | Effective-price calculation | High | Implemented for configured discounts and cashback; other purchase costs and reward valuations are not modeled. |
 | DEAL-10 | Purchase-timing recommendation | Medium | Backlog |
-| DEAL-11 | Saved-product purchase context and offer-scope disclosure | High | In progress. Link/Product context, exact-host matching, general-only fallback, ownership checks, and distinct no-result reasons are covered; saved-item flow and visual review remain. |
+| DEAL-11 | Saved-product purchase context and offer-scope disclosure | High | In progress. Link/Product context, exact-host matching, general-only fallback, ownership checks, and distinct no-result reasons are covered. The saved-Product desktop flow is visually reviewed; saved-Link and mobile visual review remain. |
 | DEAL-12 | Continue from a recommendation to the saved page | High | Implemented for valid saved URLs; the user confirms price and terms and completes checkout at the store. |
 | DEAL-13 | Explain why no recommendation was returned | High | Implemented: distinguishes missing cards, no active offers in scope, and offers that do not qualify; links to My Cards or Offers where useful. |
 
