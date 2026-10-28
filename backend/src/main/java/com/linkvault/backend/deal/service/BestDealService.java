@@ -190,11 +190,25 @@ public class BestDealService {
                 }
 
                 /*
-                 * Lowest effective price wins; ties use the lower checkout amount.
+                 * Rank by effective price, then checkout amount. If both
+                 * financial outcomes are equal, use stable alphabetical
+                 * ordering so equivalent options are returned consistently.
                  */
                 eligibleDeals.sort(
                                 Comparator.comparing(DealOptionResponse::getEffectivePrice)
-                                                .thenComparing(DealOptionResponse::getFinalAmount));
+                                                .thenComparing(DealOptionResponse::getFinalAmount)
+                                                .thenComparing(
+                                                                DealOptionResponse::getOfferTitle,
+                                                                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                                                .thenComparing(
+                                                                DealOptionResponse::getCardName,
+                                                                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                                                .thenComparing(
+                                                                DealOptionResponse::getOfferId,
+                                                                Comparator.nullsLast(Comparator.naturalOrder()))
+                                                .thenComparing(
+                                                                DealOptionResponse::getCardId,
+                                                                Comparator.nullsLast(Comparator.naturalOrder())));
 
                 if (eligibleDeals.isEmpty()) {
                         return new BestDealResponse(

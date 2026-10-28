@@ -797,6 +797,57 @@ class BestDealIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
+    void financiallyTiedOptionsShouldUseStableAlphabeticalOrder()
+            throws Exception {
+
+        String token = registerAndLogin(
+                "Tied Options User",
+                uniqueEmail("tied-options"));
+
+        long bankId = createBank(token, "HDFC");
+
+        createCard(
+                token,
+                "HDFC Card",
+                bankId);
+
+        createOffer(
+                token,
+                "Zeta Offer",
+                new BigDecimal("10"),
+                null);
+
+        createOffer(
+                token,
+                "Alpha Offer",
+                new BigDecimal("10"),
+                null);
+
+        String request = """
+                {
+                    "transactionAmount": 10000
+                }
+                """;
+
+        mockMvc.perform(
+                post("/api/deals/best")
+                        .header("Authorization", auth(token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.bestDeal.offerTitle")
+                        .value("Alpha Offer"))
+                .andExpect(jsonPath("$.data.bestDeal.effectivePrice")
+                        .value(9000.00))
+                .andExpect(jsonPath("$.data.alternatives.size()")
+                        .value(1))
+                .andExpect(jsonPath("$.data.alternatives[0].offerTitle")
+                        .value("Zeta Offer"))
+                .andExpect(jsonPath("$.data.alternatives[0].effectivePrice")
+                        .value(9000.00));
+    }
+
+    @Test
     void bestDealShouldRankByEffectivePriceAfterCashback()
             throws Exception {
 

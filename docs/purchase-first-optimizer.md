@@ -27,11 +27,13 @@ across stores.
    bank/card-product applicability, discount caps, and configured cashback
    caps.
 5. Rank by calculated effective price (checkout amount less configured
-   cashback), then by checkout amount. Show checkout amount and estimated
-   cashback separately so a delayed benefit is not presented as an instant
-   discount. Explain the ranking with the purchase amount, instant discount,
-   estimated cashback, and effective price; compare the result with the next
-   option when the figures establish a financial advantage.
+   cashback), then by checkout amount. When both figures tie, order options
+   alphabetically by offer title and card name, using their IDs as a final
+   stable fallback. Show checkout amount and estimated cashback separately so
+   a delayed benefit is not presented as an instant discount. Explain the
+   ranking with the purchase amount, instant discount, estimated cashback, and
+   effective price; compare the result with the next option when the figures
+   establish a financial advantage, and disclose a financial tie.
 6. Return no recommendation when no eligible offer/card combination exists.
 
 ## Current data flow
@@ -89,9 +91,9 @@ selected Merchant is also checked against the signed-in user.
 - Offers are evaluated individually. Stacking, taxes, shipping, card fees,
   reward-point valuation, and checkout verification are outside the current
   calculation model.
-- Equal effective price and checkout amount do not yet have a documented
-  deterministic final tie-break rule. The UI tells the user when the next
-  option ties on both figures instead of presenting a financial advantage.
+- Equal effective price and checkout amount are not a financial win for either
+  option. The backend returns them in a stable alphabetical order, and the UI
+  tells the user when the next option ties on both figures.
 - Links and Products remain separate saved-item models. The optimizer supports
   both, but consolidation and migration of legacy Links need a separate
   product decision.

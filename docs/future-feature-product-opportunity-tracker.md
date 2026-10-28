@@ -11,11 +11,13 @@ automated verification.
 ## Current development position
 
 The roadmap's current checkpoint is Week 7, UX polish and MVP readiness, with
-an MVP review and next-phase planning checkpoint dated 27 October. The Best
-Deal experience still needs product review. Keep the next work focused on
-that purchase decision and its trust signals before starting external data
-providers. The roadmap places real-world data after MVP validation and AI
-after reliable structured commerce data.
+an MVP review and next-phase planning checkpoint dated 27 October. The purchase
+context audit is complete. Existing integration tests cover offer validity,
+minimum spend, card applicability, discount/cashback caps, merchant filtering,
+and duplicate ingestion. Best Deal ranking now has a deterministic fallback
+for financial ties. The experience still needs product and visual review
+before external data providers are selected; AI remains deferred until the
+structured commerce data is reliable.
 
 The form alignment issue is fixed in the shared Best Deal panel: the action
 button now aligns with the merchant and amount controls instead of their helper
@@ -79,7 +81,7 @@ general offers were considered.
 | DEAL-02 | Deal history | Medium | Backlog |
 | DEAL-03 | Save a recommended deal | High | Backlog; saved offers are separate from saved purchase recommendations. |
 | DEAL-04 | Deal-expiry countdown | High | Backlog |
-| DEAL-05 | Explain why an option is best | High | Implemented in the Best Deal result: explains the ranking rule and price calculation, compares the effective price with the next option, and discloses an exact tie. Visual review remains. |
+| DEAL-05 | Explain why an option is best | High | Implemented in the Best Deal result: explains the ranking rule and price calculation, compares the effective price with the next option, and discloses a financial tie. Visual review remains. |
 | DEAL-06 | Compare alternative payment options | High | Implemented in the current UI; QA remains. |
 | DEAL-07 | Minimum-spend optimization | High | Backlog |
 | DEAL-08 | Stackable-offer detection | High | Backlog |
@@ -124,8 +126,8 @@ general offers were considered.
 
 ## Next checkpoints
 
-1. Review PROD-01 and DEAL-05: agree what “best” means and what evidence the
-   recommendation must show.
+1. Review PROD-01 and the Best Deal result: confirm that the effective-price,
+   checkout-price, and tie behavior match the product promise.
 2. Review the saved Product and Link flow, including price confirmation,
    merchant matching limits, no-match behavior, and the route back to the
    product page.
