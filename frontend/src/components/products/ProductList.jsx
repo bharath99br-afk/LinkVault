@@ -4,6 +4,7 @@ function ProductList({
     products,
     onEdit,
     onDelete,
+    onFindBestDeal,
 }) {
     return (
         <div className="products-list">
@@ -13,6 +14,7 @@ function ProductList({
                     product={product}
                     onEdit={onEdit}
                     onDelete={onDelete}
+                    onFindBestDeal={onFindBestDeal}
                 />
             ))}
         </div>

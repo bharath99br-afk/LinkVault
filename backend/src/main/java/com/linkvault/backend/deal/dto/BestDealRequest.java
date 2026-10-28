@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 public class BestDealRequest {
 
     private Long linkId;
+    private Long productId;
+    private Long merchantId;
 
     @NotNull(message = "Transaction amount cannot be null")
     @DecimalMin(value = "0.01", message = "Transaction amount must be greater than 0")
@@ -31,6 +33,22 @@ public class BestDealRequest {
 
     public void setLinkId(Long linkId) {
         this.linkId = linkId;
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
+    public Long getMerchantId() {
+        return merchantId;
+    }
+
+    public void setMerchantId(Long merchantId) {
+        this.merchantId = merchantId;
     }
 
     public BigDecimal getTransactionAmount() {

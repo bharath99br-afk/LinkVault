@@ -308,6 +308,7 @@
 }
 
 .product-open-button,
+.product-deal-button,
 .product-edit-button,
 .product-delete-button {
     display: inline-flex;
@@ -330,6 +331,16 @@
 
 .product-open-button:hover {
     background: var(--lv-primary-dark);
+}
+
+.product-deal-button {
+    border: 1px solid var(--lv-primary);
+    background: var(--lv-primary-soft);
+    color: var(--lv-primary);
+}
+
+.product-deal-button:hover {
+    background: white;
 }
 
 .product-edit-button {
@@ -995,6 +1006,7 @@
     }
 
     .product-open-button,
+    .product-deal-button,
     .product-edit-button,
     .product-delete-button {
         flex: 1;

@@ -8,6 +8,8 @@ public class BestDealResponse {
     private DealOptionResponse bestDeal;
     @JsonInclude(JsonInclude.Include.ALWAYS)
     private List<DealOptionResponse> alternatives;
+    private String merchantName;
+    private DealOfferScope offerScope;
 
     public BestDealResponse() {
     }
@@ -16,8 +18,19 @@ public class BestDealResponse {
             DealOptionResponse bestDeal,
             List<DealOptionResponse> alternatives) {
 
+        this(bestDeal, alternatives, null, DealOfferScope.GENERAL_ONLY);
+    }
+
+    public BestDealResponse(
+            DealOptionResponse bestDeal,
+            List<DealOptionResponse> alternatives,
+            String merchantName,
+            DealOfferScope offerScope) {
+
         this.bestDeal = bestDeal;
         this.alternatives = alternatives;
+        this.merchantName = merchantName;
+        this.offerScope = offerScope;
     }
 
     public DealOptionResponse getBestDeal() {
@@ -34,5 +47,21 @@ public class BestDealResponse {
 
     public void setAlternatives(List<DealOptionResponse> alternatives) {
         this.alternatives = alternatives;
+    }
+
+    public String getMerchantName() {
+        return merchantName;
+    }
+
+    public void setMerchantName(String merchantName) {
+        this.merchantName = merchantName;
+    }
+
+    public DealOfferScope getOfferScope() {
+        return offerScope;
+    }
+
+    public void setOfferScope(DealOfferScope offerScope) {
+        this.offerScope = offerScope;
     }
 }

@@ -1,6 +1,7 @@
 package com.linkvault.backend.globalmerchant.service;
 
 import java.net.URI;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -19,13 +20,24 @@ public class GlobalMerchantMatcher {
 
     public Optional<GlobalMerchant> match(String merchantName, String websiteUrl) {
 
-        Optional<GlobalMerchant> byName = repository.findByNameIgnoreCase(merchantName);
+        if (merchantName != null && !merchantName.isBlank()) {
+            Optional<GlobalMerchant> byName = repository.findByNameIgnoreCase(merchantName.trim());
 
-        if (byName.isPresent()) {
-            return byName;
+            if (byName.isPresent()) {
+                return byName;
+            }
         }
 
+        return matchByWebsiteUrl(websiteUrl);
+    }
+
+    public Optional<GlobalMerchant> matchByWebsiteUrl(String websiteUrl) {
+
         String normalizedWebsite = normalizeWebsite(websiteUrl);
+
+        if (normalizedWebsite.isBlank()) {
+            return Optional.empty();
+        }
 
         return repository.findAll()
                 .stream()
@@ -36,17 +48,29 @@ public class GlobalMerchantMatcher {
 
     private String normalizeWebsite(String url) {
 
+        if (url == null || url.isBlank()) {
+            return "";
+        }
+
         try {
 
-            URI uri = URI.create(url);
+            String candidate = url.trim();
+
+            String lowerCandidate = candidate.toLowerCase(Locale.ROOT);
+
+            if (!lowerCandidate.startsWith("http://") && !lowerCandidate.startsWith("https://")) {
+                candidate = "https://" + candidate;
+            }
+
+            URI uri = URI.create(candidate);
 
             String host = uri.getHost();
 
             if (host == null) {
-                return url.toLowerCase();
+                return "";
             }
 
-            host = host.toLowerCase();
+            host = host.toLowerCase(Locale.ROOT);
 
             if (host.startsWith("www.")) {
                 host = host.substring(4);
@@ -56,7 +80,7 @@ public class GlobalMerchantMatcher {
 
         } catch (Exception exception) {
 
-            return url.toLowerCase();
+            return "";
         }
     }
 }

@@ -14,6 +14,7 @@ import EditProductForm from "../components/products/EditProductForm";
 import ProductEmptyState from "../components/products/ProductEmptyState";
 import ProductList from "../components/products/ProductList";
 import ConfirmModal from "../components/ConfirmModal";
+import BestDealPanel from "../components/deals/BestDealPanel";
 
 
 function Products() {
@@ -44,7 +45,10 @@ function Products() {
     const [notification, setNotification] = useState(null);
     const [deleteProductTarget, setDeleteProductTarget] =
         useState(null);
+    const [selectedDealProduct, setSelectedDealProduct] =
+        useState(null);
     const productFormRef = useRef(null);
+    const bestDealRef = useRef(null);
 
     const showNotification = (type, message) => {
         setNotification({
@@ -134,6 +138,19 @@ function Products() {
             });
         });
     }, [showAddForm, editingProduct]);
+
+    useEffect(() => {
+        if (!selectedDealProduct || !bestDealRef.current) {
+            return;
+        }
+
+        window.requestAnimationFrame(() => {
+            bestDealRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        });
+    }, [selectedDealProduct]);
 
     const handleSearch = (event) => {
         event.preventDefault();
@@ -227,6 +244,10 @@ function Products() {
 
         try {
             await deleteProduct(product.id);
+
+            if (selectedDealProduct?.id === product.id) {
+                setSelectedDealProduct(null);
+            }
 
             if (
                 products.length === 1 &&
@@ -435,8 +456,14 @@ function Products() {
                         <>
                             <ProductList
                                 products={products}
+                                onFindBestDeal={(product) => {
+                                    setShowAddForm(false);
+                                    setEditingProduct(null);
+                                    setSelectedDealProduct(product);
+                                }}
                                 onEdit={(product) => {
                                     setShowAddForm(false);
+                                    setSelectedDealProduct(null);
                                     setEditingProduct(
                                         product
                                     );
@@ -493,6 +520,20 @@ function Products() {
                         />
                     )}
                 </section>
+
+                {selectedDealProduct && (
+                    <div
+                        ref={bestDealRef}
+                        className="best-deal-anchor"
+                    >
+                        <BestDealPanel
+                            productId={selectedDealProduct.id}
+                            productTitle={selectedDealProduct.name}
+                            productUrl={selectedDealProduct.websiteUrl}
+                            onClose={() => setSelectedDealProduct(null)}
+                        />
+                    </div>
+                )}
             </div>
 
             <ConfirmModal

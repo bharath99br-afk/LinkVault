@@ -260,6 +260,7 @@ function Links() {
           <BestDealPanel
             linkId={selectedDealLink.id}
             productTitle={selectedDealLink.title}
+            productUrl={selectedDealLink.url}
             onClose={() => setSelectedDealLink(null)}
           />
         </div>

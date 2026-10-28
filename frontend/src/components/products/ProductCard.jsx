@@ -4,6 +4,7 @@ function ProductCard({
     product,
     onEdit,
     onDelete,
+    onFindBestDeal,
 }) {
     const domain = getProductDomain(product.websiteUrl);
 
@@ -77,6 +78,14 @@ function ProductCard({
                     >
                         Open ↗
                     </a>
+
+                    <button
+                        type="button"
+                        className="product-deal-button"
+                        onClick={() => onFindBestDeal(product)}
+                    >
+                        Find Best Deal
+                    </button>
 
                     <button
                         type="button"
