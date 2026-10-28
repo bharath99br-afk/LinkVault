@@ -32,7 +32,7 @@ back to its product page as the next step.
 
 | ID | Decision | Priority | Status / next step |
 | --- | --- | --- | --- |
-| PROD-01 | Confirm the Best Deal promise, purchase inputs, recommendation rule, and what the result does not claim | High | Needs product review. The current implementation compares payment options for one product and merchant; it does not find the lowest product price across stores. |
+| PROD-01 | Confirm the Best Deal promise, purchase inputs, recommendation rule, and what the result does not claim | High | Needs product review. The panel now says it compares eligible payment offers for the entered purchase amount and does not compare product prices across stores. Confirm this promise and the effective-price ranking before MVP sign-off. |
 | UX-01 | Review the responsive Best Deal form after the shared alignment fix | Medium | Implemented in CSS; visual review remains. |
 
 ## Authentication and account

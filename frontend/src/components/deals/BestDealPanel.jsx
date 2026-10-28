@@ -352,8 +352,8 @@ function BestDealPanel({
           <h2 id="best-deal-heading">Find your best deal</h2>
           <p>
             {productTitle
-              ? `Compare payment options for ${productTitle}.`
-              : "Choose a store and purchase amount to compare eligible offers across your cards."}
+              ? `Compare eligible offers across your saved cards for ${productTitle} at the amount you enter. LinkVault does not compare product prices across stores.`
+              : "Choose a store and purchase amount to compare eligible offers across your cards. LinkVault compares payment options, not product prices across stores."}
           </p>
         </div>
 
