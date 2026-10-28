@@ -29,7 +29,9 @@ across stores.
 5. Rank by calculated effective price (checkout amount less configured
    cashback), then by checkout amount. Show checkout amount and estimated
    cashback separately so a delayed benefit is not presented as an instant
-   discount.
+   discount. Explain the ranking with the purchase amount, instant discount,
+   estimated cashback, and effective price; compare the result with the next
+   option when the figures establish a financial advantage.
 6. Return no recommendation when no eligible offer/card combination exists.
 
 ## Current data flow
@@ -88,7 +90,8 @@ selected Merchant is also checked against the signed-in user.
   reward-point valuation, and checkout verification are outside the current
   calculation model.
 - Equal effective price and checkout amount do not yet have a documented
-  deterministic final tie-break rule.
+  deterministic final tie-break rule. The UI tells the user when the next
+  option ties on both figures instead of presenting a financial advantage.
 - Links and Products remain separate saved-item models. The optimizer supports
   both, but consolidation and migration of legacy Links need a separate
   product decision.

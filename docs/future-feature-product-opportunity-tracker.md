@@ -79,7 +79,7 @@ general offers were considered.
 | DEAL-02 | Deal history | Medium | Backlog |
 | DEAL-03 | Save a recommended deal | High | Backlog; saved offers are separate from saved purchase recommendations. |
 | DEAL-04 | Deal-expiry countdown | High | Backlog |
-| DEAL-05 | Explain why an option is best | High | Partial. The UI shows effective price, checkout amount, cashback, and offer scope; it still needs a concise explanation of the winning factors. |
+| DEAL-05 | Explain why an option is best | High | Implemented in the Best Deal result: explains the ranking rule and price calculation, compares the effective price with the next option, and discloses an exact tie. Visual review remains. |
 | DEAL-06 | Compare alternative payment options | High | Implemented in the current UI; QA remains. |
 | DEAL-07 | Minimum-spend optimization | High | Backlog |
 | DEAL-08 | Stackable-offer detection | High | Backlog |

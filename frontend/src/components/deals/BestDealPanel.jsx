@@ -18,6 +18,58 @@ const formatINR = (value) => {
   });
 };
 
+const getRecommendationExplanation = (deal, nextDeal) => {
+  const toPaise = (value) => {
+    const amount = Number(value);
+    return Number.isFinite(amount) ? Math.round(amount * 100) : null;
+  };
+
+  const purchaseAmount = toPaise(deal.transactionAmount);
+  const discountAmount = toPaise(deal.discountAmount ?? 0);
+  const cashbackAmount = toPaise(deal.cashbackAmount ?? 0);
+  const effectivePrice = toPaise(deal.effectivePrice);
+  const checkoutAmount = toPaise(deal.finalAmount);
+
+  let comparison = "";
+
+  if (nextDeal) {
+    const nextEffectivePrice = toPaise(nextDeal.effectivePrice);
+    const nextCheckoutAmount = toPaise(nextDeal.finalAmount);
+
+    if (
+      effectivePrice !== null &&
+      checkoutAmount !== null &&
+      nextEffectivePrice !== null &&
+      nextCheckoutAmount !== null
+    ) {
+      if (effectivePrice < nextEffectivePrice) {
+        comparison = `That is ${formatINR((nextEffectivePrice - effectivePrice) / 100)} lower in estimated effective price than the next eligible option.`;
+      } else if (
+        effectivePrice === nextEffectivePrice &&
+        checkoutAmount < nextCheckoutAmount
+      ) {
+        comparison = `It ties the next option on effective price and requires ${formatINR((nextCheckoutAmount - checkoutAmount) / 100)} less at checkout.`;
+      } else if (
+        effectivePrice === nextEffectivePrice &&
+        checkoutAmount === nextCheckoutAmount
+      ) {
+        comparison =
+          "It ties the next option on both effective price and checkout amount; LinkVault’s current calculation finds no financial difference between them.";
+      }
+    }
+  }
+
+  const calculation =
+    purchaseAmount !== null &&
+    discountAmount !== null &&
+    cashbackAmount !== null &&
+    effectivePrice !== null
+      ? `${formatINR(purchaseAmount / 100)} purchase − ${formatINR(discountAmount / 100)} instant discount − ${formatINR(cashbackAmount / 100)} estimated cashback = ${formatINR(effectivePrice / 100)} estimated effective price.`
+      : "The effective price is calculated from the eligible offer’s discount and estimated cashback.";
+
+  return { calculation, comparison };
+};
+
 function BestDealPanel({
   linkId = null,
   productId = null,
@@ -174,6 +226,9 @@ function BestDealPanel({
 
   const bestDeal = result?.bestDeal;
   const alternatives = result?.alternatives || [];
+  const recommendationExplanation = bestDeal
+    ? getRecommendationExplanation(bestDeal, alternatives[0])
+    : null;
 
   const renderCalculation = (deal) => (
     <div className="best-deal-calculation">
@@ -378,6 +433,27 @@ function BestDealPanel({
                 <strong>{formatINR(bestDeal.finalAmount)}</strong>
               </div>
             </div>
+
+            <section
+              className="best-deal-explanation"
+              aria-labelledby="best-deal-explanation-heading"
+            >
+              <h4 id="best-deal-explanation-heading">
+                Why this is recommended
+              </h4>
+              <p>
+                Ranked by the lowest estimated effective price among eligible
+                card and offer combinations.
+              </p>
+              <p className="best-deal-explanation-calculation">
+                {recommendationExplanation.calculation}
+              </p>
+              {recommendationExplanation.comparison && (
+                <p className="best-deal-explanation-comparison">
+                  {recommendationExplanation.comparison}
+                </p>
+              )}
+            </section>
 
             {renderCalculation(bestDeal)}
           </section>

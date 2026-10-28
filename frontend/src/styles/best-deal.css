@@ -551,6 +551,37 @@
   font-size: 16px;
 }
 
+.best-deal-explanation {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--lv-border);
+  border-left: 4px solid var(--lv-primary);
+  border-radius: 10px;
+  background: var(--lv-background);
+}
+
+.best-deal-explanation h4 {
+  margin: 0 0 8px;
+  color: var(--lv-text);
+  font-size: 15px;
+}
+
+.best-deal-explanation p {
+  margin: 0;
+  color: var(--lv-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.best-deal-explanation p + p {
+  margin-top: 6px;
+}
+
+.best-deal-explanation .best-deal-explanation-calculation {
+  color: var(--lv-text);
+  font-weight: 600;
+}
+
 .best-deal-disclaimer {
   margin: 12px 0 0;
   color: var(--lv-text-muted);
