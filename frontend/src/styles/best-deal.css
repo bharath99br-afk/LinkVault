@@ -122,6 +122,23 @@
     line-height: 1.5;
 }
 
+.best-deal-empty-action {
+  display: inline-flex;
+  margin-top: 14px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  background: var(--lv-primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.best-deal-empty-action:focus-visible {
+  outline: 3px solid var(--lv-primary);
+  outline-offset: 3px;
+}
+
 .best-deal-results {
     margin-top: 28px;
 }

@@ -10,6 +10,7 @@ public class BestDealResponse {
     private List<DealOptionResponse> alternatives;
     private String merchantName;
     private DealOfferScope offerScope;
+    private BestDealNoMatchReason noDealReason;
 
     public BestDealResponse() {
     }
@@ -27,10 +28,21 @@ public class BestDealResponse {
             String merchantName,
             DealOfferScope offerScope) {
 
+        this(bestDeal, alternatives, merchantName, offerScope, null);
+    }
+
+    public BestDealResponse(
+            DealOptionResponse bestDeal,
+            List<DealOptionResponse> alternatives,
+            String merchantName,
+            DealOfferScope offerScope,
+            BestDealNoMatchReason noDealReason) {
+
         this.bestDeal = bestDeal;
         this.alternatives = alternatives;
         this.merchantName = merchantName;
         this.offerScope = offerScope;
+        this.noDealReason = noDealReason;
     }
 
     public DealOptionResponse getBestDeal() {
@@ -63,5 +75,13 @@ public class BestDealResponse {
 
     public void setOfferScope(DealOfferScope offerScope) {
         this.offerScope = offerScope;
+    }
+
+    public BestDealNoMatchReason getNoDealReason() {
+        return noDealReason;
+    }
+
+    public void setNoDealReason(BestDealNoMatchReason noDealReason) {
+        this.noDealReason = noDealReason;
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.linkvault.backend.card.model.Card;
 import com.linkvault.backend.card.repository.CardRepository;
 import com.linkvault.backend.deal.dto.BestDealRequest;
+import com.linkvault.backend.deal.dto.BestDealNoMatchReason;
 import com.linkvault.backend.deal.dto.BestDealResponse;
 import com.linkvault.backend.deal.dto.DealOfferScope;
 import com.linkvault.backend.deal.dto.DealOptionResponse;
@@ -211,11 +212,18 @@ public class BestDealService {
                                                                 Comparator.nullsLast(Comparator.naturalOrder())));
 
                 if (eligibleDeals.isEmpty()) {
+                        BestDealNoMatchReason noDealReason = cards.isEmpty()
+                                        ? BestDealNoMatchReason.NO_SAVED_CARDS
+                                        : candidateOffers.isEmpty()
+                                                        ? BestDealNoMatchReason.NO_ACTIVE_OFFERS
+                                                        : BestDealNoMatchReason.NO_ELIGIBLE_OPTIONS;
+
                         return new BestDealResponse(
                                         null,
                                         List.of(),
                                         merchantContext.merchantName(),
-                                        offerScope);
+                                        offerScope,
+                                        noDealReason);
                 }
 
                 DealOptionResponse bestDeal = eligibleDeals.get(0);

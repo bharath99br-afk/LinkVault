@@ -278,6 +278,8 @@ class BestDealIntegrationTest extends IntegrationTestBase {
                         .content(request))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.bestDeal").doesNotExist())
+                .andExpect(jsonPath("$.data.noDealReason")
+                        .value("NO_ACTIVE_OFFERS"))
                 .andExpect(jsonPath("$.data.alternatives.size()").value(0));
     }
 
@@ -379,7 +381,9 @@ class BestDealIntegrationTest extends IntegrationTestBase {
                                 .doesNotExist())
                 .andExpect(
                         jsonPath("$.data.alternatives.size()")
-                                .value(0));
+                                .value(0))
+                .andExpect(jsonPath("$.data.noDealReason")
+                        .value("NO_ELIGIBLE_OPTIONS"));
     }
 
     @Test
@@ -1151,7 +1155,9 @@ class BestDealIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.bestDeal").doesNotExist())
                 .andExpect(jsonPath("$.data.alternatives").isArray())
-                .andExpect(jsonPath("$.data.alternatives.size()").value(0));
+                .andExpect(jsonPath("$.data.alternatives.size()").value(0))
+                .andExpect(jsonPath("$.data.noDealReason")
+                        .value("NO_SAVED_CARDS"));
     }
 
     @Test

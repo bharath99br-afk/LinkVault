@@ -34,7 +34,9 @@ across stores.
    ranking with the purchase amount, instant discount, estimated cashback, and
    effective price; compare the result with the next option when the figures
    establish a financial advantage, and disclose a financial tie.
-6. Return no recommendation when no eligible offer/card combination exists.
+6. Return no recommendation when no eligible offer/card combination exists,
+   and distinguish missing cards, no active offers for the selected scope, and
+   active offers that do not qualify for the purchase.
 7. When the comparison starts from a saved Link or Product, provide a safe link
    back to that saved page after a recommendation. The user confirms the current
    price and applies the offer at the store; LinkVault does not place orders.

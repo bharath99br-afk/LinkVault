@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { getMerchants } from "../../services/merchantService";
 import { findBestDeal } from "../../services/dealService";
 import { previewProduct } from "../../services/productService";
@@ -93,6 +94,48 @@ const getSafeProductUrl = (value) => {
   } catch {
     return "";
   }
+};
+
+const getNoDealState = (reason, offerScope, merchantName) => {
+  if (reason === "NO_SAVED_CARDS") {
+    return {
+      title: "Add a card to compare payment options",
+      message:
+        "LinkVault checks eligible offers against the cards you have saved. Add a card to see payment options for this purchase.",
+      action: { label: "Go to My Cards", to: "/cards" },
+    };
+  }
+
+  if (reason === "NO_ACTIVE_OFFERS") {
+    if (offerScope === "GENERAL_ONLY") {
+      if (merchantName) {
+        return {
+          title: "Only general offers could be checked",
+          message: `LinkVault couldn’t match ${merchantName} to store-specific offers. Select a saved store with matching offers, or check again when a general offer is active.`,
+        };
+      }
+
+      return {
+        title: "No active general offers found",
+        message:
+          "Select a saved store above to include store-specific offers, or check back when a general offer is available.",
+      };
+    }
+
+    return {
+      title: "No active offers found for this store",
+      message: merchantName
+        ? `We checked ${merchantName} and general offers, but none are active right now.`
+        : "We checked store-specific and general offers, but none are active right now.",
+      action: { label: "Browse offers", to: "/offers" },
+    };
+  }
+
+  return {
+    title: "No eligible deals found",
+    message:
+      "Active offers were found, but none matched this purchase amount and your saved cards. Review the amount, card details, and offer terms.",
+  };
 };
 
 function BestDealPanel({
@@ -254,6 +297,13 @@ function BestDealPanel({
   const safeProductUrl = getSafeProductUrl(productUrl);
   const recommendationExplanation = bestDeal
     ? getRecommendationExplanation(bestDeal, alternatives[0])
+    : null;
+  const noDealState = result
+    ? getNoDealState(
+        result.noDealReason,
+        result.offerScope,
+        result.merchantName,
+      )
     : null;
 
   const renderCalculation = (deal) => (
@@ -422,12 +472,16 @@ function BestDealPanel({
 
       {!loading && result && !bestDeal && (
         <div className="best-deal-empty" role="status">
-          <h3>No eligible deals found</h3>
-          <p>
-            We couldn’t find an eligible offer for this purchase and your
-            available cards. Try another amount or check your saved cards and
-            offers.
-          </p>
+          <h3>{noDealState.title}</h3>
+          <p>{noDealState.message}</p>
+          {noDealState.action && (
+            <Link
+              className="best-deal-empty-action"
+              to={noDealState.action.to}
+            >
+              {noDealState.action.label}
+            </Link>
+          )}
         </div>
       )}
 
