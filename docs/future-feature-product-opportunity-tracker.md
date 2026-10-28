@@ -23,7 +23,8 @@ The form alignment issue is fixed in the shared Best Deal panel: the action
 button now aligns with the merchant and amount controls instead of their helper
 text. The optimizer is connected to both saved Products and legacy Links; it
 can prefill a detected INR price, resolve a merchant, and disclose when only
-general offers were considered.
+general offers were considered. A recommendation from a saved item now links
+back to its product page as the next step.
 
 ## Product decision to resolve
 
@@ -88,6 +89,7 @@ general offers were considered.
 | DEAL-09 | Effective-price calculation | High | Implemented for configured discounts and cashback; other purchase costs and reward valuations are not modeled. |
 | DEAL-10 | Purchase-timing recommendation | Medium | Backlog |
 | DEAL-11 | Saved-product purchase context and offer-scope disclosure | High | In progress. Link/Product context, merchant matching, and general-only fallback exist; confirm the experience and verify behavior before treating the MVP flow as complete. |
+| DEAL-12 | Continue from a recommendation to the saved page | High | Implemented for valid saved URLs; the user confirms price and terms and completes checkout at the store. |
 
 ## Engagement and retention
 

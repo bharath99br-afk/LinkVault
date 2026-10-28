@@ -582,6 +582,48 @@
   font-weight: 600;
 }
 
+.best-deal-next-step {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--lv-border);
+}
+
+.best-deal-store-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  background: var(--lv-primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.best-deal-store-link:hover {
+  filter: brightness(0.96);
+}
+
+.best-deal-store-link:focus-visible {
+  outline: 3px solid var(--lv-primary);
+  outline-offset: 3px;
+}
+
+.best-deal-next-step p {
+  flex: 1;
+  min-width: 220px;
+  margin: 0;
+  color: var(--lv-text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 .best-deal-disclaimer {
   margin: 12px 0 0;
   color: var(--lv-text-muted);
@@ -684,6 +726,15 @@
   .best-deal-calculation-row strong {
     max-width: 48%;
     font-size: 13px;
+  }
+
+  .best-deal-next-step {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .best-deal-next-step p {
+    min-width: 0;
   }
 }
 

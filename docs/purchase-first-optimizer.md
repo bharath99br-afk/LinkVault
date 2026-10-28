@@ -35,6 +35,9 @@ across stores.
    effective price; compare the result with the next option when the figures
    establish a financial advantage, and disclose a financial tie.
 6. Return no recommendation when no eligible offer/card combination exists.
+7. When the comparison starts from a saved Link or Product, provide a safe link
+   back to that saved page after a recommendation. The user confirms the current
+   price and applies the offer at the store; LinkVault does not place orders.
 
 ## Current data flow
 
@@ -66,7 +69,8 @@ selected Merchant is also checked against the signed-in user.
 - `frontend/src/pages/Links.jsx` and `frontend/src/pages/Products.jsx` provide
   the saved-item entry points.
 - `frontend/src/components/deals/BestDealPanel.jsx` collects or prefills the
-  amount and merchant context, then explains the scope of the returned offers.
+  amount and merchant context, explains the returned recommendation, and links
+  back to the saved page when one was supplied.
 - `frontend/src/services/dealService.js` sends the purchase context to the API.
 - `backend/src/main/java/com/linkvault/backend/deal/service/BestDealService.java`
   resolves purchase context, scopes offers, evaluates the user's cards, and
@@ -91,6 +95,8 @@ selected Merchant is also checked against the signed-in user.
 - Offers are evaluated individually. Stacking, taxes, shipping, card fees,
   reward-point valuation, and checkout verification are outside the current
   calculation model.
+- Opening the saved product page is a handoff only. LinkVault does not place an
+  order, apply a discount, or verify the final checkout amount.
 - Equal effective price and checkout amount are not a financial win for either
   option. The backend returns them in a stable alphabetical order, and the UI
   tells the user when the next option ties on both figures.

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getMerchants } from "../../services/merchantService";
 import { findBestDeal } from "../../services/dealService";
 import { previewProduct } from "../../services/productService";
+import { validateProductUrl } from "../../utils/urlUtils";
 
 const formatINR = (value) => {
   const amount = Number(value);
@@ -68,6 +69,30 @@ const getRecommendationExplanation = (deal, nextDeal) => {
       : "The effective price is calculated from the eligible offer’s discount and estimated cashback.";
 
   return { calculation, comparison };
+};
+
+const getSafeProductUrl = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  const validation = validateProductUrl(String(value));
+
+  if (!validation.valid) {
+    return "";
+  }
+
+  try {
+    const url = new URL(validation.value);
+
+    if (url.username || url.password) {
+      return "";
+    }
+
+    return url.toString();
+  } catch {
+    return "";
+  }
 };
 
 function BestDealPanel({
@@ -226,6 +251,7 @@ function BestDealPanel({
 
   const bestDeal = result?.bestDeal;
   const alternatives = result?.alternatives || [];
+  const safeProductUrl = getSafeProductUrl(productUrl);
   const recommendationExplanation = bestDeal
     ? getRecommendationExplanation(bestDeal, alternatives[0])
     : null;
@@ -456,6 +482,23 @@ function BestDealPanel({
             </section>
 
             {renderCalculation(bestDeal)}
+
+            {safeProductUrl && (
+              <div className="best-deal-next-step">
+                <a
+                  className="best-deal-store-link"
+                  href={safeProductUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open saved page
+                </a>
+                <p>
+                  Confirm the current price and offer terms on the store page
+                  before paying. LinkVault does not place orders or apply offers.
+                </p>
+              </div>
+            )}
           </section>
 
           {alternatives.length > 0 && (
