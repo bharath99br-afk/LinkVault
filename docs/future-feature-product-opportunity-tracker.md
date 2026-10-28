@@ -14,7 +14,8 @@ The roadmap's current checkpoint is Week 7, UX polish and MVP readiness, with
 an MVP review and next-phase planning checkpoint dated 27 October. The purchase
 context audit is complete. Existing integration tests cover offer validity,
 minimum spend, card applicability, discount/cashback caps, merchant filtering,
-and duplicate ingestion. Best Deal ranking now has a deterministic fallback
+and duplicate ingestion. Best Deal also covers saved Product URL merchant
+matching and cross-user Product isolation. Ranking has a deterministic fallback
 for financial ties, and no-result responses distinguish missing cards, no
 active offers, and offers that do not qualify. The experience still needs
 product and visual review before external data providers are selected; AI
@@ -89,7 +90,7 @@ back to its product page as the next step.
 | DEAL-08 | Stackable-offer detection | High | Backlog |
 | DEAL-09 | Effective-price calculation | High | Implemented for configured discounts and cashback; other purchase costs and reward valuations are not modeled. |
 | DEAL-10 | Purchase-timing recommendation | Medium | Backlog |
-| DEAL-11 | Saved-product purchase context and offer-scope disclosure | High | In progress. Link/Product context, merchant matching, general-only fallback, and distinct no-result reasons are implemented; saved-item flow and visual review remain. |
+| DEAL-11 | Saved-product purchase context and offer-scope disclosure | High | In progress. Link/Product context, exact-host matching, general-only fallback, ownership checks, and distinct no-result reasons are covered; saved-item flow and visual review remain. |
 | DEAL-12 | Continue from a recommendation to the saved page | High | Implemented for valid saved URLs; the user confirms price and terms and completes checkout at the store. |
 | DEAL-13 | Explain why no recommendation was returned | High | Implemented: distinguishes missing cards, no active offers in scope, and offers that do not qualify; links to My Cards or Offers where useful. |
 

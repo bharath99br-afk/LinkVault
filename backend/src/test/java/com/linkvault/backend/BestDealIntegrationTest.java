@@ -89,6 +89,82 @@ class BestDealIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
+    void savedProductUrlShouldResolveMerchantSpecificOffers()
+            throws Exception {
+
+        String token = registerAndLogin(
+                "Product Context User",
+                uniqueEmail("product-context"));
+
+        long bankId = createBank(token, "HDFC");
+
+        createCard(
+                token,
+                "HDFC Card",
+                bankId);
+
+        long amazonGlobal = createGlobalMerchant(token, "Amazon");
+        long flipkartGlobal = createGlobalMerchant(token, "Flipkart");
+
+        String productJson = """
+                {
+                    "name": "Headphones",
+                    "description": "Product context integration test",
+                    "category": "Electronics",
+                    "websiteUrl": "https://www.amazon.example.com/headphones"
+                }
+                """;
+
+        long productId = extractId(mockMvc.perform(
+                post("/api/products")
+                        .header("Authorization", auth(token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(productJson))
+                .andExpect(status().isCreated())
+                .andReturn());
+
+        createOffer(
+                token,
+                "General 5 Percent",
+                new BigDecimal("5"),
+                null);
+
+        createOffer(
+                token,
+                "Amazon 20 Percent",
+                new BigDecimal("20"),
+                amazonGlobal);
+
+        createOffer(
+                token,
+                "Flipkart 50 Percent",
+                new BigDecimal("50"),
+                flipkartGlobal);
+
+        String request = """
+                {
+                    "productId": %d,
+                    "transactionAmount": 10000
+                }
+                """.formatted(productId);
+
+        mockMvc.perform(
+                post("/api/deals/best")
+                        .header("Authorization", auth(token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.merchantName")
+                        .value("Amazon"))
+                .andExpect(jsonPath("$.data.offerScope")
+                        .value("MERCHANT_AND_GENERAL"))
+                .andExpect(jsonPath("$.data.bestDeal.offerTitle")
+                        .value("Amazon 20 Percent"))
+                .andExpect(jsonPath("$.data.alternatives[0].offerTitle")
+                        .value("General 5 Percent"));
+    }
+
+    @Test
     void unrelatedMerchantOfferShouldBeExcluded()
             throws Exception {
 
@@ -225,6 +301,43 @@ class BestDealIntegrationTest extends IntegrationTestBase {
                         .header(
                                 "Authorization",
                                 auth(attackerToken))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void crossUserProductShouldReturnNotFound()
+            throws Exception {
+
+        String ownerToken = registerAndLogin(
+                "Product Owner",
+                uniqueEmail("product-owner"));
+
+        String attackerToken = registerAndLogin(
+                "Product Requester",
+                uniqueEmail("product-requester"));
+
+        long merchantId = createMerchant(
+                ownerToken,
+                "Owner Store",
+                null);
+
+        long productId = createProduct(
+                ownerToken,
+                "Private Product",
+                merchantId);
+
+        String request = """
+                {
+                    "productId": %d,
+                    "transactionAmount": 1000
+                }
+                """.formatted(productId);
+
+        mockMvc.perform(
+                post("/api/deals/best")
+                        .header("Authorization", auth(attackerToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isNotFound());
