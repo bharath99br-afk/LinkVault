@@ -40,8 +40,11 @@ text. The optimizer is connected to both saved Products and legacy Links; it
 can prefill a detected INR price, resolve a merchant, and disclose when only
 general offers were considered. A recommendation from a saved item now links
 back to its product page as the next step. MVP readiness findings are recorded
-in [mvp-readiness-review.md](mvp-readiness-review.md); external provider
-selection remains deferred until that review is closed.
+in [mvp-readiness-review.md](mvp-readiness-review.md); calculation rules are
+recorded in [offer-calculation-audit.md](offer-calculation-audit.md). The
+database migration approach is documented in
+[database-migration-plan.md](database-migration-plan.md); external provider
+selection remains deferred until the readiness review is closed.
 
 ## Product decision to resolve
 
@@ -149,7 +152,11 @@ selection remains deferred until that review is closed.
 1. Complete the saved-Link and mobile visual review, including price
    confirmation, merchant matching limits, no-match behavior, and the route
    back to the saved page.
-2. Close the readiness actions in [mvp-readiness-review.md](mvp-readiness-review.md)
-   before selecting a provider for LINK-14 and DATA-01.
-3. Keep AI and monetization deferred until the deterministic purchase flow
+2. Capture and verify the existing database schema, reconcile the manual SQL
+   fragments, and build a baseline using
+   [database-migration-plan.md](database-migration-plan.md).
+3. Close the remaining readiness actions in
+   [mvp-readiness-review.md](mvp-readiness-review.md) before selecting a
+   provider for LINK-14 and DATA-01.
+4. Keep AI and monetization deferred until the deterministic purchase flow
    and structured data are reliable.

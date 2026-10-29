@@ -28,9 +28,16 @@ part of this checkpoint.
 
 ## Open before a hosted release
 
-- **Database provisioning:** no Flyway or Liquibase migrations are present.
-  With schema validation enabled, a deployment needs a documented and
-  repeatable schema-provisioning process before the backend can start.
+- **Database provisioning:** versioned SQL fragments V1–V8 exist, but no
+  Flyway or Liquibase runner is configured and there is no complete baseline
+  schema. V1 is outside the application resources; V2–V8 are under
+  `src/main/java`, where Maven does not package them as runtime resources.
+  Several scripts assume pre-existing tables, and V3 uses fixed bank IDs, so
+  the fragments cannot provision a fresh database safely. The selected target
+  is Flyway with Hibernate schema validation retained; see
+  [database-migration-plan.md](database-migration-plan.md). Do not enable or
+  replay the scripts automatically until a baseline is verified against the
+  existing schema.
 - **Authentication abuse protection:** no server-side login rate limiter was
   found. The frontend can display a 429 response, but that does not enforce a
   limit on the API.
@@ -49,7 +56,9 @@ part of this checkpoint.
 ## Recommended sequence
 
 1. Finish mobile and saved-Link visual review.
-2. Choose and document the database schema migration/provisioning approach.
+2. Capture and review the current schema, reconcile the V1–V8 SQL fragments,
+   create a complete baseline, then enable Flyway and validate fresh and
+   existing-database paths.
 3. Add API-side login throttling and decide the minimum account-recovery and
    verification scope for hosted onboarding.
 4. Complete deployment instructions and verify configuration against the
