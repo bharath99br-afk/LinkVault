@@ -31,8 +31,10 @@ overlap. The Best Deal promise is confirmed for the current MVP: compare offers
 for one purchase at one store, rank by effective price after estimated
 cashback, show checkout price separately, and disclose ties. The saved-Link
 source flow has been reviewed and its prompts now refer to the saved page.
-Mobile and saved-Link visual review remain before external data providers are
-selected; AI remains deferred until the structured commerce data is reliable.
+Mobile and saved-Link screenshot review remain before external data providers
+are selected. Source review found that primary navigation disappeared below
+560px; it now stays available in a horizontally scrollable row. AI remains
+deferred until the structured commerce data is reliable.
 
 The form alignment issue is fixed in the shared Best Deal panel: the action
 button now aligns with the merchant and amount controls instead of their helper
@@ -57,7 +59,7 @@ is closed.
 | ID | Decision | Priority | Status / next step |
 | --- | --- | --- | --- |
 | PROD-01 | Confirm the Best Deal promise, purchase inputs, recommendation rule, and what the result does not claim | High | Confirmed for the current MVP: compare eligible offers for one purchase at one store, rank by effective price after estimated cashback, show checkout price separately, disclose ties, and do not compare product prices across stores. |
-| UX-01 | Review the responsive Best Deal form after the shared alignment fix | Medium | Desktop visual review complete: saved-Product and standalone forms align with their controls. Mobile screenshot review remains; responsive CSS stacks the form at 540px and below. |
+| UX-01 | Review the responsive Best Deal form after the shared alignment fix | Medium | Desktop visual review complete: saved-Product and standalone forms align with their controls. Source review found and fixed hidden mobile navigation; mobile and saved-Link screenshot review remains. The form stacks at 540px and below. |
 
 ## Authentication and account
 

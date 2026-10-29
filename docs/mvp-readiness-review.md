@@ -50,8 +50,9 @@ part of this checkpoint.
   Review the XSS protections and token-storage approach before exposing the
   application to untrusted users.
 - **Responsive QA:** the supplied screenshots confirm desktop Product and
-  Best Deal layouts. Capture mobile layouts and the saved-Link panel before
-  closing UX review.
+  Best Deal layouts. Primary navigation now remains available in a horizontally
+  scrollable row on narrow screens. Capture mobile layouts and the saved-Link
+  panel before closing UX review.
 
 ## Recommended sequence
 

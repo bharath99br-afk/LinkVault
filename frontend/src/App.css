@@ -122,18 +122,45 @@
 
 @media (max-width: 560px) {
   .navbar {
-    padding: 16px 20px;
+    position: relative;
+    display: block;
+    padding: 14px 16px;
+  }
+
+  .navbar-left {
+    display: block;
+  }
+
+  .navbar-links {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    margin-top: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .navbar-links a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .navbar-right {
+    position: absolute;
+    top: 11px;
+    right: 16px;
+    gap: 10px;
   }
 
   .navbar-left h1 {
     font-size: 20px;
   }
+}
 
-  .navbar-links {
+@media (max-width: 380px) {
+  .navbar-right span {
     display: none;
-  }
-
-  .navbar-right {
-    gap: 10px;
   }
 }
