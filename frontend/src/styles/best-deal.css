@@ -472,6 +472,13 @@
   line-height: 1.6;
 }
 
+.best-deal-expiry {
+  margin: 6px 0 0;
+  color: var(--lv-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .best-deal-price-summary {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);

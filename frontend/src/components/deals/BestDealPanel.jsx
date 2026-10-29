@@ -20,6 +20,28 @@ const formatINR = (value) => {
   });
 };
 
+const getOfferExpiryMessage = (daysUntilExpiry) => {
+  if (daysUntilExpiry === null || daysUntilExpiry === undefined) {
+    return null;
+  }
+
+  const days = Number(daysUntilExpiry);
+
+  if (!Number.isInteger(days) || days < 0) {
+    return null;
+  }
+
+  if (days === 0) {
+    return "Offer ends today";
+  }
+
+  if (days === 1) {
+    return "Offer ends tomorrow";
+  }
+
+  return `Offer ends in ${days} days`;
+};
+
 const getRecommendationExplanation = (deal, nextDeal) => {
   const toPaise = (value) => {
     const amount = Number(value);
@@ -496,6 +518,11 @@ function BestDealPanel({
             </div>
 
             <h3>{bestDeal.offerTitle || "Recommended offer"}</h3>
+            {getOfferExpiryMessage(bestDeal.daysUntilExpiry) && (
+              <p className="best-deal-expiry">
+                {getOfferExpiryMessage(bestDeal.daysUntilExpiry)}
+              </p>
+            )}
             <p className="best-deal-card-name">
               Pay with <strong>{bestDeal.cardName || "Selected card"}</strong>
               {bestDeal.bankName ? ` · ${bestDeal.bankName}` : ""}
@@ -576,6 +603,11 @@ function BestDealPanel({
                     <div className="best-deal-alternative-details">
                       <span className="best-deal-rank">OPTION {index + 2}</span>
                       <h4>{deal.offerTitle || "Eligible offer"}</h4>
+                      {getOfferExpiryMessage(deal.daysUntilExpiry) && (
+                        <p className="best-deal-expiry">
+                          {getOfferExpiryMessage(deal.daysUntilExpiry)}
+                        </p>
+                      )}
                       <p>
                         {deal.cardName || "Selected card"}
                         {deal.bankName ? ` · ${deal.bankName}` : ""}

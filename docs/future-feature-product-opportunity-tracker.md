@@ -17,9 +17,11 @@ minimum spend, card applicability, discount/cashback caps, merchant filtering,
 and duplicate ingestion. Best Deal also covers saved Product URL merchant
 matching and cross-user Product isolation. Ranking has a deterministic fallback
 for financial ties, and no-result responses distinguish missing cards, no
-active offers, and offers that do not qualify. Desktop visual review is complete
-for the Product list, saved-Product optimizer, standalone Best Deal form, and
-recommendation alternatives. The form actions align with their inputs, and the
+active offers, and offers that do not qualify. Best Deal now shows how many
+days remain before an eligible offer ends when its end date is known. Desktop
+visual review is complete for the Product list, saved-Product optimizer,
+standalone Best Deal form, and recommendation alternatives. The form actions
+align with their inputs, and the
 calculation and tie explanation are readable without visible clipping or
 overlap. The Best Deal promise is confirmed for the current MVP: compare offers
 for one purchase at one store, rank by effective price after estimated
@@ -92,7 +94,7 @@ selection remains deferred until that review is closed.
 | DEAL-01 | Savings history | High | Backlog; purchase decisions are not persisted as savings events. |
 | DEAL-02 | Deal history | Medium | Backlog |
 | DEAL-03 | Save a recommended deal | High | Backlog; saved offers are separate from saved purchase recommendations. |
-| DEAL-04 | Deal-expiry countdown | High | Backlog |
+| DEAL-04 | Deal-expiry countdown | High | Implemented in Best Deal recommendations and alternatives when the offer end date is known; no countdown is shown when the end date is missing. |
 | DEAL-05 | Explain why an option is best | High | Implemented in the Best Deal result: explains the ranking rule and price calculation, compares the effective price with the next option, and discloses a financial tie. Desktop screenshot review complete; mobile review remains. |
 | DEAL-06 | Compare alternative payment options | High | Implemented in the current UI; desktop alternatives visually reviewed, mobile review remains. |
 | DEAL-07 | Minimum-spend optimization | High | Backlog |

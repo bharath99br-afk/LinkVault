@@ -1,6 +1,7 @@
 package com.linkvault.backend.deal.service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -185,6 +186,10 @@ public class BestDealService {
 
                                 deal.setCashbackAmount(calculation.getCashbackAmount());
                                 deal.setEffectivePrice(calculation.getEffectivePrice());
+                                if (offer.getEndDate() != null) {
+                                        deal.setDaysUntilExpiry(
+                                                        ChronoUnit.DAYS.between(today, offer.getEndDate()));
+                                }
 
                                 eligibleDeals.add(deal);
                         }

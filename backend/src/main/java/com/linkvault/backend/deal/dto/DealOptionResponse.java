@@ -19,6 +19,7 @@ public class DealOptionResponse {
     private BigDecimal savingsPercentage;
     private BigDecimal cashbackAmount;
     private BigDecimal effectivePrice;
+    private Long daysUntilExpiry;
 
     public DealOptionResponse() {
     }
@@ -141,5 +142,13 @@ public class DealOptionResponse {
 
     public void setEffectivePrice(BigDecimal effectivePrice) {
         this.effectivePrice = effectivePrice;
+    }
+
+    public Long getDaysUntilExpiry() {
+        return daysUntilExpiry;
+    }
+
+    public void setDaysUntilExpiry(Long daysUntilExpiry) {
+        this.daysUntilExpiry = daysUntilExpiry;
     }
 }
