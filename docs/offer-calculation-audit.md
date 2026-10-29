@@ -17,8 +17,8 @@ Best Deal promise or claim that cashback is guaranteed.
 | Merchant scope | Best Deal filters merchant-specific offers using the resolved merchant before running card eligibility. Without a matched merchant, only general offers are considered. |
 
 The bank-or-product rule is the documented V1 contract in
-`OfferEligibilityIntegrationTest`. The matcher has been implemented as a Spring
-component to satisfy the existing service injection and rule.
+`OfferEligibilityIntegrationTest`. `OfferEligibilityService` uses the existing
+`OfferCardMatcher` service in the same package to apply this rule.
 
 ## Amount calculation
 
@@ -53,7 +53,7 @@ Primary source files:
 
 - `backend/src/main/java/com/linkvault/backend/offer/service/OfferEligibilityService.java`
 - `backend/src/main/java/com/linkvault/backend/offer/service/OfferCalculationService.java`
-- `backend/src/main/java/com/linkvault/backend/offer/applicability/service/OfferCardMatcher.java`
+- `backend/src/main/java/com/linkvault/backend/offer/service/OfferCardMatcher.java`
 - `backend/src/main/java/com/linkvault/backend/deal/service/BestDealService.java`
 - `backend/src/test/java/com/linkvault/backend/OfferEligibilityIntegrationTest.java`
 - `backend/src/test/java/com/linkvault/backend/BestDealIntegrationTest.java`
