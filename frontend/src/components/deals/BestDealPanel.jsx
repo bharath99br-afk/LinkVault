@@ -155,7 +155,7 @@ function BestDealPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const requestVersion = useRef(0);
-  const hasSavedProductContext = linkId != null || productId != null;
+  const hasSavedItemContext = linkId != null || productId != null;
 
   useEffect(() => {
     let current = true;
@@ -192,12 +192,12 @@ function BestDealPanel({
     setError("");
     setPriceHint("");
 
-    if (!hasSavedProductContext || !productUrl) {
+    if (!hasSavedItemContext || !productUrl) {
       return undefined;
     }
 
     let current = true;
-    setPriceHint("Checking the saved product page for a listed INR price…");
+    setPriceHint("Checking the saved page for a listed INR price…");
 
     previewProduct(productUrl)
       .then((response) => {
@@ -245,7 +245,7 @@ function BestDealPanel({
     return () => {
       current = false;
     };
-  }, [linkId, productId, productUrl, hasSavedProductContext]);
+  }, [linkId, productId, productUrl, hasSavedItemContext]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -385,8 +385,8 @@ function BestDealPanel({
             aria-describedby="best-deal-merchant-hint"
           >
             <option value="">
-              {hasSavedProductContext
-                ? "Auto-detect from saved product"
+              {hasSavedItemContext
+                ? "Auto-detect from saved page"
                 : "No store selected"}
             </option>
             {merchants.map((merchant) => (
@@ -402,7 +402,7 @@ function BestDealPanel({
           {merchantLoadError && (
             <p className="best-deal-input-hint" role="status">
               Your saved stores could not be loaded. LinkVault will still check
-              general offers and try to identify the saved product’s store.
+              general offers and try to identify the saved page’s store.
             </p>
           )}
         </div>
@@ -431,8 +431,8 @@ function BestDealPanel({
           </div>
           <p id="best-deal-input-hint" className="best-deal-input-hint">
             {priceHint ||
-              (hasSavedProductContext
-                ? "Enter the current store price. We’ll compare eligible offers for this product."
+              (hasSavedItemContext
+                ? "Enter the current store price. We’ll compare eligible offers for this purchase."
                 : "Enter the amount you expect to pay. An amount alone only qualifies for general offers.")}
           </p>
         </div>
@@ -448,8 +448,8 @@ function BestDealPanel({
             ? `Checked ${result.merchantName} offers and general offers.`
             : result.merchantName
               ? `Could not match ${result.merchantName} to store offers. Showing general offers only.`
-              : hasSavedProductContext
-                ? "The store could not be identified for this saved product. Showing general offers only; select one of your saved stores to include store-specific offers."
+              : hasSavedItemContext
+                ? "The store could not be identified from this saved page. Showing general offers only; select one of your saved stores to include store-specific offers."
                 : "No store was matched. Showing general offers only; select a saved store to include store-specific offers."}
         </p>
       )}

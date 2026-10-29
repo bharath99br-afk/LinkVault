@@ -1,6 +1,6 @@
 # Future Feature and Product Opportunity Tracker
 
-Last updated: 28 October 2026
+Last updated: 29 October 2026
 
 This working tracker brings the opportunity backlog from the LinkVault planning
 folder into the application repository. It records current implementation
@@ -21,22 +21,27 @@ active offers, and offers that do not qualify. Desktop visual review is complete
 for the Product list, saved-Product optimizer, standalone Best Deal form, and
 recommendation alternatives. The form actions align with their inputs, and the
 calculation and tie explanation are readable without visible clipping or
-overlap. Mobile visual review and product-promise sign-off remain before
-external data providers are selected; AI remains deferred until the structured
-commerce data is reliable.
+overlap. The Best Deal promise is confirmed for the current MVP: compare offers
+for one purchase at one store, rank by effective price after estimated
+cashback, show checkout price separately, and disclose ties. The saved-Link
+source flow has been reviewed and its prompts now refer to the saved page.
+Mobile and saved-Link visual review remain before external data providers are
+selected; AI remains deferred until the structured commerce data is reliable.
 
 The form alignment issue is fixed in the shared Best Deal panel: the action
 button now aligns with the merchant and amount controls instead of their helper
 text. The optimizer is connected to both saved Products and legacy Links; it
 can prefill a detected INR price, resolve a merchant, and disclose when only
 general offers were considered. A recommendation from a saved item now links
-back to its product page as the next step.
+back to its product page as the next step. MVP readiness findings are recorded
+in [mvp-readiness-review.md](mvp-readiness-review.md); external provider
+selection remains deferred until that review is closed.
 
 ## Product decision to resolve
 
 | ID | Decision | Priority | Status / next step |
 | --- | --- | --- | --- |
-| PROD-01 | Confirm the Best Deal promise, purchase inputs, recommendation rule, and what the result does not claim | High | Needs product review. The panel now says it compares eligible payment offers for the entered purchase amount and does not compare product prices across stores. Confirm this promise and the effective-price ranking before MVP sign-off. |
+| PROD-01 | Confirm the Best Deal promise, purchase inputs, recommendation rule, and what the result does not claim | High | Confirmed for the current MVP: compare eligible offers for one purchase at one store, rank by effective price after estimated cashback, show checkout price separately, disclose ties, and do not compare product prices across stores. |
 | UX-01 | Review the responsive Best Deal form after the shared alignment fix | Medium | Desktop visual review complete: saved-Product and standalone forms align with their controls. Mobile screenshot review remains; responsive CSS stacks the form at 540px and below. |
 
 ## Authentication and account
@@ -94,7 +99,7 @@ back to its product page as the next step.
 | DEAL-08 | Stackable-offer detection | High | Backlog |
 | DEAL-09 | Effective-price calculation | High | Implemented for configured discounts and cashback; other purchase costs and reward valuations are not modeled. |
 | DEAL-10 | Purchase-timing recommendation | Medium | Backlog |
-| DEAL-11 | Saved-product purchase context and offer-scope disclosure | High | In progress. Link/Product context, exact-host matching, general-only fallback, ownership checks, and distinct no-result reasons are covered. The saved-Product desktop flow is visually reviewed; saved-Link and mobile visual review remain. |
+| DEAL-11 | Saved-product purchase context and offer-scope disclosure | High | In progress. Link/Product context, exact-host matching, general-only fallback, ownership checks, and distinct no-result reasons are covered. The saved-Product desktop flow is visually reviewed; the saved-Link source flow is reviewed and its prompts use neutral saved-page wording. Saved-Link and mobile visual review remain. |
 | DEAL-12 | Continue from a recommendation to the saved page | High | Implemented for valid saved URLs; the user confirms price and terms and completes checkout at the store. |
 | DEAL-13 | Explain why no recommendation was returned | High | Implemented: distinguishes missing cards, no active offers in scope, and offers that do not qualify; links to My Cards or Offers where useful. |
 
@@ -135,12 +140,10 @@ back to its product page as the next step.
 
 ## Next checkpoints
 
-1. Review PROD-01 and the Best Deal result: confirm that the effective-price,
-   checkout-price, and tie behavior match the product promise.
-2. Review the saved Product and Link flow, including price confirmation,
-   merchant matching limits, no-match behavior, and the route back to the
-   product page.
-3. Complete MVP readiness review before selecting a provider for LINK-14 and
-   DATA-01.
-4. Keep AI and monetization deferred until the deterministic purchase flow
+1. Complete the saved-Link and mobile visual review, including price
+   confirmation, merchant matching limits, no-match behavior, and the route
+   back to the saved page.
+2. Close the readiness actions in [mvp-readiness-review.md](mvp-readiness-review.md)
+   before selecting a provider for LINK-14 and DATA-01.
+3. Keep AI and monetization deferred until the deterministic purchase flow
    and structured data are reliable.
