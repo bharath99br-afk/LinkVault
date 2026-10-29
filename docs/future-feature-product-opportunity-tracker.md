@@ -18,8 +18,12 @@ and duplicate ingestion. Best Deal also covers saved Product URL merchant
 matching and cross-user Product isolation. Ranking has a deterministic fallback
 for financial ties, and no-result responses distinguish missing cards, no
 active offers, and offers that do not qualify. Best Deal now shows how many
-days remain before an eligible offer ends when its end date is known. Desktop
-visual review is complete for the Product list, saved-Product optimizer,
+days remain before an eligible offer ends when its end date is known. Offer
+eligibility checks active dates and minimum spend, then accepts a
+matching bank or catalog card product when those restrictions are configured.
+Discounts are capped at the offer limit and purchase amount; cashback is
+estimated on the checkout amount and capped when configured. Desktop visual
+review is complete for the Product list, saved-Product optimizer,
 standalone Best Deal form, and recommendation alternatives. The form actions
 align with their inputs, and the
 calculation and tie explanation are readable without visible clipping or
