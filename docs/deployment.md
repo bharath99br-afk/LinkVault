@@ -40,6 +40,8 @@ Compose waits for the backend health check before starting the frontend. Only
 the frontend port is published; PostgreSQL and the API remain on the Compose
 network. Nginx replaces forwarded-address headers with the address it received,
 and Spring uses those headers for the request scheme and remote address.
+Nginx also limits scripts to same-origin assets, allows HTTPS product images,
+and sets frame and permissions policies.
 
 The first startup against a new empty PostgreSQL volume applies Flyway B8 and
 V9 before Hibernate validates the schema. Do not enable
@@ -89,8 +91,10 @@ on restart. Multiple backend instances need a shared rate limiter.
 
 - Password recovery and email verification are not implemented.
 - Login throttling is per-process; it is not a shared multi-instance control.
-- Browser authentication stores the JWT in local storage. Review XSS protection
-  and token storage before exposing the app to untrusted users.
+- Browser authentication stores the JWT in local storage. The production
+  Content Security Policy limits script sources, but scripts executing in the
+  app origin can still read the token; review an HttpOnly-cookie option before
+  broad public use.
 - HTTPS, DNS, firewall policy, database backup scheduling, and monitoring must
   be provided by the hosting environment.
 

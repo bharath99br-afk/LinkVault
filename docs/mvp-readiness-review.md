@@ -60,9 +60,11 @@ automated application tests were not run as part of this checkpoint.
   development dependency advisories. The frontend lockfile was updated to
   compatible versions, the image rebuilt, and `npm ci` then reported no known
   vulnerabilities.
-- **Browser-token hardening:** the frontend stores the JWT in local storage.
-  Review the XSS protections and token-storage approach before exposing the
-  application to untrusted users.
+- **Browser-token hardening:** the production Nginx response now sets a Content
+  Security Policy that limits scripts to same-origin files, plus frame and
+  permissions restrictions. The frontend still stores the JWT in local
+  storage, which remains readable by scripts running in the app origin. Review
+  an HttpOnly-cookie option before exposing the application broadly.
 - **Responsive QA:** the supplied screenshots confirm desktop Product and
   Best Deal layouts. Primary navigation now remains available in a horizontally
   scrollable row on narrow screens. Capture mobile layouts and the saved-Link
