@@ -28,16 +28,13 @@ part of this checkpoint.
 
 ## Open before a hosted release
 
-- **Database provisioning:** versioned SQL fragments V1–V8 exist, but no
-  Flyway or Liquibase runner is configured and there is no complete baseline
-  schema. V1 is outside the application resources; V2–V8 are under
-  `src/main/java`, where Maven does not package them as runtime resources.
-  Several scripts assume pre-existing tables, and V3 uses fixed bank IDs, so
-  the fragments cannot provision a fresh database safely. The selected target
-  is Flyway with Hibernate schema validation retained; see
-  [database-migration-plan.md](database-migration-plan.md). Do not enable or
-  replay the scripts automatically until a baseline is verified against the
-  existing schema.
+- **Database provisioning:** Flyway now runs a cumulative B8 schema baseline
+  and V9 constraint migration; Hibernate schema validation remains enabled.
+  The local database was baselined at 8, migrated to 9, and passed schema
+  validation. Existing V1–V8 fragments remain outside Flyway's runtime path.
+  Fresh-database execution and baselining of hosted environments still need
+  validation. Automatic baselining is off by default; see
+  [database-migration-plan.md](database-migration-plan.md).
 - **Authentication abuse protection:** no server-side login rate limiter was
   found. The frontend can display a 429 response, but that does not enforce a
   limit on the API.
@@ -56,9 +53,9 @@ part of this checkpoint.
 ## Recommended sequence
 
 1. Finish mobile and saved-Link visual review.
-2. Capture and review the current schema, reconcile the V1–V8 SQL fragments,
-   create a complete baseline, then enable Flyway and validate fresh and
-   existing-database paths.
+2. Validate B8 and V9 against a disposable empty database, then baseline each
+   hosted existing database at version 8 only after verifying and backing up
+   its schema.
 3. Add API-side login throttling and decide the minimum account-recovery and
    verification scope for hosted onboarding.
 4. Complete deployment instructions and verify configuration against the
