@@ -63,13 +63,14 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // Public authentication endpoints.
+                        // Login, registration, and the minimal readiness probe are public.
                         .requestMatchers(
                                 "/api/auth/register",
-                                "/api/auth/login")
+                                "/api/auth/login",
+                                "/healthz")
                         .permitAll()
 
-                        // Everything else requires authentication.
+                        // All business endpoints require authentication.
                         .anyRequest()
                         .authenticated())
 

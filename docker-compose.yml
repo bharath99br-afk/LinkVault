@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-linkvault}
+      POSTGRES_USER: ${DB_USERNAME:-linkvault}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your .env file}
+    volumes:
+      - linkvault-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  backend:
+    image: linkvault-backend:local
+    build:
+      context: ./backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-linkvault}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-linkvault}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your .env file}
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: ${SPRING_FLYWAY_BASELINE_ON_MIGRATE:-false}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in your .env file}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:8080}
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    image: linkvault-frontend:local
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: /api
+    ports:
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/healthz || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  linkvault-postgres-data:

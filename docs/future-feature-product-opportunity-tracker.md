@@ -1,6 +1,9 @@
 # Future Feature and Product Opportunity Tracker
 
-Last updated: 29 October 2026
+Last updated: 30 October 2026
+
+Target: deployable MVP by 31 October 2026, subject to validation and hosting
+constraints.
 
 This working tracker brings the opportunity backlog from the LinkVault planning
 folder into the application repository. It records current implementation
@@ -34,7 +37,14 @@ source flow has been reviewed and its prompts now refer to the saved page.
 Mobile and saved-Link screenshot review remain before external data providers
 are selected. Source review found that primary navigation disappeared below
 560px; it now stays available in a horizontally scrollable row. AI remains
-deferred until the structured commerce data is reliable.
+deferred until the structured commerce data is reliable. A Docker Compose
+deployment path now builds the backend and frontend images, serves the SPA
+through Nginx, proxies `/api`, and persists PostgreSQL in a named volume. The
+Compose configuration validates, both images build, and a disposable fresh
+stack reached healthy status for all services. Flyway applied B8 and V9 to an
+empty database, and the backend initializes against that schema. The frontend's
+`npm ci` now completes with no reported vulnerabilities after updating the
+lockfile.
 
 The form alignment issue is fixed in the shared Best Deal panel: the action
 button now aligns with the merchant and amount controls instead of their helper
@@ -48,11 +58,13 @@ database migration approach is documented in
 [database-migration-plan.md](database-migration-plan.md). The API now limits
 login requests to 10 per remote address per 15-minute window and returns `429`
 with `Retry-After`. This is an in-process MVP guard; hosted multi-instance
-enforcement and trusted proxy address configuration are still required. The
-local database is
-baselined at version 8 and migrated to 9; fresh-install and hosted-database
-validation remain. Provider selection remains deferred until readiness review
-is closed.
+enforcement and trusted proxy address configuration are still required.
+
+The local database is baselined at version 8 and migrated to 9. A disposable
+empty database has applied B8 and V9, and the local Compose stack passed its
+service health checks. Hosted database baseline review and production
+environment configuration remain. Provider selection remains deferred until
+readiness review is closed.
 
 ## Product decision to resolve
 
