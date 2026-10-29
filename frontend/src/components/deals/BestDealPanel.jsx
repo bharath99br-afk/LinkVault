@@ -78,7 +78,7 @@ const getRecommendationExplanation = (deal, nextDeal) => {
         checkoutAmount === nextCheckoutAmount
       ) {
         comparison =
-          "It ties the next option on both effective price and checkout amount; LinkVault’s current calculation finds no financial difference between them.";
+          "It ties the next option on both effective price and checkout amount, LinkVault’s current calculation finds no financial difference between them.";
       }
     }
   }
@@ -233,7 +233,11 @@ function BestDealPanel({
           .trim()
           .toUpperCase();
 
-        if (currency === "INR" && Number.isFinite(listedPrice) && listedPrice > 0) {
+        if (
+          currency === "INR" &&
+          Number.isFinite(listedPrice) &&
+          listedPrice > 0
+        ) {
           setTransactionAmount((amount) =>
             amount.trim() ? amount : String(listedPrice),
           );
@@ -497,10 +501,7 @@ function BestDealPanel({
           <h3>{noDealState.title}</h3>
           <p>{noDealState.message}</p>
           {noDealState.action && (
-            <Link
-              className="best-deal-empty-action"
-              to={noDealState.action.to}
-            >
+            <Link className="best-deal-empty-action" to={noDealState.action.to}>
               {noDealState.action.label}
             </Link>
           )}
@@ -576,7 +577,8 @@ function BestDealPanel({
                 </a>
                 <p>
                   Confirm the current price and offer terms on the store page
-                  before paying. LinkVault does not place orders or apply offers.
+                  before paying. LinkVault does not place orders or apply
+                  offers.
                 </p>
               </div>
             )}
