@@ -12,6 +12,14 @@ export function getLoginErrorMessage(error) {
     }
 
     if (error.status === 429) {
+        const retryAfterSeconds = error.retryAfterSeconds;
+        if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+            const waitTime = retryAfterSeconds >= 60
+                ? `${Math.ceil(retryAfterSeconds / 60)} minute${retryAfterSeconds >= 120 ? "s" : ""}`
+                : `${retryAfterSeconds} second${retryAfterSeconds === 1 ? "" : "s"}`;
+            return `Too many login attempts. Please try again in ${waitTime}.`;
+        }
+
         return "Too many login attempts. Please try again later.";
     }
 

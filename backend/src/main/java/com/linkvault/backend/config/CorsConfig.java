@@ -42,6 +42,8 @@ public class CorsConfig {
                         "Authorization",
                         "Content-Type"));
 
+        configuration.setExposedHeaders(List.of("Retry-After"));
+
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

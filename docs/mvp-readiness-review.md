@@ -35,9 +35,12 @@ part of this checkpoint.
   Fresh-database execution and baselining of hosted environments still need
   validation. Automatic baselining is off by default; see
   [database-migration-plan.md](database-migration-plan.md).
-- **Authentication abuse protection:** no server-side login rate limiter was
-  found. The frontend can display a 429 response, but that does not enforce a
-  limit on the API.
+- **Authentication abuse protection:** the login API now limits each remote
+  address to 10 requests per 15-minute window and returns HTTP 429 with a
+  `Retry-After` header. This limiter is held in process memory, resets when the
+  backend restarts, and uses the servlet remote address. Before hosting behind
+  a reverse proxy or running multiple instances, configure trusted client-IP
+  forwarding and enforce a shared limit at the gateway or shared store.
 - **Account lifecycle:** password recovery and email verification remain
   backlog items. Decide whether the first hosted release requires them.
 - **Deployment instructions:** the root README is a project stub, and there is
@@ -56,8 +59,9 @@ part of this checkpoint.
 2. Validate B8 and V9 against a disposable empty database, then baseline each
    hosted existing database at version 8 only after verifying and backing up
    its schema.
-3. Add API-side login throttling and decide the minimum account-recovery and
-   verification scope for hosted onboarding.
+3. Decide the minimum account-recovery and email-verification scope for hosted
+   onboarding; replace or complement the in-process login limit with shared
+   enforcement when the hosting architecture is selected.
 4. Complete deployment instructions and verify configuration against the
    intended hosting environment.
 5. Revisit provider selection for LINK-14 and DATA-01 only after the MVP

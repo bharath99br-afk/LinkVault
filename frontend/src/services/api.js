@@ -34,6 +34,11 @@ export async function apiRequest(endpoint, options = {}) {
         error.status = response.status;
         error.data = data;
 
+        const retryAfter = response.headers.get("Retry-After");
+        if (retryAfter && Number.isFinite(Number(retryAfter))) {
+            error.retryAfterSeconds = Number(retryAfter);
+        }
+
         throw error;
     }
 

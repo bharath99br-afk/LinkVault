@@ -43,7 +43,11 @@ back to its product page as the next step. MVP readiness findings are recorded
 in [mvp-readiness-review.md](mvp-readiness-review.md); calculation rules are
 recorded in [offer-calculation-audit.md](offer-calculation-audit.md). The
 database migration approach is documented in
-[database-migration-plan.md](database-migration-plan.md). The local database is
+[database-migration-plan.md](database-migration-plan.md). The API now limits
+login requests to 10 per remote address per 15-minute window and returns `429`
+with `Retry-After`. This is an in-process MVP guard; hosted multi-instance
+enforcement and trusted proxy address configuration are still required. The
+local database is
 baselined at version 8 and migrated to 9; fresh-install and hosted-database
 validation remain. Provider selection remains deferred until readiness review
 is closed.
@@ -64,6 +68,7 @@ is closed.
 | AUTH-03 | Email verification | Medium | Backlog |
 | AUTH-04 | Account profile and settings | Medium | Backlog |
 | AUTH-05 | Session and device management | Later | Backlog |
+| AUTH-06 | Server-side login rate limiting | High | Partial. The API allows 10 login requests per remote address per 15-minute window in each process and the browser receives a retry duration; trusted proxy handling and shared enforcement remain for hosted multi-instance deployments. |
 
 ## Links and saved products
 
@@ -157,8 +162,9 @@ is closed.
 2. Validate the B8/V9 migrations on an empty database, then baseline each
    hosted existing database only after verifying and backing up its schema;
    see [database-migration-plan.md](database-migration-plan.md).
-3. Close the remaining readiness actions in
-   [mvp-readiness-review.md](mvp-readiness-review.md) before selecting a
-   provider for LINK-14 and DATA-01.
+3. Decide the account-recovery and email-verification scope, then plan shared
+   login throttling for the eventual hosting architecture. Close the remaining
+   readiness actions in [mvp-readiness-review.md](mvp-readiness-review.md)
+   before selecting a provider for LINK-14 and DATA-01.
 4. Keep AI and monetization deferred until the deterministic purchase flow
    and structured data are reliable.
